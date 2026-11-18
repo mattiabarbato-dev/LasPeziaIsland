@@ -1,0 +1,4 @@
+*.blend1
+*.blend@
+__pycache__/
+.claude/settings.local.json
