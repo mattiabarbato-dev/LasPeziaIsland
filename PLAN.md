@@ -103,8 +103,19 @@ Obiettivo: percorrere il Blocco 1 dall'inizio alla fine con volumi semplici, in 
       Con `morin_export.py`: Passeggiata 121 tri, Ponte 408, Mirabello 58, Fondale 517 (mode scene), PalmaSegnaposto 38 (mode asset).
       Primo uso del mode scene verificato leggendo gli FBX: bbox in uu ricostruita dal file = bbox prevista per tutti e 5 (UnitScaleFactor 1,
       Lcl Rotation Z −90, Translation 0)
-- [ ] (uefn-builder) Import e posa; Water Body del golfo alla quota corretta; spawn alla partenza
-- [ ] (uefn-builder) Barriere invisibili sul lato città e ai limiti del blocco
+- [x] (uefn-builder) Import e posa; Water Body del golfo alla quota corretta; spawn alla partenza
+      2026-11-18, dettagli in `docs/uefn_blockout.md`. 5 asset in `LaSpezia/Blockout`, bbox = attese (±1 uu), tri 121/408/58/517/38,
+      convessi 13/34/5/53/1 = numero di UCX (con più mesh per FBX li prende tutti). Nanite già off; LOD auto rimosse (solo LOD0,
+      altrimenti su mobile si vedeva LOD2 dimezzata). 4 attori in `Blockout` a (0,0,0); palme = 1 attore HISM con 53 istanze
+      (campioni 0/26/52 = CSV). Acqua: **device Acqua V2** (superficie Z −150, X −17100..34100, Y −11954..31054, niente onde):
+      il WaterBodyLake nativo dava errori del validatore UEFN (riferimenti illegali a /Water) ed è stato rimosso.
+      Spawn pad a (24000, −8250/−8650, 0), yaw 30 → PlayerStart yaw 180 (verso il ponte), su pavimento Z 0. GridPlane spostati
+      a Z −10000 (`Template_Spostati`, non cancellati). Antenne visibili dalla partenza (trace + render `docs/qa/uefn_blockout_*.png`).
+      Da confermare in sessione (qa-tester): HISM palme in gioco, nuoto e risalita sul ciglio
+- [x] (uefn-builder) Barriere invisibili sul lato città e ai limiti del blocco
+      6 Barrier device (Invisibile, Sempre, alte 3840 uu da Z −700): lato città Y −11930 (X −3510..27210), fine blocco X 25130
+      (Y −12110..−6990), molo/area militare X −1360 (Y −12020..3340), testata Mirabello su 3 lati. Lato mare aperto.
+      Aperto: chi nuota può raggiungere la riva del fondale (area militare, Mirabello) a Z 0 → serve il rientro dall'acqua (Verse)
 - [ ] (qa-tester) Prova di percorrenza: tempo partenza -> fine ponte, punti d'incastro, linea di vista
       sull'antenna, caduta in acqua. Report in `docs/qa/`
 

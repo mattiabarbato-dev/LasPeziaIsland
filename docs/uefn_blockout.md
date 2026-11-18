@@ -1,0 +1,120 @@
+# Blockout del Blocco 1 in UEFN
+
+Data: 2026-11-18 · Agente: uefn-builder · Livello: `/705655d7-c848-4957-8e94-8a1c399ddeea/LasPezia_Island` (salvato)
+Coordinate in XYZ nativo Unreal (X avanti, Y destra, Z su). L'editor mostra LUF: Left = −Y, Up = Z, Forward = X.
+Regola Blender → UE: UE = (B_X·100, −B_Y·100, B_Z·100), yaw UE = −rotZ Blender (vedi `docs/scala.md`).
+
+## Asset importati
+
+Cartella `/705655d7-c848-4957-8e94-8a1c399ddeea/LaSpezia/Blockout` (Esplora contenuti: `LaSpezia/Blockout`).
+Import con `StaticMeshToolset.ImportFile`, `bCombineMeshes=true`, `bImportMaterials=true`, `bImportTextures=false`.
+
+| Asset | Bbox locale misurata (uu) | Tri LOD0 | Collisione (convessi) | UCX nell'FBX |
+|---|---|---|---|---|
+| `SM_Blockout_Passeggiata` | X −1230..25000 · Y −11800..8980 · Z −300..150 | 121 | 13 | 13 |
+| `SM_Blockout_Ponte` | X −820..300 · Y 0..17900 · Z −300..3350 | 408 | 34 | 34 |
+| `SM_Blockout_Mirabello` | X −2020..980 · Y 16800..21740 · Z −300..239,7 | 58 | 5 | 5 |
+| `SM_Blockout_Fondale` | X −16388,3..33000 · Y −30000..30341,2 · Z −300..2130,9 | 517 | 53 | 53 |
+| `SM_Blockout_PalmaSegnaposto` | X ±300 · Y ±300 · Z 0..1000 | 38 | 1 | 1 |
+
+- Tutte le bbox coincidono con quelle attese entro 1 uu. Con più mesh per FBX **tutti** gli UCX diventano primitive
+  convesse dell'asset combinato. Nessuna mesh UCX visibile.
+- Materiali importati dall'FBX: `M_Blockout_Pietra`, `M_Blockout_Verde`, `M_Blockout_Ponte`, `M_Blockout_Fondale`.
+  Su `M_Blockout_Pietra` e `M_Blockout_Verde` è stato attivato *Used with Instanced Static Meshes*, che serve per le palme in HISM.
+- Nanite: l'import lo lascia **disattivato** su tutti e 5 gli asset, al contrario dei test di scala. Va bene così per il mobile.
+- LOD: l'import generava 3 LOD automatici, con LOD1/LOD2 dimezzati (Passeggiata 121→63, Ponte 408→102). Gli override MinLOD = 2
+  su Low e Medium (mobile e Switch) avrebbero mostrato quelle versioni rovinate. Le LOD sono state **rimosse** (resta solo LOD0)
+  e gli override MinLOD sono stati azzerati.
+- Collisione: Project Default (`CTF_UseDefault`), profilo `FortStaticMesh` sugli attori.
+
+## Attori nel livello (cartelle Outliner)
+
+| Cartella | Label | Tipo | Trasformazione |
+|---|---|---|---|
+| `Blockout` | `Blockout_Passeggiata`, `Blockout_Ponte`, `Blockout_Mirabello`, `Blockout_Fondale` | FortStaticMeshActor | (0,0,0), rot 0, scala 1 |
+| `Blockout` | `Blockout_Palme_HISM` | Actor + HierarchicalInstancedStaticMeshComponent (53 istanze di `SM_Blockout_PalmaSegnaposto`, Static, profilo `FortStaticMesh`) | (0,0,0) |
+| `Acqua` | `Acqua_Golfo_Device` | Device Acqua V2 (`PID_CP_Devices_Water_V2`) | (8500, 9550, −534) |
+| `Device/Spawn` | `Player 1 Spawn Pad`, `Player 2 Spawn Pad` (con i PlayerStart figli) | Device del template | vedi sotto |
+| `Device/Barriere` | 6 × `Barriera_*` | Barrier device (`PID_Device_Barrier`) | vedi sotto |
+| `Template_Spostati` | `GridPlane1-4` | GridPlane del template | spostati a Z −10000 |
+
+Palme: verifica a campione contro `exports/blockout/palme_posizioni.csv`. Istanze 0, 26 e 52 (`Palma_F1_01` (1200, −9260, 0),
+`Palma_F1_27` (24600, −9260, 0), `Palma_F2_26` (24150, −9960, 0)) identiche alla CSV, yaw 0. Una line trace orizzontale a Z 100
+colpisce il tronco a 23 uu dal centro, cioè la collisione UCX del tronco (Ø 50, sezione poligonale).
+
+## Spawn (partenza)
+
+| Pad | Posizione pad | Yaw pad | PlayerStart (world) | Yaw PlayerStart |
+|---|---|---|---|---|
+| Player 1 | (24000, −8250, 0) | 30 | (23998, −8255, 116) | **180** (verso il ponte, −X) |
+| Player 2 | (24000, −8650, 0) | 30 | (23998, −8655, 116) | **180** |
+
+- In LUF: Player 1 Left 8250 · Up 0 · Forward 24000.
+- Il PlayerStart e la freccia ForwardDirection del pad sono ruotati di +150° rispetto al pad. Per avere i giocatori rivolti a −X
+  il pad va quindi a **yaw 30**, non 180.
+- Ingombro dei pad: X 23751..24128, Y −8378..−8122 e −8778..−8522. Restano sul camminamento (ciglio Y −8000, cordolo Y −8900).
+- Line trace verso il basso sotto i PlayerStart e ai bordi dei pad: pavimento a Z 0.
+
+## Acqua
+
+- **Device Acqua V2** (`Acqua_Golfo_Device`), tipo "Predefinito", attivo in fase **Sempre**.
+  Volume X −17100..34100 · Y −11954..31054 · Z −534..**−150** (superficie a −150, profondità 384 uu). Nessuna onda.
+  Larghezza 100 unità, profondità 84 unità, altezza 1 unità (1 unità = 512 uu in pianta e 384 uu in altezza).
+- Copre il mare davanti alla passeggiata, il molo, il tratto sotto il ponte, Mirabello e anche la tasca senza geometria
+  oltre la fine del blocco (X 25000..33000, Y −11800..−8200). Sotto le terre emerse è nascosta, perché camminamento e
+  fondale hanno la faccia superiore a Z ≥ 0 e la base a Z −300.
+- Il device crea da sé un `BP_FortWaterBodyCubeVolume` (water body Fortnite, materiale `/FortWater/.../M_Water_Pool_01_Inst`).
+- **Perché non un Water Body Lake/Ocean nativo:** è stato provato un `WaterBodyLake` (spline rettangolare a Z −150, senza onde,
+  WaterZone automatica). Si vedeva bene, ma il validatore UEFN (`AssetValidator_AssetReferenceRestrictions`) segnala riferimenti
+  illegali a `/Water/...` (materiale, curve, post-process, DrawWaterInfo) e a `/FortWater/.../HLODWater`. Con quegli errori
+  l'isola non si può caricare. L'attore e la sua WaterZone (creati in questo task) sono stati rimossi. Il device è la soluzione
+  supportata, più leggera (un volume a scatola) e stabile.
+- Da verificare in sessione (qa-tester): galleggiamento e nuoto, e risalita dal mare sul ciglio a Z 0 (1,5 m sopra l'acqua).
+
+## Barriere invisibili
+
+Barrier device, forma Scatola, materiale **Invisibile**, attive in fase **Sempre**, *Collisione con visuale* = NO,
+altezza 10 unità (3840 uu). Base a Z −700, sotto il fondo dell'acqua, quindi non si passa a nuoto sotto la barriera.
+La sommità è a Z 3140. Rotazione 0. Il lato mare resta aperto.
+
+| Label | Centro (X, Y, Z) | Larg. × Prof. (unità) | Ingombro X | Ingombro Y |
+|---|---|---|---|---|
+| `Barriera_LatoCitta` | (11850, −11930, −700) | 60 × 0,5 | −3510..27210 | −12058..−11802 (subito oltre la siepe, Y −11600..−11800) |
+| `Barriera_FineBlocco` | (25130, −9550, −700) | 0,5 × 10 | 25002..25258 | −12110..−6990 (siepe → ciglio, più 10 m in mare) |
+| `Barriera_Molo_AreaMilitare` | (−1360, −4340, −700) | 0,5 × 30 | −1488..−1232 | −12020..3340 (dal lato città fino oltre la riva dell'area militare, Y ≈ 2300) |
+| `Barriera_Mirabello_LatoPiuX` | (1110, 18875, −700) | 0,5 × 12 | 982..1238 | 15803..21947 |
+| `Barriera_Mirabello_LatoMenoX` | (−2150, 18875, −700) | 0,5 × 12 | −2278..−2022 | 15803..21947 |
+| `Barriera_Mirabello_Fondo` | (−520, 21880, −700) | 7 × 0,5 | −2312..1272 | 21752..22008 |
+
+Le tre barriere di Mirabello chiudono la testata (X −2020..980, Y 16800..21740) su tre lati. Il lato verso il ponte resta aperto.
+I due lati partono 10 m in acqua (Y 15800).
+
+## Linea di vista e render
+
+- Line trace dagli occhi alla partenza (24000, −8450, 180) verso le due antenne ((−230, 8020) e (−380, 12850)) a Z 1000, 2000 e 3000.
+  Tutte le tracce arrivano sull'antenna (impatto a 20-65 uu dal bersaglio): niente le copre, né palme né barriere.
+- Render (1024 px, ombre attive) in `docs/qa/`:
+  - `uefn_blockout_dallalto.png`: zenitale da Z 42000 centrata su (9000, 5000). In alto c'è +X, a destra +Y.
+  - `uefn_blockout_partenza.png`: altezza occhi dalla partenza verso il ponte (yaw 148, pitch 3). Le due antenne sono visibili.
+  - `uefn_blockout_obliqua.png`: vista d'insieme da (30000, −20000, 9000).
+  - `uefn_blockout_mirabello.png`: ponte e testata di Mirabello.
+
+## Template
+
+- `GridPlane1-4` erano a Z 0 (faccia superiore) e coprivano X/Y ±12800, cioè anche il mare sotto il ponte e davanti al molo.
+  Sono stati **spostati a Z −10000**, cartella `Template_Spostati`, e non cancellati: decide l'utente.
+- Gli spawn pad del template sono stati spostati alla partenza (vedi sopra). Nessun attore del template è stato cancellato.
+
+## Problemi aperti
+
+1. **Attore palme HISM:** è un `Actor` generico con un HISM aggiunto da Python. Nell'editor funziona (collisione e istanze OK)
+   e il validatore non segnala nulla. Va però confermato in una sessione di gioco (qa-tester) che le palme compaiano e collidano.
+   Se non funziona, il ripiego sono 53 StaticMeshActor in `Blockout/Palme`.
+2. **Fondale calpestabile:** l'area militare (X < −1300, Y < 2300) e il terreno attorno a Mirabello sono a Z ≈ 0, cioè 1,5 m sopra
+   l'acqua. Chi cade in mare può nuotare fin lì e forse risalire. Le barriere chiudono gli accessi da terra, ma non tutta la riva.
+   È previsto che il rientro dall'acqua entro 3 s (Verse, Fase 2) risolva il problema. In alternativa servono altre barriere
+   sulla riva o un bordo più alto nel fondale (blender-artist).
+3. **Tasca senza geometria** oltre X 25000 tra il fondale (Y < −11800) e il mare: ora è coperta dall'acqua e chiusa dalla barriera
+   di fine blocco. Se in futuro serve un bordo pulito, il fondale va esteso in Blender.
+4. I materiali `M_Blockout_*` sono quelli dell'FBX (colori piatti). La pavimentazione è quasi bianca e sotto il sole radente
+   abbaglia un po' nei render. Va bene per il blockout.
