@@ -6,6 +6,26 @@ Regole, paesaggio e metriche: vedi `CLAUDE.md`.
 
 ---
 
+## Punto di ripresa (aggiornato 2026-11-18, fine sessione)
+**Dove siamo:** Fase 0 fatta (restano le foto dell'utente). Fase 1: test di scala/assi OK, script di export,
+import OSM, blockout in Blender ed export, blockout posato in UEFN (acqua, spawn, barriere). **Cancello 1 aperto:**
+la prova in sessione non è partita (`StartSession` → `invalid_region`, regione di matchmaking "NONE").
+
+**Prima cosa da fare alla ripresa**
+1. (utente) Chiudere eventuali finestre di errore "Impossibile giocare" in UEFN e impostare la regione di matchmaking (Europa).
+2. (orchestratore) Verificare che `blender` e `unreal-mcp` rispondano; poi qa-tester ripete le voci in sessione del report
+   `docs/qa/2026-11-18_blockout_percorrenza.md` (§1, 2, 3, 6, 7, 8): tempo cronometrato, palme HISM in gioco, caduta in acqua, barriere.
+
+**Decisioni in attesa dell'utente**
+- Costruzione disattivata in Island Settings (proposta: Nessuno)?
+- Scatto attivo (tempo stimato 118 s senza, ~84 s con; obiettivo 60-90 s)?
+- Aggiornare CLAUDE.md §4 "Acqua": device **Acqua V2** al posto del Water Body nativo (quest'ultimo fa fallire il validatore UEFN)?
+
+**Riferimenti tecnici:** preset export e regola assi in `docs/scala.md` (usare sempre `blender/scripts/morin_export.py`);
+stato UEFN in `docs/uefn_blockout.md`; scelte in `docs/decisioni.md`.
+
+---
+
 ## Fase 0 — Riferimenti e verifica dei dati
 Obiettivo: trasformare i dati [S] di CLAUDE.md in dati verificati per il Blocco 1.
 
