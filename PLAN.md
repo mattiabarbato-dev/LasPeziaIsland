@@ -77,11 +77,32 @@ Obiettivo: percorrere il Blocco 1 dall'inizio alla fine con volumi semplici, in 
       e i 5 asset `SM_Test_*` + cartella `LaSpezia/Test` (referencer verificati: solo gli attori di test). Livello salvato,
       24 attori restanti invariati (template: GridPlane 1-4, spawn pad, PlayerStart, IslandSettings, DaySequence...), log senza errori.
       FBX in `exports/test/` non toccati.
-- [ ] (blender-artist) Import OSM con Blosm del bounding box; fissare l'origine come da CLAUDE.md §3
-- [ ] (blender-artist) Blockout: piano banchina, bordo, camminamento, fascia verde, volume del ponte
+- [x] (blender-artist) Import OSM con Blosm del bounding box; fissare l'origine come da CLAUDE.md §3
+      2026-11-18, `blender/blockout_blocco1.blend` (Metric, scale 1.0). Bbox esteso lat 44.09906-44.10539, lon 9.82159-9.83045,
+      .osm scaricato da Overpass (online access di Blender disattivato, non toccato) e importato con Blosm da file, 3Dsimple, singleObject off.
+      Proiezione TM centrata sul node 10249190464 (scene lat/lon impostati prima dell'import), quindi traslazione 0; Empty `OSM_Root`
+      con rotZ −48,7°, genitore dei 13 empty di layer; tutto in collezione `OSM_Riferimento` (way_profiles nascosta).
+      393 oggetti (139 edifici, 1 coastline, 5 vegetazione, 3 aree pedonali, 245 curve strade/percorsi), ~5,3k tri valutati. SOLO riferimento, non esportare.
+      Verifiche: way ponte (0,0)→(−5,2; −178,9), pennoni (−2,3; −80,2) e (−3,8; −128,5); ciglio coastline Y 80,5→79,1 da X 19 a 549
+      (−0,15°), bordo area pedonale Y 80,0 da X 0 a 561, footway Morin (9,0; 85,9)→(560,6; 85,4); radice molo NE e punta molo entro 0,5 m.
+      Nota: nell'import non ci sono pontili (man_made=pier) né filari/alberi; i 5 poligoni di vegetazione sono anonimi. Le curve stanno a Z +0,3 (offset Blosm).
+      La coastline è una sola mesh a soli spigoli, estesa ~5 km (way intera).
+- [x] (blender-artist) Blockout: piano banchina, bordo, camminamento, fascia verde, volume del ponte
       (impalcato + antenna come scatole), testata Mirabello, edifici di fondale come blocchi
-- [ ] (blender-artist) Segnaposto cilindrici per le palme al passo reale
-- [ ] (blender-artist) Export del blockout in 3-4 FBX per zona -> `exports/blockout/`
+      2026-11-18, `blender/blockout_blocco1.blend`, collezione `Blockout` (sotto-collezioni Passeggiata, Ponte, Mirabello, Fondale,
+      Asset, Palme_Istanze). Camminamento a Z 0, lastre fino a Z −3, cordolo 0,2 m a Y 89, Giardini a Mare con aiuole 0,3-0,4 m,
+      vialetto da 4 m e 4 varchi da 4 m, siepe limite 1,5 m a Y 116-118. Ponte: impalcato 6 m (8 m agli anelli), rampa Y 0→−70 al 6,1 %,
+      calpestio Z 4,3 da Y −70 a −136,1, discesa al 7 % fino a Z 1,30 a Y −179, parapetti 1,1 m, 2 antenne fino a Z 33,5.
+      Mirabello: rampa al 7 % al posto della scala (Z 0 a Y −197,5), testata 30 × 49,4 m a Z 0. Quote [S] e scelte in `docs/decisioni.md`.
+      Linea di vista da (240, 84, 1,8): entrambe le antenne libere da Z 10 a 33 (raycast + camera `CAM_Partenza`).
+      Da verificare in UEFN: con bCombineMeshes gli UCX_ di più mesh nello stesso FBX devono diventare tutti collisione.
+- [x] (blender-artist) Segnaposto cilindrici per le palme al passo reale
+      `SM_Blockout_PalmaSegnaposto` (Ø 0,5 × 9 m + chioma 6 m a Z 8-10, 38 tri, UCX tronco). 53 istanze collegate (passo 9 m [S],
+      filari sfalsati) in `Blockout_Palme_Istanze`, non esportate; posizioni UE in `exports/blockout/palme_posizioni.csv`
+- [x] (blender-artist) Export del blockout in 3-4 FBX per zona -> `exports/blockout/`
+      Con `morin_export.py`: Passeggiata 121 tri, Ponte 408, Mirabello 58, Fondale 517 (mode scene), PalmaSegnaposto 38 (mode asset).
+      Primo uso del mode scene verificato leggendo gli FBX: bbox in uu ricostruita dal file = bbox prevista per tutti e 5 (UnitScaleFactor 1,
+      Lcl Rotation Z −90, Translation 0)
 - [ ] (uefn-builder) Import e posa; Water Body del golfo alla quota corretta; spawn alla partenza
 - [ ] (uefn-builder) Barriere invisibili sul lato città e ai limiti del blocco
 - [ ] (qa-tester) Prova di percorrenza: tempo partenza -> fine ponte, punti d'incastro, linea di vista
@@ -160,3 +181,4 @@ Ordine per impatto visivo:
 | 2026-11-18 | Primo blocco: ponte + ~250 m | Tratto più riconoscibile, dimensione gestibile |
 | 2026-11-18 | Stile Fortnite stilizzato, niente fotogrammetria | Licenze, prestazioni, coerenza visiva |
 | 2026-11-18 | Export FBX con `FBX_SCALE_NONE` + `bake_space_transform=True` | Unico preset che dà 1 m = 100 uu con l'import MCP (test di scala, giro 2) |
+| 2026-11-18 | Blockout: scala di Mirabello sostituita da rampa al 7 %, quote ponte [S], varchi nei giardini | Pilastro 3; dettagli in `docs/decisioni.md` |
