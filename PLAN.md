@@ -68,6 +68,15 @@ Obiettivo: percorrere il Blocco 1 dall'inizio alla fine con volumi semplici, in 
         (X -90..50, Y -70..50, Z 0..100), nessuna Lcl Rotation/Scaling. Candidato da importare per primo.
       - La rotazione 180° nasce dalla conversione assi axis_forward='-Y' (gli oggetti in Blender hanno rot 0 / scale 1);
         con bake_space_transform finisce nei vertici (X e Y negati). Da misurare in UEFN dove arrivano i marcatori +X (lungo) e +Y (corto).
+- [x] (blender-artist) Script di export `blender/scripts/morin_export.py` (preset giro 3: FBX_SCALE_NONE + bake_space_transform,
+      −Y/Z, Rz(−90°) solo in export con ripristino try/finally; modi `asset`/`scene`, UCX automatici, controlli, report tri/budget/bbox).
+      Verifica 2026-11-18 su `blender/test_assi.blend` (non salvato): `exports/test/SM_Test_Assi_Script.fbx` (13 772 byte, 36 tri + UCX 12)
+      uguale a `SM_Test_Assi_RotZm90.fbx` per header, UnitScaleFactor=1, vertici (diff 0,0) e Lcl Rotation (−89,999989° vs −90,000009°).
+      Matrici, selezione e attivo ripristinati; is_dirty False/False. Rifiuta l'asset con origine spostata senza toccare nulla. Uso in `docs/scala.md`
+- [x] (uefn-builder) Pulizia UEFN 2026-11-18 (confermata dall'utente): rimossi i 4 attori della cartella Outliner `Test`
+      e i 5 asset `SM_Test_*` + cartella `LaSpezia/Test` (referencer verificati: solo gli attori di test). Livello salvato,
+      24 attori restanti invariati (template: GridPlane 1-4, spawn pad, PlayerStart, IslandSettings, DaySequence...), log senza errori.
+      FBX in `exports/test/` non toccati.
 - [ ] (blender-artist) Import OSM con Blosm del bounding box; fissare l'origine come da CLAUDE.md §3
 - [ ] (blender-artist) Blockout: piano banchina, bordo, camminamento, fascia verde, volume del ponte
       (impalcato + antenna come scatole), testata Mirabello, edifici di fondale come blocchi

@@ -11,6 +11,31 @@ Data: 2026-11-18 · Agente: uefn-builder · Riferimento: CLAUDE.md §3-4
   perché l'importer UEFN converte dal sistema di assi dichiarato nell'header del file.
 - La scelta finale del preset spetta all'orchestratore (task "Decidere gli assi" in `PLAN.md`).
 
+Pulizia UEFN 2026-11-18: asset e attori di test rimossi (4 attori della cartella Outliner `Test`, 5 asset `SM_Test_*`,
+cartella asset `LaSpezia/Test`). Gli FBX in `exports/test/` restano su disco e in Git. Le tabelle sotto sono lo storico delle misure.
+
+---
+
+## Script di export
+
+Script ufficiale: `blender/scripts/morin_export.py`. Applica il preset raccomandato (giro 3) e ripristina la scena.
+
+    import sys, importlib, bpy
+    sys.path.append(r"C:/Users/matti/Documents/LaSpeziaFortnite/LaSpezia-Fortnite/blender/scripts")
+    import morin_export; importlib.reload(morin_export)
+    morin_export.export_fbx([bpy.data.objects["SM_Morin_PalmaA"]],
+                            "//../exports/vegetazione/SM_Morin_PalmaA.fbx", mode="asset")
+    morin_export.export_selected("//../exports/blockout/SM_Blockout_Ponte.fbx", mode="scene")
+
+- `mode="asset"`: per gli asset istanziati. La radice deve avere origine in (0,0,0) world, altrimenti l'export viene rifiutato.
+- `mode="scene"`: per i blockout già posati sull'origine comune. Ruota tutto attorno a (0,0,0) world.
+- Aggiunge da solo gli `UCX_<Nome>_NN` e avvisa se un mesh non ha UCX. Blocca l'export se le unità non sono METRIC/1.0,
+  se il percorso è fuori da `exports/` o se il file esiste già (`overwrite=True` per forzare).
+- Stampa e restituisce un report: byte, triangoli per mesh e budget, bbox in metri e bbox prevista in uu.
+- Verificato il 2026-11-18: `exports/test/SM_Test_Assi_Script.fbx` ha header, UnitScaleFactor, vertici e indici
+  identici a `SM_Test_Assi_RotZm90.fbx` (differenza 0,0). La Lcl Rotation Z vale −89,999989° invece di −90,000009°,
+  cioè 2·10⁻⁵ gradi di arrotondamento. Le matrici, la selezione e l'oggetto attivo tornano identici dopo l'export.
+
 ---
 
 ## Giro 3 — verifica degli assi (SM_Test_AssiX / SM_Test_Assi_RotZm90)
