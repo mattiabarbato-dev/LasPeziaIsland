@@ -116,8 +116,19 @@ Obiettivo: percorrere il Blocco 1 dall'inizio alla fine con volumi semplici, in 
       6 Barrier device (Invisibile, Sempre, alte 3840 uu da Z −700): lato città Y −11930 (X −3510..27210), fine blocco X 25130
       (Y −12110..−6990), molo/area militare X −1360 (Y −12020..3340), testata Mirabello su 3 lati. Lato mare aperto.
       Aperto: chi nuota può raggiungere la riva del fondale (area militare, Mirabello) a Z 0 → serve il rientro dall'acqua (Verse)
-- [ ] (qa-tester) Prova di percorrenza: tempo partenza -> fine ponte, punti d'incastro, linea di vista
+- [!] (qa-tester) Prova di percorrenza: tempo partenza -> fine ponte, punti d'incastro, linea di vista
       sull'antenna, caduta in acqua. Report in `docs/qa/`
+      2026-11-18, report `docs/qa/2026-11-18_blockout_percorrenza.md`. PARZIALE: la sessione non parte
+      (matchmaking `invalid_region`, regione NONE). In editor, con sweep di capsula r32/hh75 e r42/hh88: nessun incastro
+      sul percorso, antenne visibili da 6 punti, corsie agli anelli 3,36-3,39 m, impalcato 5,7 m. Percorso 502 m fino a
+      fine ponte, 530 m fino al traguardo: STIMA 80 s di scatto (630 uu/s) / 112 s di corsa base (450 uu/s).
+      Da rifare in sessione: spawn, palme HISM, nuoto e risalita, barriere attive, tempo cronometrato, scala con il personaggio
+- [ ] (utente) Impostare la regione di matchmaking (Europa) in Fortnite/UEFN: senza, `StartSession` fallisce con
+      `invalid_region`. Chiudere l'eventuale finestra di errore "Impossibile giocare" rimasta aperta nell'editor
+- [ ] (qa-tester) Ripetere in sessione le voci non verificate del report 2026-11-18 (§1, 2, 3, 6, 7, 8)
+- [ ] (uefn-builder) Chiudere l'uscita a nuoto oltre la fine del blocco: `Barriera_LatoCitta` finisce a X 27210,
+      ma il fondale cittadino a Z 0 continua fino a X 33000 (oppure allungare in mare `Barriera_FineBlocco`, oggi fino a Y −6990)
+- [ ] (uefn-builder) Island Settings: "Consenti costruzione" è TUTTI. Proposta: Nessuno per la corsa (da confermare con l'utente)
 
 **Cancello 1:** si corre dalla partenza al fondo del ponte senza incastri; tempo misurato e annotato;
 la scala "sembra giusta" con un personaggio accanto a parapetti e palme.
@@ -145,6 +156,8 @@ Ordine per impatto visivo:
 
 - [ ] (blender-artist) **Ponte Thaon di Revel** da `ref/ponte.md`: impalcato, antenna, stralli, parapetti
 - [ ] (blender-artist) Kit banchina: modulo dritto 4 m, testata, bitta, scaletta
+      Da QA 2026-11-18: ciglio del molo continuo (oggi "a denti" X 1020 → 900 → 800) e parapetti del ponte svasati
+      all'imbocco (oggi spigoli verticali di 1,1 m a Y 0)
 - [ ] (blender-artist) Palma A + 2 varianti (prima cercare su Poly Haven / Poly Pizza, poi modellare)
 - [ ] (blender-artist) Kit pavimentazione e cordoli; materiali da Poly Haven
 - [ ] (blender-artist) Arredi: lampione, panchina, cestino, parapetto
