@@ -210,3 +210,48 @@ Note: con questi budget gli edifici rientrano nel limite "edificio di fondale �
 Collisioni UCX a scatola su edifici, fioriere e tettoie; i dehors senza collisione oppure a box bassi (D8).
 Le latifoglie non rientrano nelle categorie di vegetazione di CLAUDE.md §4 (palme, pini, cespugli): servono 2 varianti nuove,
 da annotare nel log decisioni.
+
+## 10. Scelte di modellazione, tranche 1 (blender-artist, 2026-11-19)
+File `blender/arte_molo.blend`, script `blender/scripts/morin_molo.py`, export `exports/molo/`, posizioni `exports/molo/molo_posizioni_v1.csv`,
+render `docs/qa/arte_molo_v1_*.png`. Nessun dehors, Sirena, lampione alto o piccolo prop (tranche successive).
+
+### 10.1 Camere ricalcolate (confronto con le foto)
+Con il punto di presa del §1 (12,5; 117; FOV 100°) palma e lampione tornano, ma i ristoranti cadono ~17° a sinistra di dove sono in F1
+(la facciata gialla di A1 finiva a metà inquadratura). Ho rifatto il calcolo ai minimi quadrati usando solo punti OSM riconoscibili:
+piede della palma (20,4; 92,9), spigolo SE di A4 (0,1; 62,0) in alto e alla base, gradino di A3 (0,3; 79,9), inizio e fine della parte rosa,
+antenne del ponte. Risultati [S]:
+
+| Foto | Posizione (X; Y; Z) | Azimut di progetto (da +Y verso +X) | Pitch | FOV orizzontale | Scarto max |
+|---|---|---|---|---|---|
+| F1 | (13,65; 118,43; 2,84) | 199,7° | −2,9° | 87° | 27 px su 1886 |
+| F2 | (31,4; 134,2; 2,76), da Viale Italia | 217,9° | +2,9° | 37° (foto ritagliata e ingrandita) | 6 px su 1030 |
+| F3 | (4,45; 46,4; 2,3) | 213,4° | −6,7° | 92,5° | 15 px su 975 (punti incerti) |
+
+Con la camera F1 ricalcolata, riproiettando i punti a terra: cordolo dell'angolo a X ≈ 10,4-11,6 (modello 9,55, tenuto per raccordarsi
+alla fascia palme che parte a 9,75), spigolo curvo del cordolo a ≈ (11,6; 108,9), bordo ovest dell'asfalto a X ≈ 8,1-8,5 (modello 6,5:
+compromesso con la stima 6-7,5 di §2.1, una carreggiata da 2 m non è credibile), lampione a (13,2; 106) → posato a (13,0; 106).
+
+### 10.2 Edifici: ordine delle parti corretto
+La proiezione delle piante OSM con la camera ricalcolata mostra che la parte **rosa** non sta a Y 88-94 (§3.2) ma è l'ultimo tratto piatto
+della facciata est, **Y 98,8-102,6**; il muro giallo con lo scudo, la tenda crema e la porta-finestra a due ante sta sull'**arco** dello
+spigolo (quarto d'ellisse con semiassi 4,7 × 4,3 m fra (0,6; 102,6) e (−4,1; 106,9)), la porta singola sul muro nord. A3 va quindi da
+Y 68 a 98,8: giallo con tre finestrelle fino al risvolto di Y 79,9, poi bianco con fascia gialla alta e quattro vetrate in legno.
+F2 conferma l'ordine (A4, A3 giallo, A3 bianco con l'insegna blu, rosa, giallo curvo, tendone).
+Altezze: A1A2 cornicione 3,35-3,80 m; A3 3,40; A4A5 4,02 + ringhiera rosso-bruna fino a 4,97; C 3,87. Tendone B: telo a una falda 3,1 → 2,6 m.
+C ha finestre con grata e nessuna porta rossa (F3).
+
+### 10.3 Suolo e quote
+- Masselli, asfalto, strada a **Z +0,01** (1 cm sopra il blockout del molo, niente facce complanari); angolo in cubetti a +0,15 con
+  cordolo da 15 cm verso l'asfalto (raccordo con la fascia palme a X 9,75 e col cordolo tattile a Y 88,45-89,15). Nessun gradino oltre 15 cm.
+- Asfalto X 6,5-9,55, Y 86-121; ramo verso il parcheggio Y 109,25-113,75 fino a X 24, con cordolo basso a nord; spigolo dell'angolo
+  arrotondato (r 1,6 m). Nessuna segnaletica (D2).
+- Masselli in tre moduli: 01 radice e fronte dei ristoranti (Y 62-121, più scuri: `M_Molo_Masselli_Grigio`), 02 (Y 31-62), 03 (Y 0-31).
+  I masselli finiscono a Y 0 (imbocco del ponte); sotto la prima campata resta il blockout.
+- Alberi (posizioni [S], nessun dato OSM): 7 latifoglie a (−13; 104), (−12,5; 91), (−19; 82), (−14; 70), (−24; 60), (−20; 48), (−28; 36),
+  pino domestico a (−12; 118). Rispetto a §4 sono più vicine ai ristoranti: in F1/F2 le chiome sporgono subito sopra i tetti.
+
+### 10.4 Da verificare in sessione o con nuove foto
+- Fine dell'asfalto (D3) e larghezza della carreggiata (6,5 nel modello, 8,1-8,5 dalla riproiezione).
+- Il primo `SM_Morin_Lampione` della pavimentazione v3 a (16,8; 92,85): con la camera F1 cadrebbe a x ≈ 430 px, dove in F1 non c'è nessun
+  lampione. Da togliere o spostare insieme ai filari (D4).
+- Il blockout del giardino (siepe Y 116-118, aiuole) si sovrappone all'angolo in cubetti (Y 102-109) e al ramo d'asfalto: va arretrato in UEFN.

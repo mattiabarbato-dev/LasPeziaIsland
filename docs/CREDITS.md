@@ -72,7 +72,29 @@ Generate con `blender/scripts/morin_pav_kit.py` (numpy), nessun asset di terzi e
 ## Catture Street View [SV] (deroga dell'utente 2026-11-19, CLAUDE.md §5)
 Fonti per la radice del molo (scheda `ref/radice_molo.md` §8, porzioni consigliate): `ref/foto/vista/inizio_passegiata_ristoranti_che_vanno_verso_il_ponte.png`,
 `ref/foto/vista/ristoranti_visti_da_di_fronte.png`, `ref/foto/vista/strada_cheProsegue_verso_il_ponte.png`,
-`ref/foto/pavimentazione/pavimento verso il ponte.png`. Al 2026-11-19 nessuna texture è ancora stata ricavata da queste foto.
+`ref/foto/pavimentazione/pavimento verso il ponte.png`. Sigle: F1 = `inizio_passegiata_ristoranti_che_vanno_verso_il_ponte.png`,
+F2 = `ristoranti_visti_da_di_fronte.png`, F3 = `strada_cheProsegue_verso_il_ponte.png`, F4 = `pavimento verso il ponte.png`.
+
+Texture ricavate il 2026-11-19 (radice del molo, tranche 1, `blender/scripts/morin_molo.py`, in `blender/textures/molo/`).
+Dalle foto si prendono **solo** il colore medio (mediana di una porzione) e la grana fine (luminanza in alta frequenza, rimescolata
+a pezze casuali e resa ripetibile). Nessun pixel della foto finisce in chiaro nella texture: niente UI, persone, targhe, scritte o loghi.
+Pixel in coordinate della foto originale (x, y). N e ORM sono generate dallo script.
+- **[SV]** `T_Molo_Masselli_D/N/ORM` (2048, tile 2,8 m): grana da **F4** x 10-380, y 10-190 (tutta la foto, senza bordi) e da
+  **F3** x 0-380, y 700-895 (sotto la scritta di UI a x 195-290 / y 500-680 e a sinistra del cerchio a x ≥ 395). Disegno dei masselli
+  28 × 14 cm a correre, giunti con erba e colore: procedurali, tarati a occhio su F4. Usata anche da `M_Molo_Masselli_Grigio` (stessa texture, tinta).
+- **[SV]** `T_Molo_Asfalto_D/N/ORM` (2048, tile 4 m): grana da **F1** x 950-1250, y 690-800 (lontano dalla croce a x 750-890 e dal cerchio
+  di UI a y < 640). Rattoppi, inerti e colore: procedurali.
+- **[SV]** `T_Molo_Facciate_D/N/ORM` (2048, atlante 8 × 8 m a 256 px/m): grana dell'intonaco da **F2** x 800-840, y 430-500 (giallo
+  fra lo scudo e la porta, escluso lo scudo a x 732-790 e la filigrana "© Google" a x 930-990) e **F2** x 150-182, y 400-445 (bianco di A4).
+  Colori di intonaco giallo, rosa, bianco, cornicione rosso-bruno, legno delle porte, tenda crema, porte rosso scuro: mediane delle
+  porzioni della scheda `ref/radice_molo.md` §8 corrette a mano (luce). Porte, finestre, grate, tende, cornicione: disegnati dallo script.
+  **Niente insegne reali:** lo scudo rosso del ristorante è sostituito da uno scudo generico inventato (banda arancio, pesce bianco stilizzato,
+  nessuna scritta); l'insegna della pescheria rosa è un rettangolo bianco liscio; la fascia blu sopra le vetrate di A3 è liscia, senza testo.
+- **[SV]** `T_Albero_Latifoglia_Chioma_D/N/ORM` (2048, 4 ciuffi con alfa): colori delle foglie campionati dai pixel della chioma di **F2**
+  x 330-900, y 130-330 (scartati i pixel di cielo). Forma delle foglie, ciuffi e **alfa ricostruiti** dallo script (nessun ritaglio dalla foto).
+- `T_Albero_Platano_Corteccia_*` (1024), `T_Morin_PinoDomestico_Chioma_*` (2048, alfa), `T_Morin_PinoDomestico_Corteccia_*` (1024):
+  **procedurali**. La tinta del pino è scelta a occhio guardando F2 (chioma scura a destra, x 955-1030), senza campionare pixel.
+- Cubetti dell'angolo: riuso di `T_Pav_Cubetti_*` / `T_Pav_Fascia_*` (sezioni sopra). Lampione a due globi: riuso di `M_Morin_Ghisa` e `M_Morin_Globo`.
 Ogni texture che ne deriva va elencata qui con la marca **[SV]** (foto e porzione usata), senza UI di Street View, filigrane, persone,
 targhe, loghi o insegne, e l'utente la ricontrolla prima di qualsiasi pubblicazione.
 Dati: verifica live Overpass API (© OpenStreetMap contributors, ODbL) del 19.11.2026 per alberi, lampioni e recinzioni della radice del molo.
