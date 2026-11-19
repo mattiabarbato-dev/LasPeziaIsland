@@ -6,23 +6,34 @@ Regole, paesaggio e metriche: vedi `CLAUDE.md`.
 
 ---
 
-## Punto di ripresa (aggiornato 2026-11-18, fine sessione)
-**Dove siamo:** Fase 0 fatta (restano le foto dell'utente). Fase 1: test di scala/assi OK, script di export,
-import OSM, blockout in Blender ed export, blockout posato in UEFN (acqua, spawn, barriere). **Cancello 1 aperto:**
-la prova in sessione non è partita (`StartSession` → `invalid_region`, regione di matchmaking "NONE").
+## Punto di ripresa (aggiornato 2026-11-19, fine sessione)
+**Priorità (decisione dell'utente):** una mappa **il più simile possibile alla Spezia**, grafica **realistica per PC/console**.
+La modalità di corsa (Fase 2) è rimandata; il tempo di corsa non è un criterio. Vedi CLAUDE.md §1.
+
+**Dove siamo:** Fasi 0-1 fatte, **Cancello 1 superato** (prova manuale dell'utente, 2026-11-19). Sessioni UEFN funzionanti
+(regione Europa). Island Settings: costruzione Nessuno; ora fissa alle 18 (`Luce_OraDelGiorno`); acqua Acqua V2 a Z −100.
+Grafica v2 posata in UEFN: kit banchina (58 moduli, 18 bitte, 4 scalette) e 53 `SM_Morin_PalmaA` (P. canariensis),
+texture da foto dell'utente + CC0; lastre sul pavimento tramite `SM_Blockout_Passeggiata_Arte`. Dettagli in `docs/uefn_arte.md`.
 
 **Prima cosa da fare alla ripresa**
-1. (utente) Chiudere eventuali finestre di errore "Impossibile giocare" in UEFN e impostare la regione di matchmaking (Europa).
-2. (orchestratore) Verificare che `blender` e `unreal-mcp` rispondano; poi qa-tester ripete le voci in sessione del report
-   `docs/qa/2026-11-18_blockout_percorrenza.md` (§1, 2, 3, 6, 7, 8): tempo cronometrato, palme HISM in gioco, caduta in acqua, barriere.
+1. (utente) Confermare in sessione che le lastre del pavimento si vedono (correzione del 2026-11-19, push @4 non ancora visto in gioco).
+2. (orchestratore) Verificare che `blender` e `unreal-mcp` rispondano (`blender` usa `uvx --system-certs`, vedi memoria pipeline).
 
-**Decisioni in attesa dell'utente**
-- ~~Costruzione disattivata in Island Settings~~ → confermato e applicato il 2026-11-19 (Nessuno)
-- ~~Scatto attivo~~ → confermato il 2026-11-19; già attivo con il preset "BR attuale"
-- Aggiornare CLAUDE.md §4 "Acqua": device **Acqua V2** al posto del Water Body nativo (quest'ultimo fa fallire il validatore UEFN)?
+**Prossimi step (in ordine proposto)**
+1. (blender-artist) Mesh di pavimentazione: lastre lato mare, cubetti ad archi con fasce chiare nella fascia palme, aiuole
+   quadrate delle palme, cordolo, panchine in pietra; poi togliere l'offset +2,5 cm della banchina.
+2. (blender-artist) Banchina: pezzi testata/angolo (estremità a X 19,2 m e 251 m), scaletta in nicchia, normali di bitta e
+   scaletta da pulire, LOD esportati con rotazione applicata ai vertici.
+3. (blender-artist) Palme B (dactylifera slanciata) e C; varianti del filare.
+4. (geo-scout + blender-artist) Ponte Thaon di Revel realistico (serve foto laterale e da sotto).
+5. Giardini a Mare, lampioni in ghisa con globo bianco, pini e oleandri; fondale (colline del golfo, profilo città).
+6. (utente) Foto ravvicinate frontali per texture nitide: tronco a 1 m, ciglio e cubetti dall'alto, lastre, ponte.
+
+**Note aperte:** asset non usati tenuti per scelta dell'utente (5 materiali `M_Banchina_*`/`M_Morin_PalmaA_*` dell'import FBX,
+`SM_Blockout_Passeggiata` originale); il progetto UEFN (`Documents/Fortnite Projects/LasPezia_Island`) non è in questo repository.
 
 **Riferimenti tecnici:** preset export e regola assi in `docs/scala.md` (usare sempre `blender/scripts/morin_export.py`);
-stato UEFN in `docs/uefn_blockout.md`; scelte in `docs/decisioni.md`.
+stato UEFN in `docs/uefn_blockout.md` e `docs/uefn_arte.md`; scelte in `docs/decisioni.md`.
 
 ---
 
