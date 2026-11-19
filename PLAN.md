@@ -36,7 +36,34 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
    - [ ] (blender-artist) Tranche 2: dehors (tavolini, sedie, ombrelloni, tettoie a righe), fioriere, Sirena stilizzata, lampioni alti, piccoli prop.
    - [ ] (blender-artist → uefn-builder) Layout fascia palme **v4**: filari da X 20,4 (via le palme a X 12), tutto il resto −0,6 m,
      gazebo a X ≈ 33,9; in UEFN solo spostamenti di attori (niente reimport).
-   - [ ] (uefn-builder) Import e posa del molo; nascondere le scatole del blockout della zona.
+   - [x] (uefn-builder, 2026-11-19 18:15) Import e posa del kit molo v2 (`docs/uefn_arte.md` §13): 14 mesh in `LaSpezia/Arte/Molo` e
+     `LaSpezia/Arte/Alberi`, 21 texture, 8 MI; 14 attori in Outliner `Arte/Molo` e `Arte/Alberi`; LOD, UCX e materiali verificati,
+     validazione 43/43 senza avvisi, tutto salvato. Render `docs/qa/uefn_molo_v2_F1.png`, `_F3.png`, `_alto.png`.
+   - [ ] (utente → uefn-builder) **Conferma per nascondere/cancellare il blockout della zona**: le scatole di `Blockout_Fondale`
+     (Z 4-8 m) coprono per intero A1A2, A3, A4A5, C, tendone e i tronchi delle latifoglie 02, 05, 06; la siepe/aiuole di
+     `Blockout_Passeggiata` (Y 116-118, +40 cm) coprono asfalto e ramo verso il parcheggio. Sono mesh uniche: serve una nuova
+     versione dei due blockout (blender-artist) oppure nascondere gli attori interi (si perde anche il resto del blockout).
+     - [x] (blender-artist, 2026-11-19 18:30) Blockout ritagliati, **asset nuovi** (originali intatti): `exports/blockout/SM_Blockout_Fondale_v2.fbx`
+       (557 tri, prima 517; 57 UCX, prima 53; sorgente `blender/blockout_blocco1.blend`, collezione `Blockout_Fondale_v2`) e
+       `exports/blockout/SM_Blockout_Passeggiata_Pav_v2.fbx` (128 tri, 13 UCX come prima; sorgente `blender/arte_pavimentazione.blend`,
+       collezione `Blockout_Passeggiata_Pav_v2`). Tolte le scatole di A1A2-A5, C e del tendone; tacche 3 × 3 m ai tronchi 02, 03, 05, 06
+       nelle scatole D/D3; siepe da X 20, aiuola Y 111-116 da X 24. Bbox identiche agli originali, posa (0,0,0) yaw 0.
+       Verifica in Blender (ray test su griglia 0,25 m: nessuna superficie del blockout sopra il kit; nessun vertice di edifici o tendone
+       entro 1 m dalle scatole; nessun tronco dentro). Render `docs/qa/blockout_ritaglio_molo.png` (alto), `_F1.png`. Backup
+       `blender/blockout_blocco1_v1.blend`, `blender/arte_pavimentazione_v3.blend`.
+     - [x] (uefn-builder, 2026-11-19 18:35) Blockout v2 in UEFN (`docs/uefn_arte.md` §14), **niente cancellazioni** (decisione utente):
+       asset `LaSpezia/Blockout/SM_Blockout_Fondale_v2` (557 tri, 57 convessi) e `SM_Blockout_Passeggiata_Pav_v2` (128 tri, 13 convessi),
+       solo LOD0, MinLOD 0, Nanite off, collisione semplice come complessa; nuovi attori `Blockout_Fondale_v2`, `Blockout_Passeggiata_v2`
+       (Outliner `Blockout`, posa 0,0,0). Originali `Blockout_Fondale` e `Blockout_Passeggiata` **nascosti** (Hidden in Game, componente
+       Visible = falso, collisioni off), asset originali intatti. Line trace: nessuna collisione vecchia sopra asfalto/masselli, suolo continuo.
+       Render `docs/qa/uefn_molo_v2b_F1.png` (ristoranti visibili, niente scatola né siepe), `_F3.png`, `_alto.png`. Validazione 2/2
+       (1 avviso atteso "un solo LOD" sul Fondale_v2), tutto salvato.
+     - [ ] (utente/geo-scout) In F1 il primo piano (X 10-20 m, Y 114-118 m, dove c'era la siepe) ora mostra le lastre `MI_Pav_Lastre`
+       della lastra base del blockout (stesso colore e scala del camminamento; l'ocra in F1 è la luce radente). Da decidere cosa c'è
+       davvero lì (marciapiede di Viale Italia? asfalto?) e modellarlo.
+     - [ ] (utente) le chiome basse delle latifoglie 01-05 entrano ancora nei tetti delle scatole D/E (6-8 m, area militare), visibile in
+       `uefn_molo_v2b_alto.png` e `_F3.png` (non in F1): spostare gli alberi fuori dalle scatole oppure abbassare o togliere D ed E.
+     - [ ] (utente) Conferma per cancellare gli attori nascosti `Blockout_Fondale`, `Blockout_Passeggiata` e le loro mesh (restano in cottura).
 1. [~] Fondale: tinta MI fatta (facciate ok, colline poco cambiate: colpa della nebbia, `docs/uefn_fondale.md` §9); colle cittadino v2
    importato in UEFN (`docs/uefn_fondale.md` §10), **da verificare in sessione (utente)**; poi alberi del colle troppo chiari (MI dedicata).
    **TO DO (rimandato dall'utente): task nebbia** su `Luce_OraDelGiorno` — densità 0,002-0,003 o diminuzione 0,03, colore più blu/scuro,

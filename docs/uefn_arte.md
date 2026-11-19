@@ -441,3 +441,159 @@ Si possono eliminare in blocco quando l'utente lo conferma.
 2. **(utente)** Tinta dei cubetti (0,62; 0,58; 0,52) da confermare a occhio; idem `MI_Morin_Globo` (emissivo 0,5, all'ora 18 quasi invisibile).
 3. **(utente)** Pulizia di `_Temp` (33 asset) e dei vecchi `M_Banchina_*`/`M_Morin_PalmaA_*` non usati: serve conferma.
 4. Siepe del blockout a +40 dietro la fascia (+15): gradino di 25 cm, salibile; da sostituire con la fascia verde vera.
+
+## 13. Radice del molo v2 (2026-11-19, 18:05-18:15 ora locale)
+
+Sorgenti: `exports/molo/` (32 FBX), posizioni `exports/molo/molo_posizioni_v1.csv`, texture `blender/textures/molo/`.
+Controllo iniziale: nessun asset né attore con questi nomi in UEFN. Nessun attore esistente spostato, nascosto o cancellato.
+
+### Metodo (variante del §12 per asset nuovi)
+- LOD0 importati **direttamente con il nome finale** (`StaticMeshToolset.ImportFile`, materiali/texture off, combine on): il nome non esiste,
+  quindi niente temporaneo per il LOD0. LOD1/LOD2 come `LaSpezia/_Temp/TMPM_<asset>_LOD1/2`, poi `set_lod_from_static_mesh`.
+- **Nuova insidia:** ogni mesh importata con `ImportFile` arriva con **3 LOD generati automaticamente** e **MinLOD Low/Medium = 2**.
+  Sempre `remove_lods` (anche sui pezzi unici), poi `set_lod_from_static_mesh` per LOD1/2, e reimpostare il MinLOD: su una mesh a 1 LOD
+  il MinLOD 2 fa scattare l'avviso del validatore "valore minimo di LOD di 2 per Low non rientra nell'intervallo 0..0".
+- Gli UCX arrivano con `ImportFile` anche sugli asset nuovi (convessi presenti subito, nessuna copia di `agg_geom` necessaria).
+- Texture con `TextureToolset.ImportFile`: subito dopo l'import `blueprint_get_size_x()` di N/ORM restituisce 32 (segnaposto durante la
+  ricompressione), poi 2048/1024 corretti. Le texture risultano già salvate all'import; per sicurezza ri-salvate con `save_asset(..., False)`.
+- Nessuna mesh del kit usa il colore vertice (`morin_molo.py`): `ImportFile` va bene ovunque.
+- Attori singoli duplicando `Arte_Arredi_Gazebo` (FortStaticMeshActor, profilo `FortStaticMesh`, Static), HISM duplicando
+  `Arte_Arredi_Tombini` + `clear_instances()`; tutto in `ScopedEditorTransaction` con `modify()`.
+- `line_trace_multi` si ferma al primo impatto bloccante: per vedere cosa c'è sotto un blockout usare `line_trace_single` con
+  `actors_to_ignore` (il primo giro di verifica sembrava "edifici senza collisione": erano solo coperti dal blockout).
+- Camera Blender → UE (`morin_molo.cameras()`: `fwd = (sin az, cos az)`): **yaw UE = atan2(cos az, −sin az)**; F1 az 199,7° → yaw **109,7°**,
+  F3 az 213,4° → yaw 123,4°. `RenderLevelPOVs` fa solo immagini quadrate con FOV orizzontale: si usa lo stesso FOV della camera Blender.
+
+### Asset (verificati in editor)
+| Asset | Cartella | Tri LOD0/1/2 | Bbox (uu) | Convessi | Slot → MI |
+|---|---|---|---|---|---|
+| `SM_Molo_Pav_Strada` | Arte/Molo | 32 | X 650..2400 · Y −12100..−8600 · Z −15..15 | 3 | Asfalto, Fascia → `MI_Molo_Asfalto`, `MI_Pav_Fascia` |
+| `SM_Molo_Pav_Masselli_01` | Arte/Molo | 29 | X −810..1020 · Y −12100..−6200 · Z 1 | 10 | `MI_Molo_Masselli_Grigio` |
+| `SM_Molo_Pav_Masselli_02` | Arte/Molo | 4 | X −1210..999 · Y −6200..−3100 · Z 1 | 2 | `MI_Molo_Masselli` |
+| `SM_Molo_Pav_Masselli_03` | Arte/Molo | 4 | X −1216..929 · Y −3100..0 · Z 1 | 2 | `MI_Molo_Masselli` |
+| `SM_Pav_AngoloMolo` | Arte/Molo | 92 | X 955..2000 · Y −10925..−8915 · Z −15..15 | 3 | Cubetti, Fascia → `MI_Pav_Cubetti`, `MI_Pav_Fascia` |
+| `SM_Molo_Edificio_A1A2` | Arte/Molo | 412 / 220 / 52 | X −808..99 · Y −10782..−9862 · Z 0..465 | 3 | `MI_Molo_Facciate` |
+| `SM_Molo_Edificio_A3` | Arte/Molo | 466 / 244 / 26 | X −627..146 · Y −9886..−6794 · Z 0..415 | 2 | `MI_Molo_Facciate` |
+| `SM_Molo_Edificio_A4A5` | Arte/Molo | 2.558 / 1.458 / 334 | X −636..26 · Y −6806..−6194 · Z 0..497 | 1 | `MI_Molo_Facciate` |
+| `SM_Molo_Edificio_C` | Arte/Molo | 430 / 236 / 90 | X −1218..−742 · Y −4228..−2472 · Z 0..462 | 1 | `MI_Molo_Facciate` |
+| `SM_Molo_Tendone` | Arte/Molo | 128 / 108 / 84 | X −835..75 · Y −11696..−11115 · Z 0..314 | 7 | `MI_Molo_Facciate` |
+| `SM_Molo_Lampione2Globi` | Arte/Molo | 1.880 / 988 / 268 | X ±45 · Y ±45 · Z −1..728 | 2 | Ghisa, Globo, Fascia → `MI_Morin_Ghisa`, `MI_Morin_Globo`, `MI_Pav_Fascia` |
+| `SM_Albero_LatifogliaA` | Arte/Alberi | 7.540 / 3.701 / 1.179 | X −1101..990 · Y −958..859 · Z −1..2120 | 1 | `MI_Albero_Platano_Corteccia`, `MI_Albero_Latifoglia_Chioma` |
+| `SM_Albero_LatifogliaB` | Arte/Alberi | 7.427 / 3.641 / 1.145 | X −846..807 · Y −904..871 · Z −3..1806 | 1 | idem |
+| `SM_Morin_PinoDomestico` | Arte/Alberi | 3.388 / 1.659 / 673 | X −961..928 · Y −876..806 · Z −5..1754 | 1 | `MI_Morin_PinoDomestico_Corteccia`, `_Chioma` |
+
+Bbox coerenti con la scheda (`ref/radice_molo.md` §10: asfalto Y 86-121, masselli 01/02/03 Y 62-121 / 31-62 / 0-31 a Z +0,01, angolo +0,15,
+A3 Y 68-98,8, lampione 7,28 m): scala 1:1, nessuna rotazione di 90°. Bbox di LOD1/LOD2 uguali al LOD0 (temporanei controllati prima della copia).
+Tutti: Nanite off, Use Simple Collision As Complex, soglie LOD 1,0 / 0,2 / 0,08 sui 9 asset con LOD; MinLOD Low/Medium 0 su suolo ed edifici,
+2 su lampione e alberi (log decisioni).
+
+Texture (21, da `blender/textures/molo/`): `Arte/Molo/T_Molo_{Masselli,Asfalto,Facciate}_{D,N,ORM}` 2048;
+`Arte/Alberi/T_Albero_Latifoglia_Chioma_*`, `T_Morin_PinoDomestico_Chioma_*` 2048 (alfa nella D), `T_Albero_Platano_Corteccia_*`,
+`T_Morin_PinoDomestico_Corteccia_*` 1024. N = Normalmap senza flip, ORM = Masks, sRGB off.
+MI: `MI_Molo_Asfalto`, `MI_Molo_Masselli`, `MI_Molo_Masselli_Grigio` (Tinta 0,36/0,37/0,40), `MI_Molo_Facciate`, `MI_Albero_Platano_Corteccia`,
+`MI_Morin_PinoDomestico_Corteccia` su `M_Morin_Master_PBR`; `MI_Albero_Latifoglia_Chioma`, `MI_Morin_PinoDomestico_Chioma` su
+`M_Morin_Master_PBR_Masked` (two-sided, clip 0,33). Nessun master nuovo: libreria shader invariata.
+Stima memoria delle texture nuove a piena risoluzione con i mip: circa 65 MiB (prima circa 99 MiB), totale stimato circa 165 MiB su 300.
+Project Size non letto (nessuna sessione avviata in questo task).
+
+### Posa (Outliner `Arte/Molo`, `Arte/Alberi`)
+| Attore | Mesh | Trasformazione |
+|---|---|---|
+| `Arte_Molo_Pav_Strada`, `_Pav_Masselli_01/02/03`, `Arte_Pav_AngoloMolo`, `Arte_Molo_Edificio_A1A2/A3/A4A5/C`, `Arte_Molo_Tendone` | omonime | (0,0,0), yaw 0 (vertici in posizione mondo) |
+| `Arte_Molo_Lampione2Globi_00` | SM_Molo_Lampione2Globi | (1300, −10600, 15), yaw 0 |
+| `Arte_Alberi_PinoDomestico_00` | SM_Morin_PinoDomestico | (−1200, −11800, 0), yaw −40 |
+| `Arte_Alberi_LatifogliaA` (HISM) | SM_Albero_LatifogliaA | 4 istanze dal CSV (Latifoglia_00/02/04/06) |
+| `Arte_Alberi_LatifogliaB` (HISM) | SM_Albero_LatifogliaB | 3 istanze dal CSV (01/03/05) |
+
+### Verifiche (line trace in editor)
+- Griglia 100 × 200 uu su X −13..24 m, Y 0..122 m: suolo colpito sempre sulla nostra arte o sul blockout atteso; masselli a Z +1, angolo a +15.
+- Collisioni: convessi letti da `agg_geom.export_text()` (es. A1A2 3 blocchi X −790..60, Z 0..380; A3 2 blocchi Z 0..340; C Z 0..387).
+- Lampione: fusto colpito (r 24 uu), poggia sull'angolo a +15. Alberi: tronco colpito su 9/9 (r 40-52 uu); suolo Z 0 sul blockout del fondale.
+- Mappa a caratteri della griglia (−30..24 m × 0..122 m): **gli edifici sono interamente dentro le scatole di `Blockout_Fondale`**
+  (tetti delle scatole a Z 400/449/600/800), vedi problemi.
+
+### Render (`docs/qa/`)
+`uefn_molo_v2_F1.png` (camera F1, 1400 px quadrata, FOV 87°, ombre), da confrontare con `arte_molo_v2_F1.png`: lampione a 2 globi, angolo in cubetti,
+asfalto e chiome delle latifoglie nella stessa posizione dell'inquadratura Blender; **i ristoranti non si vedono**, coperti dalla scatola bianca
+del blockout; in primo piano la siepe verde del blockout del giardino (la camera a Y 118,4 sta dentro la fascia Y 116-118).
+`uefn_molo_v2_F3.png` (camera F3): masselli chiari, edificio C con finestre e la scatola del blockout che sporge sopra il tetto.
+`uefn_molo_v2_alto.png`: vista alta dal mare; masselli 01 grigi e 02/03 chiari, chiome dietro la scatola dei ristoranti.
+
+### Salvataggio e validazione
+`save_dirty_packages` alle 18:12:41 (40 pacchetti di contenuto + 16 della mappa/OFPA), date dei `.uasset` in `__ExternalActors__` controllate
+(18:12:40); MinLOD corretti e risalvati, poi nessun pacchetto sporco. `validate_assets_with_settings` su `Arte/Molo` + `Arte/Alberi`:
+**43 controllati, 43 validi, 0 avvisi**.
+
+### Temporanei in `LaSpezia/_Temp` (non cancellati)
+18 `TMPM_<asset>_LOD1/_LOD2` (edifici ×4, tendone, lampione, latifoglie A/B, pino). Nessun referencer; eliminabili con conferma dell'utente.
+
+### Problemi aperti
+1. **(utente/blender-artist)** `Blockout_Fondale` copre A1A2, A3, A4A5, C, tendone (scatole Z 4-8 m) e i tronchi di Latifoglia_02, _05, _06;
+   `Blockout_Passeggiata` (siepe Y 116-118 a +40 e aiuole) copre asfalto e ramo verso il parcheggio (Y 112-121) e taglia la vista F1.
+   Sono mesh uniche insieme al resto del blockout: o nuove versioni senza quelle scatole/siepe, o si nascondono gli attori interi. Serve conferma.
+2. **(qa-tester)** Confronto F1 completo possibile solo dopo il punto 1; prova in sessione di cordolo dell'angolo (+15), lampione, tendone.
+3. **(utente)** `MI_Molo_Masselli_Grigio` molto più scura dei masselli 02/03 nella vista alta: da confermare a occhio con F1/F2 dopo il punto 1.
+4. Il primo `SM_Morin_Lampione` della pavimentazione a (16,8; 92,85) resta (scheda §10.4: in F1 non c'è); da togliere solo col layout palme v4.
+
+## 14. Blockout ritagliati v2 (2026-11-19, 18:20-18:35 ora locale)
+
+Sorgenti: `exports/blockout/SM_Blockout_Fondale_v2.fbx`, `exports/blockout/SM_Blockout_Passeggiata_Pav_v2.fbx` (blender-artist, PLAN.md voce 0).
+Decisione dell'utente: **nessuna cancellazione**; attori nuovi accanto agli originali, originali nascosti in modo reversibile.
+
+### Asset (`LaSpezia/Blockout`, import con `StaticMeshToolset.ImportFile`, nome nuovo, materiali/texture off, combine on)
+| Asset | Tri | Bbox (uu) | Convessi | Slot → materiale |
+|---|---|---|---|---|
+| `SM_Blockout_Fondale_v2` | 557 (prima 517) | X −16388,3..33000 · Y −30000..30341,2 · Z −300..2130,9 | 57 (prima 53) | `M_Blockout_Fondale`, `M_Blockout_Verde` (come l'originale) |
+| `SM_Blockout_Passeggiata_Pav_v2` | 128 | X −1230..25000 · Y −11800..8980 · Z −300..150 | 13 | Verde → `M_Blockout_Verde`, Pietra → `MI_Pav_Lastre` (come `_Pav`) |
+
+- `ImportFile` ha aggiunto 3 LOD automatici e MinLOD Low/Medium 2: `RemoveLods` → **solo LOD0**, MinLOD Low/Medium **0**.
+- Nanite off; collisione **Use Simple Collision As Complex** su entrambi (l'originale del fondale era "Project Default": portato al semplice
+  come richiede CLAUDE.md §4, nessun per-poligono).
+- Gli slot sono stati riconosciuti per nome dai materiali esistenti già all'import; sul Pav_v2 lo slot Pietra puntava a `M_Blockout_Pietra`
+  ed è stato portato a `MI_Pav_Lastre`.
+- Differenze dei convessi rispetto agli originali (lette da `agg_geom.export_text()`): tolte le scatole sopra C (X −1215..−752), A1A2/A3/A4A5
+  (X −803..200, Y −10717..−6192) e tendone (X −809..53, Y −11681..−11157); scatole D/D3 spezzate con tacche ai tronchi; siepe (Y −11800..−11600,
+  Z 0..150) da X 100 → **2000**, aiuola (Y −11600..−11100) da X 2000 → **2400**. Le lastre di suolo (Z 0) sono **identiche**: nessun buco.
+
+### Attori (Outliner `Blockout`)
+- `Blockout_Fondale_v2` → `SM_Blockout_Fondale_v2`, `Blockout_Passeggiata_v2` → `SM_Blockout_Passeggiata_Pav_v2`: duplicati degli originali
+  (FortStaticMeshActor, profilo `FortStaticMesh`, Static, Query Only come gli originali), posa (0,0,0), yaw 0, scala 1, nessun override di materiale.
+- **Originali nascosti, non cancellati né spostati**: `Blockout_Fondale`, `Blockout_Passeggiata` (mesh e materiali invariati, `.uasset` degli asset
+  originali non toccati):
+  - *Actor Hidden In Game* = sì;
+  - componente mesh **Visible = falso** (nascosto in editor e in gioco, persistente);
+  - componente **Collision Enabled = No Collision** e attore **Actor Enable Collision = no**.
+- **Per riattivarli** (Details dell'attore, oppure Python in una transazione con `modify()`): `Visible` = vero sul componente
+  `StaticMeshComponent0`, *Actor Hidden In Game* = no, *Collision Enabled* del componente = **Query Only** (com'era), *Actor Enable Collision* = sì.
+  In quel caso nascondere allo stesso modo i due `_v2`, altrimenti le due versioni si sovrappongono.
+- Le mesh originali restano referenziate dagli attori nascosti: restano nella cottura e nella memoria finché l'utente non conferma la cancellazione.
+
+### Verifiche
+- Line trace verticali (griglia 100 × 200 uu, X −30..24 m, Y 0..122 m): **0 impatti** sugli originali; gli edifici ora vengono colpiti
+  sui loro tetti (A3 340, C 387, A1A2 380, A4A5 497, tendone 313); masselli +1, asfalto +1, angolo +15. I punti senza impatto sono solo
+  mare (X > 9 m, Y 0..72 m), come prima (coperture del suolo identiche nei convessi).
+- Trace ignorando edifici, tendone, alberi e lampione (X −12..3 m, Y 20..120 m, passo 1 m): **nessun buco**, suolo a Z 0 (`Blockout_Fondale_v2`,
+  `Blockout_Passeggiata_v2`) o masselli a +1.
+- Siepe residua (Z 150) solo da X 20 m e Y 116-118 m, fuori dall'asfalto (il ramo d'asfalto finisce a Y 113,75 + cordolo a 113,95).
+- Primo piano di F1 (X 10-20 m, Y 114-118 m): è il poligono di suolo dello slot **Pietra** del Pav_v2 (Z 0, gruppo 1) con `MI_Pav_Lastre`:
+  materiale e scala identici al camminamento (render zenitali di confronto senza ombre); l'ocra saturo della cattura F1 è la luce radente.
+  Cosa ci sia davvero lì resta da decidere (PLAN.md).
+
+### Render (`docs/qa/`, 1024 px, ombre)
+- `uefn_molo_v2b_F1.png` (UE 1365, −11843, 284; pitch −2,92; yaw 109,7; FOV 87): ristoranti colorati visibili, niente scatola bianca né siepe.
+- `uefn_molo_v2b_F3.png` (UE 445, −4640, 230; pitch −6,7; yaw 123,4; FOV 92,5): edificio C libero; la chioma della latifoglia in alto a destra
+  poggia sul tetto della scatola D dietro.
+- `uefn_molo_v2b_alto.png` (UE 1500, −4500, 1900; pitch −38; yaw −130; FOV 90): ristoranti, tendone e masselli liberi; **le chiome delle
+  latifoglie entrano nei tetti delle scatole D/E** (Z 600-800) a sinistra. In F1 non si nota.
+
+### Salvataggio e validazione
+`save_dirty_packages` alle 18:34:29: 2 asset nuovi + 4 OFPA (`Blockout_Fondale`, `Blockout_Passeggiata`, i due `_v2`), date controllate su disco;
+nessun pacchetto sporco. `validate_assets_with_settings` sui due v2: 2 controllati, 2 validi, **1 avviso atteso** (`ValkyrieValidator_StaticMesh`:
+"mesh complessa con un solo LOD" su `SM_Blockout_Fondale_v2`, voluto: i blockout hanno solo LOD0). `EditorValidatorSubsystem` sui 4 attori: VALID.
+Nessun `TMPM_*` toccato.
+
+### Problemi aperti
+1. **(utente)** Chiome basse delle latifoglie nei tetti delle scatole D/E del fondale (visibile in alto e F3).
+2. **(utente/geo-scout)** Lastre del blockout in primo piano in F1 (Y 114-118 m): sostituirle con il suolo vero.
+3. **(utente)** Conferma per cancellare gli originali nascosti e le loro mesh.
+4. **(qa-tester)** Prova in sessione: originali assenti nel client, nessuna collisione invisibile nella zona ristoranti.
