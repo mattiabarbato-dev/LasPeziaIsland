@@ -16,7 +16,7 @@ Grafica v2 posata in UEFN: kit banchina (58 moduli, 18 bitte, 4 scalette) e 53 `
 texture da foto dell'utente + CC0; lastre sul pavimento tramite `SM_Blockout_Passeggiata_Arte`. Dettagli in `docs/uefn_arte.md`.
 
 **Prima cosa da fare alla ripresa**
-1. (utente) Confermare in sessione che le lastre del pavimento si vedono (correzione del 2026-11-19, push @4 non ancora visto in gioco).
+1. ~~(utente) Confermare in sessione le lastre del pavimento~~ → confermato dall'utente il 2026-11-19: visibili in gioco.
 2. (orchestratore) Verificare che `blender` e `unreal-mcp` rispondano (`blender` usa `uvx --system-certs`, vedi memoria pipeline).
 
 **Prossimi step (in ordine proposto)**
