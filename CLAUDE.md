@@ -11,6 +11,10 @@ Stato e task: vedi `PLAN.md`. Lingua di lavoro: italiano.
 
 ## 1. Visione di gioco
 
+**Priorità attuale (decisione dell'utente 2026-11-19):** l'obiettivo è una mappa **il più simile possibile alla
+Spezia**, esplorabile. La modalità di gioco qui sotto è rimandata: niente lavoro su timer, checkpoint e ancore
+finché l'utente non lo chiede, e il tempo di corsa (§3) non è più un criterio di accettazione.
+
 **Titolo di lavoro:** *Morin Rush*
 **Fantasia del giocatore:** una corsa al tramonto sul lungomare, tra palme, traghetti e il ponte bianco.
 **Modalità (MVP):** corsa a tempo con collezionabili, 1-8 giocatori.
@@ -106,8 +110,8 @@ Si costruisce un blocco alla volta; un blocco si chiude solo quando è giocabile
   superiore a 40 cm senza rampa; parapetti alti almeno 1 m dove non si deve cadere.
 - **Larghezza del ponte:** se quella reale risulta sotto i 4 m, allargarla nel gioco fino a 5-6 m.
   È una deroga voluta alla scala reale (pilastro 3): annotarla nel log decisioni.
-- **Durata obiettivo di una corsa:** 60-90 secondi per il Blocco 1. La misura qa-tester;
-  se è troppo corta si aggiungono deviazioni, non si allunga la geometria.
+- **Durata di una corsa:** solo informativa (sospesa il 2026-11-19, vedi §1). Misura dell'utente: ~50 s di corsa
+  sulla banchina con due scatti. Mai modificare la geometria reale per cambiare i tempi.
 - **Linea di vista:** dalla partenza si deve vedere l'antenna del ponte. Nessun asset la copre.
 - **Acqua:** chi cade viene riportato all'ultimo checkpoint entro 3 secondi.
 

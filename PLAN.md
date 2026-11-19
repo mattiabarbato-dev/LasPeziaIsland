@@ -175,10 +175,13 @@ Obiettivo: percorrere il Blocco 1 dall'inizio alla fine con volumi semplici, in 
 
 **Cancello 1:** si corre dalla partenza al fondo del ponte senza incastri; tempo misurato e annotato;
 la scala "sembra giusta" con un personaggio accanto a parapetti e palme.
+**[x] Superato 2026-11-19** con prova manuale dell'utente (grafica v2 già posata): palme solide, risalita dalle
+scalette con acqua a −1 m, ponte attraversato, barriere ok; ~50 s di corsa sulla banchina con due scatti.
+Aperto: la texture delle lastre non appare in gioco (si vede il grigio del blockout), in correzione da uefn-builder.
 
 ---
 
-## Fase 2 — Prototipo di gioco (ancora su blockout)
+## Fase 2 — Prototipo di gioco (RIMANDATA il 2026-11-19: priorità alla fedeltà della mappa, vedi CLAUDE.md §1)
 Obiettivo: la corsa è divertente prima di essere bella.
 
 - [ ] (utente) Confermare o cambiare la modalità proposta (corsa a tempo con ancore dorate)
@@ -212,8 +215,18 @@ Ordine per impatto visivo:
       - [x] v2 2026-11-19: texture del ciglio e del colore del paramento dalle foto dell'utente, stessi FBX ri-esportati
             (geometria invariata). Render `docs/qa/arte_banchina_v2.png`, `arte_contesto_v2.png`. Copia v1: `blender/arte_banchina_palme_v1.blend`
       - [ ] testata/angolo e raccordo col molo; modulo con nicchia per la scaletta (oggi sporge 0,13 m dal ciglio)
-      - [ ] (orchestratore + utente) quota dell'acqua: ciglio-acqua 1,0 m da foto contro −1,5 m in UEFN (`docs/decisioni.md`)
-      - [ ] (uefn-builder) import, materiali con ORM, LOD, verifica in sessione
+      - [x] (orchestratore + utente) quota dell'acqua: DECISO 2026-11-19, acqua a −1,0 m. Applicato da uefn-builder: device
+            Acqua V2 da Z −534 a −484, superficie Z −100, fondo −484, barriere (base −700) invariate, nessun buco sotto il ponte né a Mirabello
+      - [x] (uefn-builder) import, materiali con ORM, LOD — 2026-11-19, dettagli in `docs/uefn_arte.md`.
+            `LaSpezia/Arte/Banchina`: Mod4m 276/138/40 tri, 400×55×300 uu, 1 convesso; Bitta 970/484/144, 40×40×46,6, 1 convesso;
+            Scaletta 736/368/110, 55×50,5×333,7, 3 convessi (= UCX). Texture 2048 (D embedded, N/ORM da `blender/textures/`).
+            MI su master `M_Morin_Master_PBR` (ORM R/G/B = AO/Rough/Metal). Nanite off, collisione Simple-as-Complex.
+            Posa HISM: `Arte_Banchina_Moduli` 58 moduli X 1920..25120 sulla retta del ciglio del blockout (+8 cm verso il mare, Z +2,5),
+            `Arte_Banchina_Bitte` 18 (ogni 12 m, X 26-230 m), `Arte_Banchina_Scalette` 4 (X 44/92/140/188 m).
+            Nota: `import_lod` ignora la rotazione −90° del nodo → LOD importati con un giro (vedi doc). Render `docs/qa/uefn_arte_v2_*.png`
+      - [ ] (blender-artist) pulire normali/tangenti degeneri di Bitta e Scaletta (avvisi all'import); LOD esportati con la rotazione
+            applicata ai vertici; pezzo testata/angolo (estremità a vista a X 19,2 m e 251 m)
+      - [ ] (qa-tester) verifica in sessione: bitte e moduli solidi, risalita dalle scalette, nuoto con l'acqua a −1 m
 - [ ] (blender-artist) Palma A + 2 varianti: schede `ref/palme.md` e `ref/asset_fonti.md`
       Dalle foto dell'utente: PalmaA = **P. canariensis**; le varianti B/C = dactylifera slanciate
       - [x] v1 `SM_Morin_PalmaA` 2026-11-19 (in Blender, da importare): 7.536 / 3.660 / 904 tri, UCX sul tronco, bbox
@@ -223,17 +236,30 @@ Ordine per impatto visivo:
             ananas Ø ~1,3 m con squame più grandi, chioma asimmetrica e ricadente, 6 fronde secche; texture di tronco e
             colori delle fronde dalle foto dell'utente. Render `docs/qa/arte_palmaA_v2.png`
       - [ ] PalmaB / PalmaC (dactylifera)
-      - [ ] (uefn-builder) import, materiale masked two-sided, LOD, sostituzione delle 53 palme segnaposto
+      - [x] (uefn-builder) import, materiale masked two-sided, LOD, sostituzione delle 53 palme segnaposto — 2026-11-19
+            `LaSpezia/Arte/Palme/SM_Morin_PalmaA` 8.480/3.588/1.000 tri, 1002×1010×1200 uu, 1 convesso solo sul tronco (nessun impatto
+            nella chioma). Fronde su `M_Morin_Master_PBR_Masked` (masked, two-sided, alfa della diffusa). Nanite off.
+            `Arte_Palme_PalmaA` (HISM, 53 istanze alle posizioni CSV, yaw casuale, scala 0,9-1,1). Segnaposto `Blockout_Palme_HISM`
+            nascosto (Z −10000, cartella `Blockout/Sostituiti`), non cancellato. Linea di vista sulle antenne libera (chioma più vicina a 6,7 m)
+      - [ ] (qa-tester) palme HISM visibili e solide in sessione
 - [ ] (blender-artist) Kit pavimentazione e cordoli
       - [x] texture 2048 pronte (2026-11-19, dalle foto dell'utente): `T_Pav_Lastre_*` (tile 3,2 m, lastre 0,4 × 0,6-0,8 m,
             lati lunghi trasversali alla passeggiata), `T_Pav_Cubetti_*` (tile 3,2 m, coda di pavone), `T_Pav_Fascia_*`
             (tile 1 m, pietra chiara). Materiali `M_Pav_*` nel .blend; nessuna mesh ancora
+      - [x] (uefn-builder) texture importate in `LaSpezia/Arte/Pavimentazione` e istanze `MI_Pav_Lastre`/`_Cubetti` (tile 3,2 m),
+            `MI_Pav_Fascia` (1 m) su `M_Morin_Master_Pav`, che proietta in coordinate mondo (le UV del blockout sono nulle).
+            `MI_Pav_Lastre` messo come override sull'attore `Blockout_Passeggiata` (slot Pietra), asset invariato. La fascia palme mostra
+            lastre finché non arriva la mesh. 2026-11-19
       - [ ] mesh: camminamento, fasce, aiuole quadrate bordate, cordolo con striscia tattile
 - [ ] (blender-artist) Arredi: lampione, panchina, cestino, parapetto
 - [ ] (blender-artist) Battello turistico stilizzato, senza marchi reali
 - [ ] (blender-artist) Pini, oleandri, aiuole della fascia verde
 - [ ] (blender-artist) Fondale: sagome di edifici e colline
-- [ ] (uefn-builder) Sostituzione progressiva del blockout; palme e arredi come istanze
+- [~] (uefn-builder) Sostituzione progressiva del blockout; palme e arredi come istanze
+      2026-11-19: sostituiti ciglio (kit banchina), palme (PalmaA) e aspetto del camminamento (override lastre). Restano ponte, fondale,
+      arredi, pavimentazione come mesh. Memoria: Project Size mostra ancora l'ultima versione cotta (solo blockout, 531 KB); stima
+      texture nuove ≈ 88 MiB a piena risoluzione su 300 MiB di limite di pubblicazione. Da rileggere dopo una sessione.
+      Per `GetCost` serve il percorso del Mali Offline Compiler (preferenze dell'editor, utente)
 - [ ] (uefn-builder) Luce del tardo pomeriggio, cielo, nebbia leggera sul golfo
 - [ ] (uefn-builder) Audio ambientale: gabbiani, acqua, sartie
 - [ ] (qa-tester) Dopo ogni sostituzione importante: collisioni e percorrenza invariati
@@ -275,3 +301,4 @@ Ordine per impatto visivo:
 | 2026-11-18 | Stile Fortnite stilizzato, niente fotogrammetria | Licenze, prestazioni, coerenza visiva |
 | 2026-11-18 | Export FBX con `FBX_SCALE_NONE` + `bake_space_transform=True` | Unico preset che dà 1 m = 100 uu con l'import MCP (test di scala, giro 2) |
 | 2026-11-18 | Blockout: scala di Mirabello sostituita da rampa al 7 %, quote ponte [S], varchi nei giardini | Pilastro 3; dettagli in `docs/decisioni.md` |
+| 2026-11-19 | Acqua a −1,0 m; grafica v2 di banchina e palme importata in UEFN (HISM), segnaposto nascosti | Scelta dell'utente; dettagli in `docs/uefn_arte.md` e `docs/decisioni.md` |

@@ -32,8 +32,8 @@ Import con `StaticMeshToolset.ImportFile`, `bCombineMeshes=true`, `bImportMateri
 | Cartella | Label | Tipo | Trasformazione |
 |---|---|---|---|
 | `Blockout` | `Blockout_Passeggiata`, `Blockout_Ponte`, `Blockout_Mirabello`, `Blockout_Fondale` | FortStaticMeshActor | (0,0,0), rot 0, scala 1 |
-| `Blockout` | `Blockout_Palme_HISM` | Actor + HierarchicalInstancedStaticMeshComponent (53 istanze di `SM_Blockout_PalmaSegnaposto`, Static, profilo `FortStaticMesh`) | (0,0,0) |
-| `Acqua` | `Acqua_Golfo_Device` | Device Acqua V2 (`PID_CP_Devices_Water_V2`) | (8500, 9550, −534) |
+| `Blockout/Sostituiti` (era `Blockout`) | `Blockout_Palme_HISM` | Actor + HierarchicalInstancedStaticMeshComponent (53 istanze di `SM_Blockout_PalmaSegnaposto`, Static, profilo `FortStaticMesh`) | dal 2026-11-19 a (0,0,−10000), nascosto in gioco, collisione off: sostituito da `Arte_Palme_PalmaA` (`docs/uefn_arte.md`) |
+| `Acqua` | `Acqua_Golfo_Device` | Device Acqua V2 (`PID_CP_Devices_Water_V2`) | (8500, 9550, **−484**) dal 2026-11-19 (prima −534) |
 | `Device/Spawn` | `Player 1 Spawn Pad`, `Player 2 Spawn Pad` (con i PlayerStart figli) | Device del template | vedi sotto |
 | `Device/Barriere` | 6 × `Barriera_*` | Barrier device (`PID_Device_Barrier`) | vedi sotto |
 | `Luci` | `Luce_OraDelGiorno` | Device Sequenza giorno (`PID_DaySequence_Device`), ora fissa 18,0 | (24000, −10500, 0) |
@@ -59,7 +59,10 @@ colpisce il tronco a 23 uu dal centro, cioè la collisione UCX del tronco (Ø 50
 ## Acqua
 
 - **Device Acqua V2** (`Acqua_Golfo_Device`), tipo "Predefinito", attivo in fase **Sempre**.
-  Volume X −17100..34100 · Y −11954..31054 · Z −534..**−150** (superficie a −150, profondità 384 uu). Nessuna onda.
+  Volume X −17100..34100 · Y −11954..31054 · Z −484..**−100** (superficie a −100, profondità 384 uu). Nessuna onda.
+  **2026-11-19 (decisione dell'utente):** superficie alzata da −150 a −100 spostando il device da Z −534 a −484. Ciglio a 1,0 m
+  sull'acqua, come il modulo `SM_Banchina_Mod4m`. Barriere (base −700) ancora sotto il fondo. Dettagli in `docs/uefn_arte.md` §6.
+  Le righe sotto che citano −150 o −534 descrivono lo stato del 2026-11-18.
   Larghezza 100 unità, profondità 84 unità, altezza 1 unità (1 unità = 512 uu in pianta e 384 uu in altezza).
 - Copre il mare davanti alla passeggiata, il molo, il tratto sotto il ponte, Mirabello e anche la tasca senza geometria
   oltre la fine del blocco (X 25000..33000, Y −11800..−8200). Sotto le terre emerse è nascosta, perché camminamento e
@@ -182,3 +185,5 @@ Valori scritti con `DeviceToolset.SetClassicDeviceOption` e riletti con `ListCla
    di fine blocco, che dal 2026-11-19 attraversa tutto il mare. Se in futuro serve un bordo pulito, il fondale va esteso in Blender.
 4. I materiali `M_Blockout_*` sono quelli dell'FBX (colori piatti). La pavimentazione è quasi bianca e sotto il sole radente
    abbaglia un po' nei render. Va bene per il blockout.
+   Dal 2026-11-19 l'attore `Blockout_Passeggiata` ha un **override** dello slot `M_Blockout_Pietra` con `MI_Pav_Lastre`
+   (proiezione in coordinate mondo, perché le UV del blockout sono nulle). L'asset non è stato modificato. Vedi `docs/uefn_arte.md` §5.
