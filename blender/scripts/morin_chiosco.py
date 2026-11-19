@@ -146,21 +146,21 @@ def _facade(A, r, seed, back=False):
         H[win & ~wfr] -= 0.5
         return
     # vetrina
-    v = (Z > Z_VETRO0) & (Z < Z_VETRO1) & (U > 0.08) & (U < 3.92)
+    v = (Z > Z_VETRO0) & (Z < Z_VETRO1) & (U > 0.16) & (U < 3.84)
     zz = (Z - Z_VETRO0) / (Z_VETRO1 - Z_VETRO0)
     inside = _c((52, 40, 33))[None, None, :] * (0.7 + 0.8 * zz)[..., None]
     D[v] = inside[v]
     R[v] = 0.06
     H[v] -= 0.3
     # mensole con bottiglie
-    for zs in (1.36, 1.64, 1.92):
+    for zs in (1.45, 1.86):   # v2: due mensole, meno bottiglie, piu fondo
         sh = v & (np.abs(Z - zs) < 0.012)
         D[sh] = _c((176, 170, 160))
-        u = 0.12
-        while u < 3.85:
+        u = 0.2
+        while u < 3.76:
             w = rng.uniform(0.045, 0.08)
             hgt = rng.uniform(0.15, 0.26)
-            if rng.random() < 0.55 and abs(u - 4 / 3) > 0.05 and abs(u - 8 / 3) > 0.05:
+            if rng.random() < 0.3 and abs(u - 4 / 3) > 0.1 and abs(u - 8 / 3) > 0.1:
                 col = _c([(38, 92, 52), (150, 85, 25), (175, 185, 175), (120, 30, 35), (60, 60, 120), (210, 190, 90)]
                          [rng.integers(0, 6)])
                 neck = hgt * 0.35
@@ -179,7 +179,7 @@ def _facade(A, r, seed, back=False):
     refl = 0.5 + 0.5 * np.sin((U + Z * 0.9) * 2.4)
     D[v] = D[v] * 0.85 + _c((150, 165, 180))[None, :] * (0.18 * refl[v])[:, None]
     # telaio della vetrina
-    fr = (Z > Z_VETRO0 - 0.01) & (Z < Z_VETRO1) & ~((Z > Z_VETRO0 + 0.03) & (Z < Z_VETRO1 - 0.03) & (U > 0.11) & (U < 3.89))
+    fr = (Z > Z_VETRO0 - 0.01) & (Z < Z_VETRO1) & ~((Z > Z_VETRO0 + 0.03) & (Z < Z_VETRO1 - 0.03) & (U > 0.19) & (U < 3.81))
     D[fr] = _c((205, 200, 190))
     R[fr] = 0.4
 
@@ -242,6 +242,9 @@ def build_materials():
     if "M_Albero_Latifoglia_Chioma" not in bpy.data.materials:
         tm = PROJ + "/blender/textures/molo/T_Albero_Latifoglia_Chioma"
         pk._pbr_material("M_Albero_Latifoglia_Chioma", tm + "_D.png", tm + "_N.png", tm + "_ORM.png", alpha=True)
+    if not any(m.name == "M_Morin_PinoDomestico_Chioma" and m.library is None for m in bpy.data.materials):
+        tm = PROJ + "/blender/textures/molo/T_Morin_PinoDomestico_Chioma"
+        pk._pbr_material("M_Morin_PinoDomestico_Chioma", tm + "_D.png", tm + "_N.png", tm + "_ORM.png", alpha=True)
     return True
 
 
@@ -398,7 +401,7 @@ def build_chiosco(coll, lod=0, name="SM_Morin_Chiosco"):
     lay = _reg_layer(bm)
     uvl = _uvl(bm)
     fr, bk = RC["front"], RC["back"]
-    u_open0, u_open1 = 0.08, 3.92
+    u_open0, u_open1 = 0.16, 3.84   # v2: montanti d'angolo crema piu larghi (foto C1)
     for n_ in ((0, -1, 0), (-1, 0, 0), (1, 0, 0)):
         n, t = _side_frame(n_)
         _wall_quad(bm, uvl, n, t, 0, 4, 0, Z_BANCO, 0, fr)
@@ -416,10 +419,10 @@ def build_chiosco(coll, lod=0, name="SM_Morin_Chiosco"):
         if lod < 2:
             for um in (4 / 3, 8 / 3):
                 c = n * (CH_HW - REC / 2 + 0.005) + t * (um - CH_HW)
-                hw = t * 0.025 + n * (REC / 2 + 0.01)
+                hw = t * 0.06 + n * (REC / 2 + 0.01)
                 x0, x1 = sorted((c.x - abs(hw.x), c.x + abs(hw.x)))
                 y0, y1 = sorted((c.y - abs(hw.y), c.y + abs(hw.y)))
-                _add(bm, "steel", pk._box, x0, x1, y0, y1, Z_VETRO0, Z_VETRO1, faces=("xn", "xp", "yn", "yp"))
+                _add(bm, "crema", pk._box, x0, x1, y0, y1, Z_VETRO0, Z_VETRO1, faces=("xn", "xp", "yn", "yp"))
     n, t = _side_frame((0, 1, 0))
     _wall_quad(bm, uvl, n, t, 0, 4, 0, CH_H, 0, bk)
     # banconi: -Y prolungato oltre gli spigoli, -X e +X da filo a filo
@@ -543,12 +546,17 @@ def build_prop(coll, kind, lod=0):
     return o
 
 
+OMB_X, OMB_Y = 2.5, 2.0            # v2: tela 5 x 4 m (foto C2: tele grandi che coprono tutto il dehors)
+Z_OMB_APEX, Z_OMB_EDGE = 2.92, 2.36  # v2: bordo tela basso (foto C2), mantovana fino a 2,16
+
+
 def _canopy_z(x, y):
-    d = max(abs(x), abs(y)) / OMB
+    d = max(abs(x) / OMB_X, abs(y) / OMB_Y)
     if d < 1e-6:
-        return 3.0
-    ridge = min(abs(x), abs(y)) / max(abs(x), abs(y))
-    return 3.0 - 0.55 * d - 0.11 * math.sin(math.pi * d) * (1 - ridge) ** 1.5
+        return Z_OMB_APEX
+    ax, ay = abs(x) / OMB_X, abs(y) / OMB_Y
+    ridge = min(ax, ay) / max(ax, ay)
+    return Z_OMB_APEX - (Z_OMB_APEX - Z_OMB_EDGE) * d - 0.10 * math.sin(math.pi * d) * (1 - ridge) ** 1.5
 
 
 def build_ombrellone(coll, lod=0, name="SM_Morin_Ombrellone"):
@@ -559,7 +567,7 @@ def build_ombrellone(coll, lod=0, name="SM_Morin_Ombrellone"):
     gb = [[None] * (N + 1) for _ in range(N + 1)]
     for i in range(N + 1):
         for j in range(N + 1):
-            x, y = -OMB + 2 * OMB * i / N, -OMB + 2 * OMB * j / N
+            x, y = -OMB_X + 2 * OMB_X * i / N, -OMB_Y + 2 * OMB_Y * j / N
             z = _canopy_z(x, y)
             g[i][j] = bm.verts.new((x, y, z))
             gb[i][j] = bm.verts.new((x, y, z - 0.012))
@@ -579,31 +587,75 @@ def build_ombrellone(coll, lod=0, name="SM_Morin_Ombrellone"):
             fs.append(pk._quad(bm, [(b.x, b.y, b.z - drop), (a.x, a.y, a.z - drop), (a.x, a.y, a.z - 0.002), (b.x, b.y, b.z - 0.002)]))
             # le due facce coincidono: quella interna rientra di 1 cm verso il centro
             for v in fs[-1].verts:
-                v.co.x *= 0.995
+                v.co.x *= 0.996
                 v.co.y *= 0.995
         _tag(fs, bm, "canvas")
     # cappello di sfiato
-    c0, c1 = 0.28, 3.14
-    _add(bm, "canvas", pk._lathe, [(c0 * 1.414, 2.97), (c0 * 1.414, 3.0), (0, c1)], 4, Matrix(), cap_top=False, phase=math.pi / 4)
+    za = Z_OMB_APEX
+    _add(bm, "canvas", pk._lathe, [(0.40, za - 0.03), (0.40, za), (0, za + 0.14)], 4, Matrix(), cap_top=False, phase=math.pi / 4)
     ts = (6, 5, 4)[lod]
-    _add(bm, "metal", pk._lathe, [(0.035, 0.08), (0.035, 2.98)], ts, Matrix(), cap_top=False)
-    _add(bm, "metal", pk._box, -0.35, 0.35, -0.35, 0.35, 0.0, 0.08, faces=("top", "xn", "xp", "yn", "yp"))
+    _add(bm, "metal", pk._lathe, [(0.04, 0.08), (0.04, za - 0.02)], ts, Matrix(), cap_top=False)
+    _add(bm, "metal", pk._box, -0.4, 0.4, -0.4, 0.4, 0.0, 0.09, faces=("top", "xn", "xp", "yn", "yp"))
     if lod < 2:
         for sx, sy in ((1, 1), (1, -1), (-1, 1), (-1, -1)):
-            _add(bm, "steel", _tube, [(0, 0, 2.93), (sx * OMB * 0.97, sy * OMB * 0.97, 2.38)], 0.015, 4 if lod == 0 else 3)
+            _add(bm, "steel", _tube, [(0, 0, za - 0.07), (sx * OMB_X * 0.97, sy * OMB_Y * 0.97, Z_OMB_EDGE - 0.06)], 0.016,
+                 4 if lod == 0 else 3)
             if lod == 0:
-                _add(bm, "steel", _tube, [(0, 0, 2.1), (sx * OMB * 0.5, sy * OMB * 0.5, 2.62)], 0.011, 3)
+                _add(bm, "steel", _tube, [(0, 0, 1.95), (sx * OMB_X * 0.5, sy * OMB_Y * 0.5, (za + Z_OMB_EDGE) / 2 - 0.08)], 0.011, 3)
+        for sx in (-1, 1):   # stecche di mezzo sui lati lunghi
+            if lod == 0:
+                _add(bm, "steel", _tube, [(0, 0, za - 0.08), (sx * OMB_X * 0.97, 0, Z_OMB_EDGE - 0.05)], 0.013, 3)
         if lod == 0:
-            _add(bm, "steel", pk._lathe, [(0.05, 2.08), (0.05, 2.16)], 6, Matrix(), cap_top=False)
+            _add(bm, "steel", pk._lathe, [(0.055, 1.93), (0.055, 2.01)], 6, Matrix(), cap_top=False)
     o = _write(name + _sfx(lod), bm, ["M_Morin_Dehors"], coll, RD, scale=0.6)
     if lod == 0:
-        pk._ucx(name, [(-0.35, 0.35, -0.35, 0.35, 0, 0.08), (-0.04, 0.04, -0.04, 0.04, 0.08, 2.9)], coll)
-        pk._ucx_hull(name, 2, [(sx * OMB, sy * OMB, z) for sx in (-1, 1) for sy in (-1, 1) for z in (2.25, 2.45)] +
-                     [(0, 0, 3.14)], coll)
+        pk._ucx(name, [(-0.4, 0.4, -0.4, 0.4, 0, 0.09), (-0.045, 0.045, -0.045, 0.045, 0.09, za - 0.05)], coll)
+        pk._ucx_hull(name, 2, [(sx * OMB_X, sy * OMB_Y, z) for sx in (-1, 1) for sy in (-1, 1)
+                               for z in (Z_OMB_EDGE - 0.2, Z_OMB_EDGE)] + [(0, 0, za + 0.14)], coll)
     return o
 
 
-FIO_B, FIO_T, FIO_H = 0.27, 0.35, 0.95
+FIO_B, FIO_T, FIO_H = 0.29, 0.37, 1.0     # v2: vaso un po' piu' alto (foto C2: ~1 m)
+
+# v2: arbusti misti a cespi su card verticali. Varianti: (nome, seme, cespi [(dx, dy, altezza, raggio, n_card, materiale)])
+# materiale 1 = latifoglia (foglia larga), 2 = pino (fine, piu' scuro). Altezze dal suolo fino a ~1,8 m.
+FIO_VAR = {
+    "SM_Morin_Fioriera": (5, [(0.0, 0.05, 1.78, 0.30, 46, 1), (-0.18, -0.15, 1.40, 0.30, 30, 1), (0.2, -0.12, 1.30, 0.26, 22, 2)]),
+    "SM_Morin_FiorieraB": (7, [(0.0, 0.0, 1.62, 0.45, 60, 1), (0.22, 0.2, 1.35, 0.25, 18, 2)]),
+    "SM_Morin_FiorieraC": (9, [(-0.1, 0.1, 1.80, 0.22, 34, 2), (0.15, -0.1, 1.55, 0.32, 36, 1), (-0.15, -0.2, 1.25, 0.25, 20, 1)]),
+}
+
+
+def _shrub_cards(bm, rng, base_z, cespi, lod, card_out):
+    """Card verticali o inclinate attorno all'asse di ogni cespo, rivolte verso l'esterno: sagoma irregolare, non a sfera."""
+    uvl = _uvl(bm)
+    k = (1.0, 0.45, 0.16)[lod]
+    for dx, dy, top, r, n, mi in cespi:
+        n = max(4, int(round(n * k)))
+        sz = 1.0 / math.sqrt(max(k, 0.16)) ** 0.8
+        for _ in range(n):
+            t = rng.uniform(0.15, 1.0) ** 0.7                     # quota relativa nel cespo (piu' card in alto)
+            hz = base_z + (top - base_z) * t
+            rr = r * (0.35 + 0.65 * math.sin(math.pi * min(t, 0.95) * 0.9 + 0.3)) * rng.uniform(0.6, 1.1)
+            a = rng.uniform(0, 2 * math.pi)
+            c = Vector((dx + rr * math.cos(a), dy + rr * math.sin(a), hz))
+            out = Vector((math.cos(a), math.sin(a), 0.5 * t)).normalized()
+            w = rng.uniform(0.22, 0.38) * sz
+            h = rng.uniform(0.30, 0.50) * sz
+            h = min(h, (top - base_z) * 0.9)
+            e1 = Vector((-math.sin(a + rng.normal(0, 0.5)), math.cos(a + rng.normal(0, 0.5)), 0)) * w / 2
+            tilt = rng.uniform(0.0, 0.5)
+            e2 = (Vector((0, 0, 1)) * (1 - tilt) + out * tilt).normalized() * h / 2
+            if c.z + e2.z > top:
+                c.z = top - e2.z
+            vs = [bm.verts.new(c + sx * e1 + sy * e2) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+            f = bm.faces.new(vs)
+            f.material_index = mi
+            q = int(rng.integers(0, 4))
+            u0, v0 = (q % 2) * 0.5, 0.5 - (q // 2) * 0.5
+            for lp, (uu, vv) in zip(f.loops, ((0, 0), (1, 0), (1, 1), (0, 1))):
+                lp[uvl].uv = (u0 + 0.5 * uu, v0 + 0.5 * vv)
+            card_out.append((f, out))
 
 
 def build_fioriera(coll, lod=0, name="SM_Morin_Fioriera"):
@@ -624,11 +676,12 @@ def build_fioriera(coll, lod=0, name="SM_Morin_Fioriera"):
     zs = H - (0.07 if lod < 2 else 0.0)
     _tag([pk._quad(bm, [(*p, zs) for p in it])], bm, "soil")
     _uv_regions(bm, RD, 0.5)
-    rng = np.random.default_rng(5)
-    cc, cr = (0.0, 0.0, 1.32), (0.42, 0.42, 0.40)
-    centers = [((rng.normal(0, 0.15), rng.normal(0, 0.15), 1.3 + rng.normal(0, 0.1)), 0.32) for _ in range(5)]
-    cards = mm._cards(bm, centers, rng, (110, 45, 16)[lod], ((0.30, 0.50), (0.42, 0.62), (0.6, 0.85))[lod], cc, cr, mi=1)
-    o = mm._finish_tree(name + _sfx(lod), bm, cards, ["M_Morin_Dehors", "M_Albero_Latifoglia_Chioma"], coll)
+    seed, cespi = FIO_VAR[name]
+    rng = np.random.default_rng(seed)
+    cards = []
+    _shrub_cards(bm, rng, zs, cespi, lod, cards)
+    o = mm._finish_tree(name + _sfx(lod), bm, cards,
+                        ["M_Morin_Dehors", "M_Albero_Latifoglia_Chioma", "M_Morin_PinoDomestico_Chioma"], coll)
     _clean_attrs(o)
     if lod == 0:
         pk._ucx(name, [(-t, t, -t, t, 0, H)], coll)
@@ -654,7 +707,8 @@ def build_all():
     for l in range(3):
         out.append(build_chiosco(coll, l))
         out.append(build_ombrellone(coll, l))
-        out.append(build_fioriera(coll, l))
+        for fn in FIO_VAR:
+            out.append(build_fioriera(coll, l, fn))
         for k in ("tavolino", "sedia", "set", "sgabello"):
             out.append(build_prop(coll, k, l))
     out.append(build_pav(coll))
@@ -682,17 +736,17 @@ def layout():
           (cx - CH_HW - 0.55, cy - 0.6), (cx - CH_HW - 0.55, cy + 0.6)]
     for i, (x, y) in enumerate(sg):
         rows.append(("SM_Morin_Sgabello", f"Sgabello_{i:02d}", x, y, ZF, 17.0 * i))
-    for i, (x, y) in enumerate([(106.0, 106.1), (110.5, 106.1), (106.0, 110.3), (110.5, 110.3)]):
+    for i, (x, y) in enumerate([(106.1, 106.4), (111.3, 106.4), (106.1, 110.6), (111.3, 110.6)]):   # v2: tele 5 x 4 m
         rows.append(("SM_Morin_Ombrellone", f"Ombrellone_{i:02d}", x, y, ZF, 0.0))
-    for i, (x, y) in enumerate([(104.6, 105.95), (108.25, 105.95), (112.0, 105.95),
-                                (104.6, 110.4), (108.25, 110.4), (112.0, 110.4)]):
-        rows.append(("SM_Morin_TavoloSet", f"TavoloSet_{i:02d}", x, y, ZF, (0.0, 12.0, -8.0, 5.0, -15.0, 9.0)[i]))
+    tav = [(x, y) for y in (105.8, 108.5, 111.25) for x in (104.3, 108.7, 112.55)]   # v2: 9 tavoli, fra i pali
+    for i, (x, y) in enumerate(tav):
+        rows.append(("SM_Morin_TavoloSet", f"TavoloSet_{i:02d}", x, y, ZF, float((i * 37) % 31 - 15)))
     x0, x1, ym, yc = DEHORS
     fio = [(x, ym) for x in (104.0, 105.2, 106.4, 110.3, 111.5, 112.7, x1)]          # varco d'ingresso X 107-109,7
     fio += [(x1, y) for y in (105.7, 106.95, 108.2, 109.45, 110.7, 111.95)]
     fio += [(x, yc) for x in (x1, 112.7, 111.5, 110.3, 109.1, 107.9, 106.7, 105.5, 104.3)]
     for i, (x, y) in enumerate(fio):
-        rows.append(("SM_Morin_Fioriera", f"Fioriera_{i:02d}", x, y, ZF, (0.0, 90.0, 180.0, 270.0)[i % 4]))
+        rows.append((("SM_Morin_Fioriera", "SM_Morin_FiorieraB", "SM_Morin_FiorieraC")[(i * 7) % 3], f"Fioriera_{i:02d}", x, y, ZF, (0.0, 90.0, 180.0, 270.0)[i % 4]))
     return rows
 
 
@@ -708,7 +762,7 @@ def export_all(overwrite=False):
     import importlib
     import morin_export
     importlib.reload(morin_export)
-    lodded = ["SM_Morin_Chiosco", "SM_Morin_Ombrellone", "SM_Morin_Fioriera", "SM_Morin_Tavolino", "SM_Morin_Sedia",
+    lodded = ["SM_Morin_Chiosco", "SM_Morin_Ombrellone", "SM_Morin_Fioriera", "SM_Morin_FiorieraB", "SM_Morin_FiorieraC", "SM_Morin_Tavolino", "SM_Morin_Sedia",
               "SM_Morin_TavoloSet", "SM_Morin_Sgabello"]
     names = ["SM_Pav_Chiosco"]
     hidden = {o.name: (o.hide_viewport, o.hide_get()) for o in bpy.context.scene.objects}

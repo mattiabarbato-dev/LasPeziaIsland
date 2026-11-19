@@ -40,9 +40,17 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      Tri LOD0/1/2: Chiosco 2.776/1.288/100 · Ombrellone 894/304/126 · Fioriera 246/116/50 · TavoloSet 672/450/324 ·
      Tavolino 184/106/76 · Sedia 122/86/62 · Sgabello 168/144/68 · `SM_Pav_Chiosco` 8 (solo LOD0). Render `docs/qa/arte_chiosco_v1*.png`
      (confronti foto/render). Nome inventato "Chiosco del Golfo".
-   - [ ] (uefn-builder) Import kit chiosco (metodo `docs/uefn_arte.md` §12, LOD1/2 con `set_lod_from_static_mesh`) e posa dal CSV.
-     **Prima** serve un blockout ritagliato: `SM_Blockout_Passeggiata_Pav_v2` ha aiuole a Z +0,40 in X 95-117, Y 102-106 e 112-116 che
-     sbucano dal tassello `SM_Pav_Chiosco` (Z +0,15) e coprono base del chiosco, fioriere e sedie (→ blender-artist: v3 del blockout, o conferma utente).
+   - [x] (blender-artist, 2026-11-19) **Chiosco v2** (ritocchi approvati dall'utente, stessi nomi, FBX sovrascritti): ombrelloni con tela
+     5 × 4 m e bordo a 2,36 m (910/304/126 tri), che coprono tutto il dehors; fioriere con vaso da 1 m e arbusti misti su card fino
+     a 1,6-1,8 m in **3 varianti** `SM_Morin_Fioriera` 222/116/50, `SM_Morin_FiorieraB` 182/96/46, `SM_Morin_FiorieraC` 206/106/48;
+     montanti crema da 12 cm, vetrine con 2 mensole e meno bottiglie (chiosco 2.776/1.288/100). 9 tavoli (prima 6) fra i pali.
+     28 FBX, `chiosco_posizioni_v1.csv` riscritto (42 righe). Confronti `docs/qa/arte_chiosco_v2_confronto.png`, `_v2_dehors_confronto.png`.
+   - [x] (blender-artist, 2026-11-19) **Blockout passeggiata v3**: `exports/blockout/SM_Blockout_Passeggiata_Pav_v3.fbx` (138 tri, 14 UCX;
+     sorgente `blender/arte_pavimentazione.blend`, collezione `Blockout_Passeggiata_Pav_v3`, v2 intatta; backup
+     `blender/arte_pavimentazione_pre_blockout_v3.blend`). Tolte le aiuole fra X 94,5 e 117,5 (Y 102-107 e 111-116). Ray test (griglia 0,25 m): nessuna
+     superficie sopra il tassello del chiosco, suolo a lastre (Z 0) continuo sotto; fuori zona identica alla v2; bbox identica, posa (0,0,0).
+   - [ ] (uefn-builder) Import kit chiosco v2 (metodo `docs/uefn_arte.md` §12, LOD1/2 con `set_lod_from_static_mesh`) e posa dal CSV;
+     blockout v3 come nuovo attore al posto del v2 (nascondere il v2, non cancellarlo).
    - [ ] (blender-artist → uefn-builder) Layout fascia palme **v4**: filari da X 20,4 (via le palme a X 12), tutto il resto −0,6 m,
      gazebo a X ≈ 33,9; in UEFN solo spostamenti di attori (niente reimport).
    - [x] (uefn-builder, 2026-11-19 18:15) Import e posa del kit molo v2 (`docs/uefn_arte.md` §13): 14 mesh in `LaSpezia/Arte/Molo` e

@@ -107,5 +107,5 @@ Foto: `ref/foto/vista/chiosco_con_ombrelloni_e_tavolini.png` (C1) e `..._2.png` 
   Insegna: nome inventato "Chiosco del Golfo" (font interno di Blender), l'insegna reale non è riprodotta.
 - **[SV]** `T_Morin_Dehors_D/N/ORM` (2048, atlante condiviso da ombrellone, fioriera, tavolino, sedia, sgabello): **procedurale**;
   grigio delle fioriere campionato da C2 x 160-200 / 880-915, y 280-330; tela degli ombrelloni da C2 x 600-900, y 95-160.
-- Arbusti delle fioriere: riuso di `T_Albero_Latifoglia_Chioma_*` (sezione molo, [SV]). Pavimento `SM_Pav_Chiosco`: riuso di `T_Pav_Cubetti_*`.
+- Arbusti delle fioriere (v2, 3 varianti): riuso di `T_Albero_Latifoglia_Chioma_*` (sezione molo, [SV]) e `T_Morin_PinoDomestico_Chioma_*` (procedurale). Pavimento `SM_Pav_Chiosco`: riuso di `T_Pav_Cubetti_*`.
 - Nessun ritaglio di foto nelle texture: niente persone, targhe, UI o insegne.
