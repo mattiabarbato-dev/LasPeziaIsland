@@ -49,8 +49,13 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      sorgente `blender/arte_pavimentazione.blend`, collezione `Blockout_Passeggiata_Pav_v3`, v2 intatta; backup
      `blender/arte_pavimentazione_pre_blockout_v3.blend`). Tolte le aiuole fra X 94,5 e 117,5 (Y 102-107 e 111-116). Ray test (griglia 0,25 m): nessuna
      superficie sopra il tassello del chiosco, suolo a lastre (Z 0) continuo sotto; fuori zona identica alla v2; bbox identica, posa (0,0,0).
-   - [ ] (uefn-builder) Import kit chiosco v2 (metodo `docs/uefn_arte.md` §12, LOD1/2 con `set_lod_from_static_mesh`) e posa dal CSV;
-     blockout v3 come nuovo attore al posto del v2 (nascondere il v2, non cancellarlo).
+   - [x] (uefn-builder, 2026-11-19 22:00-22:10) Import kit chiosco v2 e blockout v3 (`docs/uefn_arte.md` §16): 10 mesh, 6 texture 2048 e
+     `MI_Morin_Chiosco`/`MI_Morin_Dehors` in `LaSpezia/Arte/Chiosco`; `SM_Blockout_Passeggiata_Pav_v3` in `LaSpezia/Blockout`. Posa dal CSV
+     (42 righe) in Outliner `Arte/Chiosco`: 2 attori singoli + 6 HISM (ombrelloni 4, tavoli 9, sgabelli 5, fioriere 8/7/7).
+     `Blockout_Passeggiata_v3` posato; **`Blockout_Passeggiata_v2` nascosto** (non cancellato: serve la conferma diretta dell'utente).
+     Line trace: nessuna aiuola sopra il tassello, suolo continuo. Render `docs/qa/uefn_chiosco_v2.png`, `uefn_chiosco_v2_b.png`.
+   - [ ] (utente) Conferma per cancellare l'attore `Blockout_Passeggiata_v2` e l'asset `SM_Blockout_Passeggiata_Pav_v2`; pulizia dei 18 `TMPC_*` in `_Temp`.
+   - [ ] (qa-tester) Prova in sessione del dehors: gradino del tassello (+15), passaggio fra tavoli e fioriere, collisione degli ombrelloni.
    - [ ] (blender-artist → uefn-builder) Layout fascia palme **v4**: filari da X 20,4 (via le palme a X 12), tutto il resto −0,6 m,
      gazebo a X ≈ 33,9; in UEFN solo spostamenti di attori (niente reimport).
    - [x] (uefn-builder, 2026-11-19 18:15) Import e posa del kit molo v2 (`docs/uefn_arte.md` §13): 14 mesh in `LaSpezia/Arte/Molo` e

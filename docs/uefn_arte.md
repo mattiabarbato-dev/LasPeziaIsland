@@ -620,3 +620,66 @@ Verifica: `save_dirty_packages`, nessun pacchetto sporco. Validazione di tutto `
 10 avvisi già noti ("un solo LOD" su colline, `SM_Blockout_Fondale_v2`, `SM_Blockout_Ponte`). Log dalle 20:00: nessun
 "Failed to load"/"missing" né errori legati agli asset cancellati. Render dall'alto della zona molo (ortografico, centro X 456,
 Y −4380, larghezza 200 m): `docs/qa/uefn_pulizia_alto.png`, scena invariata (blockout v2, molo, alberi, palme presenti).
+
+## 16. Chiosco-bar v2 e blockout passeggiata v3 (2026-11-19, 22:00-22:10 ora locale)
+
+Sorgenti: `exports/chiosco/` (28 FBX), `exports/chiosco/chiosco_posizioni_v1.csv` (42 righe), texture `blender/textures/chiosco/`,
+`exports/blockout/SM_Blockout_Passeggiata_Pav_v3.fbx`. Controllo iniziale: nessun asset né attore con questi nomi.
+Metodo del §13 (LOD0 con il nome finale, LOD1/2 come `_Temp/TMPC_<asset>_LOD1/2` + `set_lod_from_static_mesh`, `remove_lods`, MinLOD,
+Nanite off, Use Simple Collision As Complex, soglie 1,0 / 0,2 / 0,08). Nessun colore vertice nel kit (`morin_chiosco.py`).
+
+### Asset (`LaSpezia/Arte/Chiosco`, salvo il blockout)
+| Asset | Tri LOD0/1/2 | Bbox LOD0 (uu) | Convessi | Slot → MI | MinLOD Low/Med |
+|---|---|---|---|---|---|
+| `SM_Morin_Chiosco` | 2.776 / 1.288 / 100 | X ±270 · Y −270..295 · Z 0..368,1 (5,40 × 5,65 × 3,68 m) | 3 | `MI_Morin_Chiosco` | 2 |
+| `SM_Morin_Ombrellone` | 910 / 304 / 126 | X ±250 · Y ±200 · Z 0..306 | 3 | `MI_Morin_Dehors` | 2 |
+| `SM_Morin_Fioriera` | 222 / 116 / 50 | X −59..53 · Y −49..67 · Z 0..178 | 1 | Dehors, `MI_Albero_Latifoglia_Chioma`, `MI_Morin_PinoDomestico_Chioma` | 2 |
+| `SM_Morin_FiorieraB` | 182 / 96 / 46 | X −67..62 · Y −67..61 · Z 0..162 | 1 | idem | 2 |
+| `SM_Morin_FiorieraC` | 206 / 106 / 48 | X −57..65 · Y −42..58 · Z 0..180 | 1 | idem | 2 |
+| `SM_Morin_TavoloSet` | 672 / 450 / 324 | X ±91 · Y ±91 · Z 0..88 | 1 | `MI_Morin_Dehors` | 2 |
+| `SM_Morin_Tavolino` | 184 / 106 / 76 | X ±35 · Y ±35 · Z 0..75 | 1 | `MI_Morin_Dehors` | 2 |
+| `SM_Morin_Sedia` | 122 / 86 / 62 | X ±21,5 · Y −27,7..22 · Z 0..88 | 1 | `MI_Morin_Dehors` | 2 |
+| `SM_Morin_Sgabello` | 168 / 144 / 68 | X ±19 · Y ±19 · Z 0..76 | 1 | `MI_Morin_Dehors` | 2 |
+| `SM_Pav_Chiosco` | 8 | X 9500..11700 · Y −11350..−10200 · Z −15..15 | 1 | `MI_Pav_Cubetti` | 0 |
+| `Blockout/SM_Blockout_Passeggiata_Pav_v3` | 138 | X −1230..25000 · Y −11800..8980 · Z −300..150 (= v2) | 14 | Verde → `M_Blockout_Verde`, Pietra → `MI_Pav_Lastre` | 0 |
+
+- Bbox dei LOD1/2 uguali al LOD0 per chiosco, ombrellone e arredi; nelle fioriere variano di qualche cm (card degli arbusti decimate).
+- Texture `T_Morin_Chiosco_D/N/ORM`, `T_Morin_Dehors_D/N/ORM` 2048 (N = Normalmap senza flip, ORM = Masks, sRGB off).
+  `MI_Morin_Chiosco`, `MI_Morin_Dehors` su `M_Morin_Master_PBR` (nessun master nuovo). Riusate `MI_Pav_Cubetti` e le chiome del molo.
+- Insidie: lo slot Pietra del blockout v3 arriva su `M_Blockout_Pietra` (va riportato a `MI_Pav_Lastre`, come la v2);
+  `set_material_instance_texture_parameter_value` restituisce False anche quando imposta il parametro (verificare con `texture_parameter_values`);
+  `BodySetup.agg_geom` in Python solo con `get_editor_property('agg_geom')`. Avvisi d'import sul blockout v3: tangenti degeneri (blockout, innocuo).
+- `SM_Morin_Tavolino` e `SM_Morin_Sedia` sono importati ma **non posati** (il CSV usa solo `SM_Morin_TavoloSet`).
+
+### Posa (Outliner `Arte/Chiosco`, Static, profilo `FortStaticMesh`)
+| Attore | Tipo | Mesh | Istanze / trasformazione |
+|---|---|---|---|
+| `Arte_Pav_Chiosco` | FortStaticMeshActor (dup. del gazebo) | SM_Pav_Chiosco | (0,0,0) |
+| `Arte_Chiosco_Chiosco` | idem | SM_Morin_Chiosco | (10000, −10600, 15), yaw 0 |
+| `Arte_Chiosco_Ombrelloni` | HISM (dup. dei tombini) | SM_Morin_Ombrellone | 4 |
+| `Arte_Chiosco_TavoliSet` | HISM | SM_Morin_TavoloSet | 9 |
+| `Arte_Chiosco_Sgabelli` | HISM | SM_Morin_Sgabello | 5 |
+| `Arte_Chiosco_FiorieraA/B/C` | HISM | SM_Morin_Fioriera/B/C | 8 / 7 / 7 |
+| `Blockout_Passeggiata_v3` (cartella `Blockout`) | FortStaticMeshActor (dup. della v2) | SM_Blockout_Passeggiata_Pav_v3 | (0,0,0) |
+
+Tutte le posizioni e gli yaw dal CSV (Z 15). **`Blockout_Passeggiata_v2` nascosto, non cancellato** (stesso metodo del §14: Actor Hidden In Game,
+componente Visible falso, No Collision, Actor Enable Collision no): la richiesta di cancellazione è arrivata dall'orchestratore, non direttamente
+dall'utente, e CLAUDE.md §6 chiede una conferma esplicita. L'asset `SM_Blockout_Passeggiata_Pav_v2` resta referenziato dall'attore nascosto.
+Attori nel livello: 93.
+
+### Verifiche
+- Line trace verticali (passo 50 uu, X 9500..11700, Y −11650..−10200), ignorando gli arredi: tassello `Arte_Pav_Chiosco` a +15 (1.012 punti),
+  blockout v3 a Z 0 fuori dal tassello, fascia palme +15 a Y −10200; **nessuna superficie del blockout sopra Z 5 nel tassello**, nessun buco.
+  Unica quota 150: la siepe esistente a Y −11650 (fuori dal tassello, come nella v2). Gradino tassello/lastre 15 cm.
+- Primo impatto: chiosco, ombrelloni (le tele hanno collisione), tavoli e fioriere colpiti: collisioni semplici attive.
+- Salvataggio `save_dirty_packages` 22:03:23 (38 asset + 10 OFPA + 1 external object), date su disco controllate, nessun pacchetto sporco.
+- Validazione `LaSpezia/`: 204 controllati, 204 validi, 0 errori, 10 avvisi già noti ("un solo LOD" su colline, fondale v2, ponte).
+  Log: nessun "Failed to load"/missing (solo gli avvisi EOS/libcurl ricorrenti).
+
+### Render (`docs/qa/`, 1024 px, FOV 90, ombre)
+`uefn_chiosco_v2.png` (UE 8850, −10050, 180; yaw −14; pitch −4): chiosco con insegna, sgabelli, aiuola verde del blockout in primo piano.
+`uefn_chiosco_v2_b.png` (UE 8700, −9450, 180; yaw −24; pitch −5): inquadratura simile a `ref/foto/vista/chiosco_con_ombrelloni_e_tavolini.png`,
+chiosco, ombrelloni e fioriere dietro il filare di palme.
+
+### Temporanei
+18 `LaSpezia/_Temp/TMPC_<asset>_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente.
