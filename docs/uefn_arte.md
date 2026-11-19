@@ -595,5 +595,28 @@ Nessun `TMPM_*` toccato.
 ### Problemi aperti
 1. **(utente)** Chiome basse delle latifoglie nei tetti delle scatole D/E del fondale (visibile in alto e F3).
 2. **(utente/geo-scout)** Lastre del blockout in primo piano in F1 (Y 114-118 m): sostituirle con il suolo vero.
-3. **(utente)** Conferma per cancellare gli originali nascosti e le loro mesh.
-4. **(qa-tester)** Prova in sessione: originali assenti nel client, nessuna collisione invisibile nella zona ristoranti.
+3. ~~**(utente)** Conferma per cancellare gli originali nascosti e le loro mesh.~~ Fatto, vedi §15.
+4. **(qa-tester)** Prova in sessione: nessuna collisione invisibile nella zona ristoranti (gli originali ora non esistono più).
+
+## 15. Pulizia di attori e asset superati (2026-11-19, ~20:05-20:10 ora locale, autorizzata dall'utente)
+
+Metodo: per ogni asset, referencer letti subito prima della cancellazione (asset registry con riferimenti hard/soft/management e
+`find_package_referencers_for_asset` con caricamento); cancellato solo se senza referencer o referenziato solo da altro in lista.
+Cancellazione con `AssetToolset.Delete` (nessun force delete né replace references). Ricerca testuale nei `.uasset` del progetto
+(281 file, OFPA inclusi) di `/_Temp/` e dei nomi v1: nessun riferimento esterno. Nessun file Verse nel progetto.
+
+- **Attori:** `Blockout_Fondale` (OFPA `9/9Y/ZCPL2X6ABMHD8JEH00BQ5F`) e `Blockout_Passeggiata` (OFPA `4/ZR/QVW7OHB54ZLHC2SCCL2SYW`);
+  nessun figlio né genitore, unico referencer la mappa. File OFPA rimossi dal disco al salvataggio. Attori nel livello: 84.
+- **Mesh `LaSpezia/Blockout`:** `SM_Blockout_Fondale`, `SM_Blockout_Passeggiata_Pav` (referencer: solo i due attori sopra),
+  `SM_Blockout_Passeggiata`, `SM_Blockout_Passeggiata_Arte` (nessun referencer). ~180 KB su disco.
+- **`LaSpezia/_Temp`:** tutti i 130 asset (StaticMesh `TMP_*`, `TMP2_*`, `TMP3_*`, `TMPVC_*`, `TMPVC2_*`, `TMPTEST_*`, `TMP_Test_*`,
+  18 `TMPM_*`), nessun referencer. 7,3 MB su disco. La cartella vuota resta per i prossimi import.
+- **Materiali orfani:** `Arte/Banchina/M_Banchina_Ciglio`, `_Ghisa`, `_Paramento`, `Arte/Palme/M_Morin_PalmaA_Fronde`, `_Tronco`
+  (dall'import FBX, sola diffusa, nessun referencer). Le loro texture `T_*_D` restano: le usano gli MI.
+- **Tenuti:** `M_Blockout_Pietra` (usato da `SM_Blockout_Mirabello`, `SM_Blockout_PalmaSegnaposto`), `M_Blockout_Verde` e
+  `M_Blockout_Fondale` (usati dai v2), `M_Blockout_Ponte`; attore `Blockout_Palme_HISM` e la sua mesh (non in lista).
+
+Verifica: `save_dirty_packages`, nessun pacchetto sporco. Validazione di tutto `LaSpezia/`: 167 controllati, 167 validi, 0 errori,
+10 avvisi già noti ("un solo LOD" su colline, `SM_Blockout_Fondale_v2`, `SM_Blockout_Ponte`). Log dalle 20:00: nessun
+"Failed to load"/"missing" né errori legati agli asset cancellati. Render dall'alto della zona molo (ortografico, centro X 456,
+Y −4380, larghezza 200 m): `docs/qa/uefn_pulizia_alto.png`, scena invariata (blockout v2, molo, alberi, palme presenti).

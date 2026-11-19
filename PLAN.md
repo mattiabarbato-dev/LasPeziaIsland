@@ -63,7 +63,10 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
        davvero lì (marciapiede di Viale Italia? asfalto?) e modellarlo.
      - [ ] (utente) le chiome basse delle latifoglie 01-05 entrano ancora nei tetti delle scatole D/E (6-8 m, area militare), visibile in
        `uefn_molo_v2b_alto.png` e `_F3.png` (non in F1): spostare gli alberi fuori dalle scatole oppure abbassare o togliere D ed E.
-     - [ ] (utente) Conferma per cancellare gli attori nascosti `Blockout_Fondale`, `Blockout_Passeggiata` e le loro mesh (restano in cottura).
+     - [x] (uefn-builder, 2026-11-19 20:10, autorizzato dall'utente) Pulizia (`docs/uefn_arte.md` §15): cancellati gli attori nascosti
+       `Blockout_Fondale`, `Blockout_Passeggiata`, le mesh `SM_Blockout_Fondale`, `SM_Blockout_Passeggiata_Pav`/`_Passeggiata`/`_Arte`,
+       i 130 temporanei di `LaSpezia/_Temp` e i 5 materiali orfani `M_Banchina_*`, `M_Morin_PalmaA_*`. Referencer controllati uno per uno,
+       validazione `LaSpezia/` 167/167 valida, log puliti. Render `docs/qa/uefn_pulizia_alto.png`.
 1. [~] Fondale: tinta MI fatta (facciate ok, colline poco cambiate: colpa della nebbia, `docs/uefn_fondale.md` §9); colle cittadino v2
    importato in UEFN (`docs/uefn_fondale.md` §10), **da verificare in sessione (utente)**; poi alberi del colle troppo chiari (MI dedicata).
    **TO DO (rimandato dall'utente): task nebbia** su `Luce_OraDelGiorno` — densità 0,002-0,003 o diminuzione 0,03, colore più blu/scuro,
@@ -75,8 +78,8 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
 5. Banchina: testata/angolo (X 19,2 e 251 m), normali di bitta e scaletta; Palme B/C.
 6. Blocco 2 (dopo): cannone + scultura REDAMARE a ~275 m, scritta "PASSEGGIATA MORIN" a ~550 m.
 
-**Decisioni in attesa dell'utente:** cancellare i 93 temporanei in `LaSpezia/_Temp` e i materiali inutilizzati `M_Banchina_*`,
-`M_Morin_PalmaA_*` (finché non dice sì, non si cancella); anello di mare solo visivo (per ora non serve, prova ok).
+**Decisioni in attesa dell'utente:** anello di mare solo visivo (per ora non serve, prova ok).
+(`_Temp`, `M_Banchina_*`, `M_Morin_PalmaA_*` e blockout v1 nascosti: cancellati il 2026-11-19, `docs/uefn_arte.md` §15.)
 
 **Note:** il progetto UEFN (`Documents/Fortnite Projects/LasPezia_Island`) non è in questo repository. Foto stock (Alamy) in
 `ref/foto/vista/` solo come riferimento visivo, mai per texture.
