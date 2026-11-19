@@ -73,6 +73,12 @@ BUDGETS = (
     ("Tombino", 4000),     # prop
     ("Gazebo", 10000),     # pezzo unico vicino alla corsia (deroga possibile fino a ~10k, docs/decisioni.md)
     ("Pav", 2000),         # moduli di pavimentazione (come modulo banchina)
+    ("Chiosco", 5000),     # pezzo unico (2026-11-19, kit chiosco): obiettivo del task, come un edificio di fondale
+    ("Ombrellone", 4000),  # prop del dehors
+    ("Fioriera", 4000),
+    ("Tavol", 4000),
+    ("Sedia", 4000),
+    ("Sgabello", 4000),
 )
 
 # Rotazione applicata solo in export (docs/scala.md, giro 3).

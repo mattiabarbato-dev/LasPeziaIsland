@@ -34,6 +34,15 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
    - [~] (blender-artist) Tranche 1: pavimenti (asfalto, masselli, angolo cubetti), edifici A1A2/A3/A4A5/C, tendone, lampione 2 globi,
      latifoglie A/B, pino domestico → `blender/arte_molo.blend`, `exports/molo/`.
    - [ ] (blender-artist) Tranche 2: dehors (tavolini, sedie, ombrelloni, tettoie a righe), fioriere, Sirena stilizzata, lampioni alti, piccoli prop.
+   - [x] (blender-artist, 2026-11-19) **Chiosco-bar + dehors v1** (scheda `ref/zona_parcheggio_chiosco.md` §3): `blender/arte_chiosco.blend`
+     (contesto CTX_Contesto *linkato* da arte_molo.blend), script `blender/scripts/morin_chiosco.py`, texture `blender/textures/chiosco/`
+     (2 atlanti 2048 D/N/ORM), 22 FBX in `exports/chiosco/` + `chiosco_posizioni_v1.csv` (39 righe, coordinate UE, quota Z 15 uu).
+     Tri LOD0/1/2: Chiosco 2.776/1.288/100 · Ombrellone 894/304/126 · Fioriera 246/116/50 · TavoloSet 672/450/324 ·
+     Tavolino 184/106/76 · Sedia 122/86/62 · Sgabello 168/144/68 · `SM_Pav_Chiosco` 8 (solo LOD0). Render `docs/qa/arte_chiosco_v1*.png`
+     (confronti foto/render). Nome inventato "Chiosco del Golfo".
+   - [ ] (uefn-builder) Import kit chiosco (metodo `docs/uefn_arte.md` §12, LOD1/2 con `set_lod_from_static_mesh`) e posa dal CSV.
+     **Prima** serve un blockout ritagliato: `SM_Blockout_Passeggiata_Pav_v2` ha aiuole a Z +0,40 in X 95-117, Y 102-106 e 112-116 che
+     sbucano dal tassello `SM_Pav_Chiosco` (Z +0,15) e coprono base del chiosco, fioriere e sedie (→ blender-artist: v3 del blockout, o conferma utente).
    - [ ] (blender-artist → uefn-builder) Layout fascia palme **v4**: filari da X 20,4 (via le palme a X 12), tutto il resto −0,6 m,
      gazebo a X ≈ 33,9; in UEFN solo spostamenti di attori (niente reimport).
    - [x] (uefn-builder, 2026-11-19 18:15) Import e posa del kit molo v2 (`docs/uefn_arte.md` §13): 14 mesh in `LaSpezia/Arte/Molo` e

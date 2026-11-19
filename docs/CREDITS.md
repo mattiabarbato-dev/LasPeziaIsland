@@ -98,3 +98,14 @@ Pixel in coordinate della foto originale (x, y). N e ORM sono generate dallo scr
 Ogni texture che ne deriva va elencata qui con la marca **[SV]** (foto e porzione usata), senza UI di Street View, filigrane, persone,
 targhe, loghi o insegne, e l'utente la ricontrolla prima di qualsiasi pubblicazione.
 Dati: verifica live Overpass API (© OpenStreetMap contributors, ODbL) del 19.11.2026 per alberi, lampioni e recinzioni della radice del molo.
+
+### Chiosco-bar e dehors (blender-artist, 2026-11-19) — `blender/textures/chiosco/`, `blender/scripts/morin_chiosco.py`
+Foto: `ref/foto/vista/chiosco_con_ombrelloni_e_tavolini.png` (C1) e `..._2.png` (C2), catture Street View fornite dall'utente.
+- **[SV]** `T_Morin_Chiosco_D/N/ORM` (2048, atlante): **procedurale**; dalle foto solo i colori campionati (mediane dei pixel):
+  crema del corpo da C1 x 215-235 / 300-480, y 320-400 (lato al sole e lato in ombra), bianco di tettoia e mantovana da C1
+  x 330-520, y 232-266, lilla della striscia-menu in vetrina a occhio da C1. Vetrina, bottiglie, porta e fughe disegnate dallo script.
+  Insegna: nome inventato "Chiosco del Golfo" (font interno di Blender), l'insegna reale non è riprodotta.
+- **[SV]** `T_Morin_Dehors_D/N/ORM` (2048, atlante condiviso da ombrellone, fioriera, tavolino, sedia, sgabello): **procedurale**;
+  grigio delle fioriere campionato da C2 x 160-200 / 880-915, y 280-330; tela degli ombrelloni da C2 x 600-900, y 95-160.
+- Arbusti delle fioriere: riuso di `T_Albero_Latifoglia_Chioma_*` (sezione molo, [SV]). Pavimento `SM_Pav_Chiosco`: riuso di `T_Pav_Cubetti_*`.
+- Nessun ritaglio di foto nelle texture: niente persone, targhe, UI o insegne.
