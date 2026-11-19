@@ -118,3 +118,5 @@ Foto: `ref/foto/vista/chiosco_con_ombrelloni_e_tavolini.png` (C1) e `..._2.png` 
 - `SM_Morin_PanchinaLunga_Mod`: riuso di `T_Pav_Fascia_*` (kit pavimentazione).
 - Nessun ritaglio di foto nelle texture. La cattura nel confronto `docs/qa/arte_giardini_v1_confronto.png` ha freccia, logo e filigrana sfocati
   (file di QA, non va pubblicato).
+- v2 (2026-11-19): `T_Morin_Oleandro_Chioma_*` rigenerata con più fiori e rosa fucsia (stessa origine [SV], solo colori campionati).
+  Confronto `docs/qa/arte_giardini_v2_confronto.png` (file di QA con la cattura sfocata nelle parti di UI, non va pubblicato).

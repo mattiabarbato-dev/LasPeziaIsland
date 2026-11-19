@@ -64,10 +64,21 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      M_Pav_Fascia riusato, UCX box). CSV `giardini_posizioni_v1.csv` (Blocco 1, X ≤ 250: 22 oleandri + 29 moduli panchina) e
      `giardini_posizioni_v1_blocco2.csv` (X > 250: 55 + 69). Oleandri Y 119,5 X 131-549 passo 5,5 m alternati, Z 0; panchina asse Y 101,7,
      Z +0,15, tratti X 122-178 / 183-227 / 233-249 (varchi del blockout v3). Confronto `docs/qa/arte_giardini_v1_confronto.png`.
-   - [ ] (blender-artist) Blockout passeggiata **v4**: abbassare o togliere la `SiepeLimite` (1,5 m, Y 116-118) che nasconde i fusti degli
-     oleandri; in foto fra prato e viale non c'è siepe alta. Valutare anche le aiuole-scatola Y 102-107 (Z +0,40) contro la panchina (Y ≤ 101,93).
-   - [ ] (uefn-builder) Import kit giardini (9 FBX, `MI_Morin_Oleandro_Chioma` masked two-sided) e posa dal CSV del Blocco 1 in HISM.
-   - [ ] (utente) Verificare [S]: altezza oleandri (~3,7 m), passo 5,5 m, posizione e varchi della panchina, tutore presente o no.
+   - [x] (blender-artist, 2026-11-19) **Giardini a Mare v2** (stessi nomi, FBX sovrascritti; texture chioma rigenerata): oleandri con
+     chioma grande, schiacciata e a lobi, ciuffi sporgenti, card fitte, **due forme diverse** (Bianco 7 lobi, Rosa 8 lobi), fusto Ø 12→10 cm
+     fino a 1,9 m, più fiori, rosa fucsia. Tri LOD0/1/2: Bianco 2.694/1.309/427 (3,72 × 3,37 × 4,13 m), Rosa 2.734/1.335/427
+     (3,21 × 3,35 × 4,05 m). Panchina: lastra 7 cm, pilastrini 14 cm ogni 1,0 m, 372/164/52 tri. CSV invariati (posizioni uguali).
+     Confronto `docs/qa/arte_giardini_v2_confronto.png`. Bordura di bosso **non fatta**: disposizione delle aiuole nel prato non chiara.
+   - [x] (blender-artist, 2026-11-19) **Blockout passeggiata v4**: `exports/blockout/SM_Blockout_Passeggiata_Pav_v4.fbx` (128 tri, 13 UCX,
+     solo LOD0, posa (0,0,0), bbox uguale alla v3 salvo Z max 0,40); sorgente `blender/arte_pavimentazione.blend`, collezione
+     `Blockout_Passeggiata_Pav_v4` (v3 intatta; backup `blender/arte_pavimentazione_pre_blockout_v4.blend`). Tolta la `SiepeLimite`;
+     aiuole da X 117,5 (Y 102-107 e 111-116) abbassate a Z +0,05 (prato provvisorio, `M_Blockout_Verde`); a X < 94,5 invariate.
+     Ray test 0,5 m su X 0-250, Y 62-118 (visivo e UCX): stessi identici punti scoperti della v3 (516, fuori dal bordo del blockout), nessun buco nuovo.
+   - [ ] (uefn-builder) Import kit giardini v2 (9 FBX, `MI_Morin_Oleandro_Chioma` masked two-sided) e posa dal CSV del Blocco 1 in HISM;
+     import di `SM_Blockout_Passeggiata_Pav_v4` al posto della v3 (nascondere la v3, non cancellarla).
+   - [ ] (geo-scout/utente) Disposizione delle aiuole geometriche con bordura di bosso nel prato (foto in pianta o vista aerea), poi
+     `SM_Morin_BorduraBosso_Mod` (blender-artist).
+   - [ ] (utente) Verificare [S]: altezza oleandri (~4 m), passo 5,5 m, posizione e varchi della panchina, tutore presente o no.
    - [ ] (blender-artist → uefn-builder) Layout fascia palme **v4**: filari da X 20,4 (via le palme a X 12), tutto il resto −0,6 m,
      gazebo a X ≈ 33,9; in UEFN solo spostamenti di attori (niente reimport).
    - [x] (uefn-builder, 2026-11-19 18:15) Import e posa del kit molo v2 (`docs/uefn_arte.md` §13): 14 mesh in `LaSpezia/Arte/Molo` e

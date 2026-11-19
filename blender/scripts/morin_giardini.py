@@ -17,8 +17,8 @@ Esegui dentro blender/arte_giardini.blend:
     mg.export_all()         # FBX in exports/giardini/ (LOD1/LOD2 con bake_rotation=True)
     mg.cameras()            # CAM_Giardini_F1 (punto di presa stimato della foto)
 
-Oleandri: origine al piede, si posano a Z 0 (suolo del blockout lato viale [S]). Le due varianti hanno la stessa geometria
-(stesso seme) e differiscono solo per le UV della chioma: un solo atlante, quadranti in alto = fiori bianchi, in basso = rosa.
+Oleandri: origine al piede, si posano a Z 0 (suolo del blockout lato viale [S]). v2: le due varianti hanno chiome di forma diversa
+(OL_SHAPE) e lo stesso atlante: quadranti in alto = fiori bianchi, in basso = rosa.
 Panchina: modulo da 4 m con origine al centro della base, asse lungo X; si posa a quota cubetti Z +0,15 (pk.ZF).
 """
 import math
@@ -44,20 +44,20 @@ ZF = pk.ZF
 C_FOGLIA = (54, 74, 46)
 C_FOGLIA_RETRO = (92, 108, 70)
 C_BIANCO = (232, 229, 220)
-C_ROSA_SCURO = (196, 62, 108)
-C_ROSA_CHIARO = (222, 116, 150)
+C_ROSA_SCURO = (222, 34, 120)      # v2: fucsia come in foto
+C_ROSA_CHIARO = (238, 92, 160)
 C_CENTRO = (238, 222, 160)
 
-# oleandro ad alberello [S]: fusto 1,7 m, chioma Ø ~2,1 m, h totale ~3,5 m (proporzioni dalla foto: chioma ~3 volte
-# l'altezza delle auto parcheggiate dietro, che sono piu' lontane)
-OL_FUSTO = 1.70
-OL_C = (0.0, 0.0, 2.55)
-OL_R = (1.05, 1.03, 0.95)
-OL_SEED = 41
+# oleandro ad alberello v2 [S]: fusto Ø 12-10 cm fino a 1,9 m, chioma Ø ~3,1-3,3 m schiacciata e a lobi, h totale ~4 m
+# (proporzioni dalla foto: chiome grandi e piene, ~3 volte l'altezza delle auto parcheggiate dietro).
+# Due forme di chioma diverse, una per variante (seme, raggi x/y/z, quota centro, n lobi).
+OL_FUSTO = 1.90                # v2
+OL_SHAPE = {"SM_Morin_OleandroAlberello_Bianco": (41, (1.62, 1.50, 1.02), 2.92, 7),
+            "SM_Morin_OleandroAlberello_Rosa": (73, (1.50, 1.66, 1.00), 2.90, 8)}
 OL_VAR = {"SM_Morin_OleandroAlberello_Bianco": (0, 1), "SM_Morin_OleandroAlberello_Rosa": (2, 3)}
 
-# panchina lunga [S] dalla foto: lastra 0,45 x 0,09 su pilastrini 0,16 x 0,30 ogni 1,33 m, seduta a 0,45 m
-PL = dict(L=4.0, W=0.45, H=0.45, T=0.09, legs=(-4.0 / 3, 0.0, 4.0 / 3), lx=0.16, ly=0.30)
+# panchina lunga v2 [S] dalla foto: lastra 0,45 x 0,07 su pilastrini 0,14 x 0,30 ogni 1,0 m, seduta a 0,45 m
+PL = dict(L=4.0, W=0.45, H=0.45, T=0.07, legs=(-1.5, -0.5, 0.5, 1.5), lx=0.14, ly=0.30)
 PL_Y = 101.70           # asse della panchina: bordo dei cubetti verso il prato (lastra Y 101,475-101,925)
 OL_Y = 119.5            # filare OSM [V]
 OL_X0, OL_X1, OL_PASSO = 131.0, 550.0, 5.5
@@ -120,13 +120,13 @@ def _crown_quadrant(seed, kind):
         fl_cols = [_c(C_BIANCO)]
     else:
         fl_cols = [_c(C_ROSA_SCURO), _c(C_ROSA_CHIARO)] if seed % 2 == 0 else [_c(C_ROSA_CHIARO), _c(C_ROSA_SCURO)]
-    R0 = S * 0.34
+    R0 = S * 0.37
     trusses = []
-    for _ in range(34 if kind == "bianco" else 30):
+    for _ in range(46 if kind == "bianco" else 44):
         rr = R0 * 0.95 * np.sqrt(rng.uniform(0, 1))
         a = rng.uniform(0, 2 * np.pi)
         trusses.append((S / 2 + rr * np.cos(a), S / 2 + rr * np.sin(a), rng.uniform(60, 100)))
-    n_leaf, n_round = 620, 3
+    n_leaf, n_round = 760, 3
     per_round = n_leaf // n_round
     for rnd in range(n_round):
         # foglie (il giro piu' tardo e' davanti: piu' chiaro)
@@ -146,7 +146,7 @@ def _crown_quadrant(seed, kind):
         # fiori: ogni giro aggiunge una parte dei corimbi (fiori anche "dentro" la chioma)
         Q["_rough"] = 0.8
         for (tx, ty, tr) in trusses[rnd::n_round] + (trusses[(rnd + 1) % n_round::n_round][:3] if rnd else []):
-            nfl = int(rng.integers(9, 16))
+            nfl = int(rng.integers(13, 21))
             for k in range(nfl):
                 rr = tr * np.sqrt(rng.uniform(0, 1))
                 a = rng.uniform(0, 2 * np.pi)
@@ -244,7 +244,7 @@ def _cards(bm, centers, rng, n, size, crown_c, crown_r, quads, mi=1):
         p = Vector(c) + d * cr * rng.uniform(0.5, 0.95)
         out = Vector(((p.x - crown_c[0]) / crown_r[0] ** 2, (p.y - crown_c[1]) / crown_r[1] ** 2,
                       (p.z - crown_c[2]) / crown_r[2] ** 2)).normalized()
-        nrm = (d * 0.25 + out * 0.75 + Vector(rng.normal(0, 0.12, 3))).normalized()
+        nrm = (d * 0.40 + out * 0.60 + Vector(rng.normal(0, 0.15, 3))).normalized()
         s = rng.uniform(*size)
         t1 = nrm.cross(Vector((0, 0, 1)) if abs(nrm.z) < 0.9 else Vector((1, 0, 0))).normalized()
         t2 = nrm.cross(t1)
@@ -263,40 +263,59 @@ def _cards(bm, centers, rng, n, size, crown_c, crown_r, quads, mi=1):
 
 
 def build_oleandro(coll, name, lod=0):
+    """v2: chioma grande, schiacciata e a lobi (forma diversa per variante), ciuffi sporgenti, card fitte; fusto Ø 12 cm."""
     quads = OL_VAR[name]
-    rng = np.random.default_rng(OL_SEED)          # stessa geometria per le due varianti
+    seed, R, cz, nlobi = OL_SHAPE[name]
+    rng = np.random.default_rng(seed)
     bm = bmesh.new()
-    sides = (8, 6, 5)[lod]
-    fusto = mm._curve((0, 0, 0), Vector((0.03, 0.015, 1)), OL_FUSTO + 0.1, 0.025, 4, rng)
-    mm._branch(bm, fusto, 0.050, 0.042, sides, 0, uv_tile=(0.5, 1.0))
+    sides = (10, 7, 5)[lod]
+    fusto = mm._curve((0, 0, 0), Vector((0.03, 0.015, 1)), OL_FUSTO + 0.15, 0.02, 4, rng)
+    mm._branch(bm, fusto, 0.060, 0.050, sides, 0, uv_tile=(0.5, 1.0))
     top = fusto[-1]
-    centers = []
-    nbr = (5, 4, 3)[lod]
-    for i in range(nbr):
-        ang = 2 * math.pi * i / nbr + rng.uniform(-0.3, 0.3)
-        d = Vector((math.cos(ang) * 0.7, math.sin(ang) * 0.7, 1.0))
-        br = mm._curve(top, d, rng.uniform(0.65, 0.85), 0.15, 3, rng)
-        if lod < 2:
-            mm._branch(bm, br, 0.026, 0.010, max(sides - 3, 4), 0, uv_tile=(0.5, 1.0))
-        centers.append((tuple(br[-1]), 0.34))
-    # tutore (canna/paletto) legato al fusto [S]: solo LOD0 e LOD1
+    C = Vector((0.0, 0.0, cz))
+    # lobi: sotto-ellissoidi attorno al centro, piu' larghi che alti (chioma irregolare, base piatta)
+    lobi = []
+    for i in range(nlobi):
+        a = 2 * math.pi * i / nlobi + rng.uniform(-0.35, 0.35)
+        el = rng.uniform(-0.40, 0.40)
+        f = rng.uniform(0.38, 0.55)
+        p = C + Vector((math.cos(a) * math.cos(el) * R[0] * f, math.sin(a) * math.cos(el) * R[1] * f, math.sin(el) * R[2] * f))
+        lobi.append((p, rng.uniform(0.62, 0.85)))
+    lobi.append((C + Vector((0, 0, R[2] * 0.25)), 0.85))
+    # rami principali dal fusto verso i lobi
+    for p, r in lobi[:(nlobi if lod < 2 else 4)]:
+        d = (p - top)
+        br = mm._curve(top, d, d.length * 0.8, 0.12, 3, rng)
+        mm._branch(bm, br, 0.034, 0.012, max(sides - 4, 4), 0, uv_tile=(0.5, 1.0))
+    # tutore (paletto) legato al fusto [S]: solo LOD0 e LOD1
     if lod < 2:
-        pk._box(bm, 0.075, 0.105, -0.015, 0.015, 0.0, 1.88, 0, faces=("xn", "xp", "yn", "yp", "top"))
-        for z in (0.65, 1.50):
-            pk._box(bm, 0.035, 0.11, -0.022, 0.022, z, z + 0.03, 0, faces=("xn", "xp", "yn", "yp"))
-    cx, cy, cz = OL_C
-    for i in range(30):
+        pk._box(bm, 0.085, 0.115, -0.015, 0.015, 0.0, 2.0, 0, faces=("xn", "xp", "yn", "yp", "top"))
+        for z in (0.7, 1.6):
+            pk._box(bm, 0.045, 0.12, -0.022, 0.022, z, z + 0.03, 0, faces=("xn", "xp", "yn", "yp"))
+    # ciuffi sulla superficie dei lobi (base dei lobi tagliata: chioma schiacciata sotto)
+    centers = []
+    zmin = cz - R[2] * 0.92
+    for i in range(70):
+        p, r = lobi[int(rng.integers(0, len(lobi)))]
         d = Vector(rng.normal(0, 1, 3)).normalized()
-        d.z = max(d.z, -0.7)
-        f = rng.uniform(0.50, 0.72)
-        centers.append(((cx + d.x * OL_R[0] * f, cy + d.y * OL_R[1] * f, cz + d.z * OL_R[2] * f), rng.uniform(0.32, 0.44)))
-    ncard = (380, 170, 56)[lod]
-    size = ((0.52, 0.76), (0.68, 0.98), (1.0, 1.36))[lod]
-    cards = _cards(bm, centers, rng, ncard, size, OL_C, OL_R, quads)
+        q = p + d * r * rng.uniform(0.55, 0.95)
+        q.z = max(q.z, zmin + rng.uniform(0, 0.15))
+        centers.append((tuple(q), rng.uniform(0.30, 0.42)))
+    for i in range(10):            # ciuffi sporgenti
+        p, r = lobi[int(rng.integers(0, len(lobi)))]
+        d = Vector(rng.normal(0, 1, 3)).normalized()
+        d.z = abs(d.z) * 0.6
+        centers.append((tuple(p + d * r * rng.uniform(1.05, 1.25)), rng.uniform(0.24, 0.32)))
+    for i in range(8):             # nucleo scuro: niente cielo attraverso la chioma
+        d = Vector(rng.normal(0, 1, 3)).normalized()
+        centers.append((tuple(C + Vector((d.x * R[0] * 0.3, d.y * R[1] * 0.3, d.z * R[2] * 0.25))), 0.45))
+    ncard = (1150, 520, 140)[lod]
+    size = ((0.55, 0.82), (0.72, 1.05), (1.05, 1.45))[lod]
+    cards = _cards(bm, centers, rng, ncard, size, tuple(C), R, quads)
     sfx = "" if lod == 0 else f"_LOD{lod}"
     o = mm._finish_tree(name + sfx, bm, cards, ["M_Morin_Oleandro_Fusto", "M_Morin_Oleandro_Chioma"], coll)
     if lod == 0:
-        pk._ucx(name, [(-0.07, 0.11, -0.07, 0.07, 0.0, OL_FUSTO)], coll)
+        pk._ucx(name, [(-0.08, 0.12, -0.08, 0.08, 0.0, OL_FUSTO)], coll)
     return o
 
 
