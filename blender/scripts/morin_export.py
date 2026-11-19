@@ -57,10 +57,13 @@ __all__ = ["export_fbx", "export_selected", "MorinExportError", "BUDGETS", "FBX_
 
 # Budget triangoli (CLAUDE.md §4). Parola chiave nel nome -> budget. Il primo match vince.
 BUDGETS = (
-    ("Ponte", 30000),
-    ("Battello", 8000),
-    ("Palma", 1500),
-    ("Banchina", 500),
+    # Aggiornati il 2026-11-19 ai budget LOD0 PC/console di CLAUDE.md §4.
+    ("Ponte", 120000),
+    ("Battello", 30000),
+    ("Palma", 10000),
+    ("Bitta", 4000),       # prop
+    ("Scaletta", 4000),    # prop
+    ("Banchina", 2000),    # modulo banchina
 )
 
 # Rotazione applicata solo in export (docs/scala.md, giro 3).

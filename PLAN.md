@@ -143,9 +143,27 @@ Obiettivo: percorrere il Blocco 1 dall'inizio alla fine con volumi semplici, in 
       sul percorso, antenne visibili da 6 punti, corsie agli anelli 3,36-3,39 m, impalcato 5,7 m. Percorso 502 m fino a
       fine ponte, 530 m fino al traguardo: STIMA 80 s di scatto (630 uu/s) / 112 s di corsa base (450 uu/s).
       Da rifare in sessione: spawn, palme HISM, nuoto e risalita, barriere attive, tempo cronometrato, scala con il personaggio
-- [ ] (utente) Impostare la regione di matchmaking (Europa) in Fortnite/UEFN: senza, `StartSession` fallisce con
+- [x] (utente) Impostare la regione di matchmaking (Europa) in Fortnite/UEFN: senza, `StartSession` fallisce con
       `invalid_region`. Chiudere l'eventuale finestra di errore "Impossibile giocare" rimasta aperta nell'editor
-- [ ] (qa-tester) Ripetere in sessione le voci non verificate del report 2026-11-18 (§1, 2, 3, 6, 7, 8)
+      2026-11-19: fatto. La sessione parte (matchmaking OK, server DE)
+- [!] (qa-tester) Ripetere in sessione le voci non verificate del report 2026-11-18 (§1, 2, 3, 6, 7, 8)
+      2026-11-19, report `docs/qa/2026-11-19_blockout_sessione.md`. OK: avvio della sessione, log client senza errori
+      dell'isola, spawn sul camminamento rivolto al ponte con le 2 antenne visibili (screenshot `qa_sessione_spawn_partenza.png`).
+      NON VERIFICABILE via MCP: il client non registra gli strumenti MCP (`MCPListToolsets` non registrato, `ListClients` vuoto),
+      quindi niente posizione del giocatore. `FortPlayerToolset` comunque non muove il giocatore. Restano: tempo cronometrato,
+      palme HISM, nuoto e risalita, barriere, costruzione disattivata, scala accanto a parapetti e palme. Nessun tempo misurato.
+      Nota: lo scatto consuma resistenza (`TacSprintStamScene`), quindi la stima di 80 s è ottimistica
+- [ ] (utente) Prova manuale in sessione con la checklist del report `docs/qa/2026-11-19_blockout_sessione.md` (~10 min):
+      tempo partenza → fine ponte / → Mirabello (con e senza scatto), palma, parapetto (screenshot), tuffo e risalita,
+      costruzione, barriere. In alternativa l'orchestratore sceglie un altro metodo (vedi task verse-dev qui sotto)
+- [ ] (verse-dev) Opzionale, per la QA automatica: device Verse di debug che con `Print()` scrive in `GetVerseOutput`
+      i tempi (partenza → fine ponte) e gli eventi (in acqua, fuori area), leggibili via MCP anche senza strumenti client
+- [x] (uefn-builder) Bloccare l'ora del giorno sul tardo pomeriggio: in sessione il ciclo giorno/notte del template è attivo
+      (`DaySequence` in riproduzione) e alla prova era notte; il ciglio si legge peggio (QA 2026-11-19, gravità bassa)
+      2026-11-19: device Sequenza giorno `Luce_OraDelGiorno` (cartella `Luci`), Modalità ciclo = ORARIO FISSO, ora 18,0,
+      fase TUTTO, priorità 2000, nessun override di sole/cielo/nebbia. Island Settings "Orario" lasciato PREDEFINITO (una sola fonte).
+      In editor: sole a 27° di elevazione, le ombre delle palme cadono sul camminamento verso il mare (`docs/qa/uefn_ora18_*.png`).
+      Da confermare nella prova manuale che in sessione resti giorno e non avanzi
 - [x] (uefn-builder) Chiudere l'uscita a nuoto oltre la fine del blocco: `Barriera_LatoCitta` finisce a X 27210,
       ma il fondale cittadino a Z 0 continua fino a X 33000 (oppure allungare in mare `Barriera_FineBlocco`, oggi fino a Y −6990)
       2026-11-19: `Barriera_FineBlocco` portata a profondità 90 unità e centro (25130, 10930, −700): copre Y −12110..33970,
@@ -180,11 +198,37 @@ Obiettivo: sostituire il grigio con asset definitivi, uno alla volta, senza romp
 Ordine per impatto visivo:
 
 - [ ] (blender-artist) **Ponte Thaon di Revel** da `ref/ponte.md`: impalcato, antenna, stralli, parapetti
-- [ ] (blender-artist) Kit banchina: modulo dritto 4 m, testata, bitta, scaletta
+- [x] (geo-scout) Schede per la grafica di palme e banchina (2026-11-19): `ref/palme.md`, `ref/banchina.md`, `ref/asset_fonti.md`
+      Specie: filari a prevalenza Phoenix dactylifera (tag OSM) con possibile P. canariensis (Comune, 2014): certezza media.
+      Restano [S]: passo delle palme (9 m, coerente con il conteggio comunale), altezze, materiali del ciglio, bitte, scalette, lastre.
+      Servono le foto elencate in fondo a `palme.md` e `banchina.md`
+- [ ] (blender-artist) Kit banchina: modulo dritto 4 m, testata, bitta, scaletta (scheda `ref/banchina.md`)
       Da QA 2026-11-18: ciglio del molo continuo (oggi "a denti" X 1020 → 900 → 800) e parapetti del ponte svasati
       all'imbocco (oggi spigoli verticali di 1,1 m a Y 0)
-- [ ] (blender-artist) Palma A + 2 varianti (prima cercare su Poly Haven / Poly Pizza, poi modellare)
-- [ ] (blender-artist) Kit pavimentazione e cordoli; materiali da Poly Haven
+      - [x] v1 2026-11-19 (in Blender, da importare): `SM_Banchina_Mod4m` (276 / 138 / 40 tri), `SM_Banchina_Bitta`
+            (970 / 484 / 144), `SM_Banchina_Scaletta` (736 / 368 / 110), con UCX; FBX in `exports/banchina/` (LOD in file
+            `_LOD1`/`_LOD2` separati). Texture 2048 `T_Banchina_Ciglio/Paramento/Ghisa_D/N/ORM` da Poly Haven CC0.
+            Sorgente `blender/arte_banchina_palme.blend`; render `docs/qa/arte_banchina_v1.png`, `arte_contesto_v1.png`
+      - [x] v2 2026-11-19: texture del ciglio e del colore del paramento dalle foto dell'utente, stessi FBX ri-esportati
+            (geometria invariata). Render `docs/qa/arte_banchina_v2.png`, `arte_contesto_v2.png`. Copia v1: `blender/arte_banchina_palme_v1.blend`
+      - [ ] testata/angolo e raccordo col molo; modulo con nicchia per la scaletta (oggi sporge 0,13 m dal ciglio)
+      - [ ] (orchestratore + utente) quota dell'acqua: ciglio-acqua 1,0 m da foto contro −1,5 m in UEFN (`docs/decisioni.md`)
+      - [ ] (uefn-builder) import, materiali con ORM, LOD, verifica in sessione
+- [ ] (blender-artist) Palma A + 2 varianti: schede `ref/palme.md` e `ref/asset_fonti.md`
+      Dalle foto dell'utente: PalmaA = **P. canariensis**; le varianti B/C = dactylifera slanciate
+      - [x] v1 `SM_Morin_PalmaA` 2026-11-19 (in Blender, da importare): 7.536 / 3.660 / 904 tri, UCX sul tronco, bbox
+            9,2 × 9,5 × 11,6 m; FBX in `exports/palme/`. Fronde su card (atlas procedurale 2048 con alfa, two-sided),
+            tronco a rombi procedurale + Poly Haven CC0. Render `docs/qa/arte_palmaA_v1.png`
+      - [x] v2 2026-11-19: 8.480 / 3.588 / 1.000 tri, bbox 10,0 × 10,1 × 12,0 m; tronco Ø 0,8 m con piede svasato,
+            ananas Ø ~1,3 m con squame più grandi, chioma asimmetrica e ricadente, 6 fronde secche; texture di tronco e
+            colori delle fronde dalle foto dell'utente. Render `docs/qa/arte_palmaA_v2.png`
+      - [ ] PalmaB / PalmaC (dactylifera)
+      - [ ] (uefn-builder) import, materiale masked two-sided, LOD, sostituzione delle 53 palme segnaposto
+- [ ] (blender-artist) Kit pavimentazione e cordoli
+      - [x] texture 2048 pronte (2026-11-19, dalle foto dell'utente): `T_Pav_Lastre_*` (tile 3,2 m, lastre 0,4 × 0,6-0,8 m,
+            lati lunghi trasversali alla passeggiata), `T_Pav_Cubetti_*` (tile 3,2 m, coda di pavone), `T_Pav_Fascia_*`
+            (tile 1 m, pietra chiara). Materiali `M_Pav_*` nel .blend; nessuna mesh ancora
+      - [ ] mesh: camminamento, fasce, aiuole quadrate bordate, cordolo con striscia tattile
 - [ ] (blender-artist) Arredi: lampione, panchina, cestino, parapetto
 - [ ] (blender-artist) Battello turistico stilizzato, senza marchi reali
 - [ ] (blender-artist) Pini, oleandri, aiuole della fascia verde

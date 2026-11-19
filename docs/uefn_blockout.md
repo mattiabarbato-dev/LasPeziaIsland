@@ -36,6 +36,7 @@ Import con `StaticMeshToolset.ImportFile`, `bCombineMeshes=true`, `bImportMateri
 | `Acqua` | `Acqua_Golfo_Device` | Device Acqua V2 (`PID_CP_Devices_Water_V2`) | (8500, 9550, −534) |
 | `Device/Spawn` | `Player 1 Spawn Pad`, `Player 2 Spawn Pad` (con i PlayerStart figli) | Device del template | vedi sotto |
 | `Device/Barriere` | 6 × `Barriera_*` | Barrier device (`PID_Device_Barrier`) | vedi sotto |
+| `Luci` | `Luce_OraDelGiorno` | Device Sequenza giorno (`PID_DaySequence_Device`), ora fissa 18,0 | (24000, −10500, 0) |
 | `Template_Spostati` | `GridPlane1-4` | GridPlane del template | spostati a Z −10000 |
 
 Palme: verifica a campione contro `exports/blockout/palme_posizioni.csv`. Istanze 0, 26 e 52 (`Palma_F1_01` (1200, −9260, 0),
@@ -114,6 +115,43 @@ e riletti con `ListClassicDeviceOptions` il 2026-11-19 (decisione dell'utente):
 | Preset locomozione (`LocomotionPreset`) | `Current BR` (BR ATTUALE) | invariato |
 | Consenti scatto (`bAllowSprinting`) | `True` (SÌ) | non modificabile finché il preset non è PERSONALIZZATO; lo scatto lo dà il preset BR |
 | Moltiplicatore velocità scatto | 1,4× | dal preset |
+
+## Ora del giorno e luce (2026-11-19)
+
+Problema dalla QA del 2026-11-19: il ciclo giorno/notte del template era attivo e in sessione era notte.
+
+**Soluzione:** device **Sequenza giorno** (`PID_DaySequence_Device`, classe `BP_DaySequenceModifier_Device_C`), label
+`Luce_OraDelGiorno`, cartella `Luci`, a (24000, −10500, 0) nella fascia verde (in LUF: Left 10500 · Up 0 · Forward 24000).
+Valori scritti con `DeviceToolset.SetClassicDeviceOption` e riletti con `ListClassicDeviceOptions`:
+
+| Opzione | Valore letto |
+|---|---|
+| Abilita durante la fase (`EnableDuringPhase`) | `Always` (TUTTO) |
+| Modalità ciclo giorno-notte (`DayNightCycleMode`) | `FixedTime` (ORARIO FISSO) |
+| Tempo ciclo giorno-notte (`DayNightCycleTime`) | `18.000000` |
+| Priorità | 2000 (predefinita) |
+| Usa volume | NO, quindi vale su tutta l'isola |
+| Override luce sole / nebbia / luce cielo / cielo / nuvole | tutti NO: sole, colore e cielo restano quelli della sequenza del template (`DSA_UEFN_Ch5S1`) |
+
+- Island Settings "Orario" (`TimeOfDayOverride`): provato a 17:00, poi rimesso a `NoOverride` (PREDEFINITO). Offre solo ore
+  intere, in editor non si vede l'effetto e due fonti per l'ora potrebbero entrare in conflitto. L'ora la decide solo il device.
+- **Sole letto in editor** (componente `Sun` dell'attore di sequenza, che il device pilota anche nell'anteprima): l'ora del device
+  passa per una curva della sequenza (18,0 → tempo interno 16,13). Direzione della luce (0,66, 0,59, −0,46): **elevazione 27,2°**,
+  il sole sta verso −X/−Y (lato ponte e lato città). Intensità 12,96, colore (255, 219, 168), quindi leggermente caldo.
+  Confronto: 17,0 → 35,7° · 17,5 → 31,6° · 18,0 → 27,2°. Scelto 18,0 per le ombre più lunghe: è ancora giorno pieno.
+- **Orientamento:** il sole reale da ovest, nel sistema del progetto (asse X ad azimut 41,3°), sta verso −X e −Y, cioè dal ponte
+  e dal lato città, **non** dal mare. La sequenza del template alle 18 lo mette già lì: la luce arriva con azimut 42° in UE, contro
+  i ~34-44° del sole reale tra le 17 e le 18 d'estate. Non è stato necessario ruotarlo.
+- **Ombre:** cadono verso +X/+Y, cioè verso il mare. Le palme (Y −9260 e −9960) proiettano sul camminamento (Y −8000..−8900)
+  ombre lunghe circa 19 m (13 m in Y), che lo attraversano tutto. Render con ombre attive (768 px):
+  `docs/qa/uefn_ora18_partenza.png` (dalla partenza (24000, −8450, 180), yaw 145, verso il ponte, con le 2 antenne visibili) e
+  `docs/qa/uefn_ora18_palme.png` (da (17000, −3000, 1500) verso la città: le ombre dei filari attraversano la corsia).
+- Per ruotare il sole a mano servirebbe *Override luce sole* = SÌ (`SunlightRotationZ`/`SunlightRotationX`), che però sostituisce anche
+  intensità (10) e colore (bianco) della sequenza. Per ora non serve.
+- Il device non ha mesh visibile in gioco. Attori salvati (`Luce_OraDelGiorno`, `IslandSettings0`, cartella `Luci`), nessun pacchetto
+  rimasto da salvare. Validazione del livello: 0 errori, 0 avvisi. Nel log non ci sono errori legati a DaySequence.
+- **Da verificare in sessione** (prova manuale): che sia giorno e che l'ora non avanzi (nel log client la `DaySequence` dovrebbe
+  restare ferma).
 
 ## Linea di vista e render
 

@@ -2,3 +2,5 @@
 *.blend@
 __pycache__/
 .claude/settings.local.json
+# sorgenti scaricate da Poly Haven (ricaricabili dall'API)
+blender/textures/src/

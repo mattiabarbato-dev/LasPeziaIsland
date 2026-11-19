@@ -1,8 +1,8 @@
 # Progetto: Passeggiata Morin — isola Fortnite (UEFN)
 
 Ricostruzione giocabile della **Passeggiata Costantino Morin**, il lungomare di La Spezia.
-Non è una copia fotografica: è una versione **stilizzata e riconoscibile**, in cui uno spezzino
-dice "è la Morin" al primo sguardo e un giocatore qualsiasi trova un livello leggibile e divertente.
+Obiettivo visivo: **il più realistica possibile** (decisione dell'utente 2026-11-19, piattaforma PC/console),
+in cui uno spezzino dice "è la Morin" al primo sguardo e un giocatore qualsiasi trova un livello leggibile e divertente.
 
 Pipeline: OpenStreetMap -> Blender (Blosm + MCP `blender`) -> FBX -> UEFN (MCP `unreal-mcp`) -> Verse.
 Stato e task: vedi `PLAN.md`. Lingua di lavoro: italiano.
@@ -19,13 +19,15 @@ il traguardo in fondo al Ponte Thaon di Revel. Vince chi arriva prima con tutte 
 La modalità è una proposta: l'utente può cambiarla in Fase 2 senza rifare il livello.
 
 ### Pilastri di design (in caso di dubbio, decidono loro)
-1. **Riconoscibilità prima del realismo.** Contano la sagoma del ponte, il filare di palme,
-   il bordo banchina sull'acqua. Un dettaglio che nessuno nota non vale i suoi poligoni.
+1. **Riconoscibilità e realismo.** Prima la sagoma giusta (ponte, filare di palme, bordo banchina
+   sull'acqua), poi materiali e dettagli fedeli alle foto. I poligoni vanno dove l'occhio arriva:
+   vicino alla corsia molto dettaglio, lontano poco.
 2. **Leggibilità del percorso.** Il giocatore deve sempre capire dove andare: il ponte è il faro
    visivo, visibile da ogni punto del tracciato.
 3. **Flusso senza intoppi.** Niente spigoli che incastrano, niente collisioni invisibili sorprendenti,
    nessun punto senza uscita. Se si cade in acqua si rientra subito in gioco.
-4. **Leggero.** Deve girare su mobile e Switch. Pochi asset riusati molte volte.
+4. **Sostenibile.** Piattaforma obiettivo PC e console (mobile e Switch non sono più un requisito).
+   Restano il limite di memoria dell'isola UEFN e il riuso: pochi asset di qualità istanziati molte volte, con LOD.
 
 ---
 
@@ -78,8 +80,9 @@ Misure da `ref/sezione.md` (Y dall'origine verso la città, ±0,5 m).
 - **Ora del giorno:** tardo pomeriggio, luce calda radente da ovest, ombre lunghe delle palme sul camminamento.
 - **Palette:** blu-verde del golfo, bianco del ponte, verde scuro di palme e pini, pietra chiara
   della pavimentazione, accenti rossi (faro, salvagenti) e oro (collezionabili).
-- **Stile:** quello di Fortnite. Forme pulite e un po' esagerate, texture semplici, niente
-  fotogrammetria né texture fotografiche sporche. Le foto servono per proporzioni e colori.
+- **Stile:** realistico. Proporzioni reali, materiali PBR (albedo, normal, roughness, AO) con usura
+  credibile: pietra della banchina, ghisa delle bitte, corteccia e foglie delle palme. Fonti ammesse: Poly Haven (CC0),
+  texture e scansioni CC0/CC-BY con licenza verificata, foto dell'utente in `ref/foto/`. Mai Google (§5).
 - **Sfondo:** colline del golfo e profilo della città come sagome a bassa risoluzione [S].
 - **Audio (Fase 3):** gabbiani, sciabordio, sartie che battono sugli alberi delle barche.
 
@@ -121,10 +124,15 @@ Si costruisce un blocco alla volta; un blocco si chiude solo quando è giocabile
   Prefisso di zona: `SM_Morin_PalmaA`, `SM_Ponte_Antenna`, `SM_Banchina_Mod4m`.
 - **Modularità:** banchina, pavimentazione, parapetti, lampioni e panchine sono moduli riusati.
   Pezzo unico solo per: ponte, battello, faro.
-- **Budget triangoli:** ponte completo <= 30k · battello <= 8k · palma <= 1,5k · modulo banchina <= 500 ·
-  prop <= 1k · edificio di fondale <= 2k. Riporta sempre il conteggio a fine task.
+- **Budget triangoli (LOD0, PC/console, dal 2026-11-19):** ponte completo <= 120k · battello <= 30k ·
+  palma <= 10k · modulo banchina <= 2k · prop <= 4k · edificio di fondale <= 5k.
+  Ogni asset ripetuto ha almeno 2 LOD (circa 50 % e 15 %). Riporta sempre il conteggio a fine task.
 - **Vegetazione:** massimo 3 varianti di palma, 2 di pino, 2 di cespuglio; sempre istanziate.
-- **Texture:** 2048 px per il ponte, 1024 px per il resto, 512 px per il fondale. PNG o JPG.
+  Foglie su card con materiale masked e two-sided; niente foglie modellate una per una.
+- **Texture:** 4096 px per il ponte, 2048 px per palme, banchina e asset vicini alla corsia, 1024 px per il fondale.
+  PBR con canali impacchettati (ORM: AO-Roughness-Metallic). PNG o JPG.
+- **Memoria:** il limite di memoria dell'isola UEFN vale anche su PC: controllarlo dopo ogni import importante.
+  Da verificare in Fase 4 se UEFN permette davvero di escludere mobile e Switch dalla pubblicazione.
 - **Collisioni:** solo box o convessi semplici (UCX_). Mai collisione per-poligono.
 - **Acqua:** device **Acqua V2** di UEFN (volume a scatola, niente onde), a cura di uefn-builder.
   Non usare il Water Body Lake/Ocean nativo: referenzia asset `/Water/` che il validatore UEFN rifiuta.
@@ -147,7 +155,9 @@ Si costruisce un blocco alla volta; un blocco si chiude solo quando è giocabile
 - Poly Haven (CC0): ok. Poly Pizza: verifica la licenza di ogni modello; se CC-BY, cita l'autore.
 - Google Maps / Earth / Street View / 3D Tiles: **solo riferimento visivo**. Mai geometrie o texture
   Google in `blender/` o `exports/`.
-- Foto scattate dall'utente in `ref/foto/`: libere, ma senza persone riconoscibili né targhe nelle texture.
+- Foto in `ref/foto/` (fornite dall'utente, pubbliche, autorizzazione del Comune della Spezia dichiarata
+  dall'utente il 2026-11-19): utilizzabili come riferimento **e per le texture**, tutte. Nelle texture niente persone
+  riconoscibili né targhe. Annotare in `docs/CREDITS.md` quali texture derivano da quali foto.
 - Niente loghi o marchi reali (compagnie di navigazione, bar, insegne): nomi e grafiche inventati.
 
 ---

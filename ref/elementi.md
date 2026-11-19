@@ -22,8 +22,8 @@ Fonte delle posizioni: OpenStreetMap, © OpenStreetMap contributors (id tra pare
 
 | Elemento | Posizione | Dimensioni | Stato |
 |---|---|---|---|
-| **Bitte d'ormeggio** | lungo il ciglio (Y 80). **Non mappate in OSM** | in ghisa, h ~0,45 m, Ø ~0,35 m; passo proposto ~12 m | [S] **foto del bordo banchina** |
-| Scalette alla marinara | non mappate | — | [S] da verificare |
+| **Bitte d'ormeggio** | lungo il ciglio (Y 80). **Non mappate in OSM** | in ghisa, h ~0,45 m, Ø ~0,35 m; passo proposto ~12 m | [S] **foto del bordo banchina**. Forma, colore e passo per tratto: `banchina.md` §3 |
+| Scalette alla marinara | non mappate | — | [S] da verificare; proposta in `banchina.md` §3 |
 | Parapetto sul ciglio della passeggiata | **nessuno mappato**. Probabilmente il ciglio è libero, come sulle banchine d'ormeggio | — | [S] **verificare in foto** (decide se si può cadere in acqua) |
 | Cordolo camminamento / palme | Y 89, da X 12 a X 558 | h **0,20 m**, con pavimentazione tattile | [V] OSM 850396603 |
 | Recinzione dell'area militare | lato SW del molo e radice (X -9 … -60, Y ≈ 103-113), poi verso SW | rete metallica, h ~2 m [S] | [V] OSM 224920368 (chain_link) |

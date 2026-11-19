@@ -46,7 +46,7 @@ La corsia libera di gara (fascia 4, ~9 m) rispetta il minimo di 8 m di CLAUDE.md
 
 | Voce | Valore | Stato |
 |---|---|---|
-| Specie | Phoenix dactylifera ("palma da datteri") secondo i tag OSM | [V] OSM species. **Possibile errore di mappatura**: sui lungomari liguri è molto diffusa anche *Phoenix canariensis* (tronco più grosso, chioma più piena). Verificare in foto |
+| Specie | Phoenix dactylifera ("palma da datteri") secondo i tag OSM | [V] OSM species. **Possibile errore di mappatura**: sui lungomari liguri è molto diffusa anche *Phoenix canariensis* (tronco più grosso, chioma più piena). Il Comune (2014) parla di "palme delle Canarie e palme da datteri" tra Morin e Giardini storici. Dettagli e misure in `palme.md` |
 | Numero di filari | **2**, paralleli, distanti **7,0 m** | [V] OSM |
 | Lunghezza dei filari | 536 m e 535 m (da X ≈ 20 a X ≈ 557) | [V] OSM |
 | **Passo lungo il filare** | **~9 m** (proposta), quindi ~60 palme per fila e ~27 per fila nel Blocco 1 (X 20 → 260) | **[S]** OSM non mappa gli alberi singoli (natural=tree assente), quindi il passo non si può calcolare. 8-10 m è l'interasse tipico dei filari di Phoenix adulte |
