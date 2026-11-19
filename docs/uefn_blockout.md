@@ -89,6 +89,11 @@ La sommità è a Z 3140. Rotazione 0. Il lato mare resta aperto.
 | `Barriera_Mirabello_LatoPiuX` | (1110, 18875, −700) | 0,5 × 12 | 982..1238 | 15803..21947 |
 | `Barriera_Mirabello_LatoMenoX` | (−2150, 18875, −700) | 0,5 × 12 | −2278..−2022 | 15803..21947 |
 | `Barriera_Mirabello_Fondo` | (−520, 21880, −700) | 7 × 0,5 | −2312..1272 | 21752..22008 |
+| `Barriera_Acqua_LatoMare` (2026-11-19) | (5440, 30928, −700) | 90 × 0,5 | −17600..28480 | 30800..31056 (bordo mare del volume d'acqua) |
+| `Barriera_Acqua_LatoMenoX` (2026-11-19) | (−16978, 9473, −700) | 0,5 × 90 | −17106..−16850 | −13567..32513 (bordo −X del volume d'acqua) |
+
+Le due barriere `Barriera_Acqua_*` (copie di `Barriera_FineBlocco`, *Influenza distanza dissolvenza* NO) chiudono i lati aperti del volume
+d'acqua: prima chi nuotava fino al bordo usciva nel vuoto e cadeva attraverso il fondale senza collisione. Dettagli in `docs/uefn_fondale.md` §8.5.
 
 **Chiusura della fine blocco (2026-11-19).** Prima si poteva aggirare `Barriera_FineBlocco` a nuoto (finiva a Y −6990),
 passare oltre X 25258 e risalire sul fondale cittadino a Z 0, che continua fino a X 33000 mentre `Barriera_LatoCitta`
@@ -165,6 +170,10 @@ Valori scritti con `DeviceToolset.SetClassicDeviceOption` e riletti con `ListCla
   - `uefn_blockout_partenza.png`: altezza occhi dalla partenza verso il ponte (yaw 148, pitch 3). Le due antenne sono visibili.
   - `uefn_blockout_obliqua.png`: vista d'insieme da (30000, −20000, 9000).
   - `uefn_blockout_mirabello.png`: ponte e testata di Mirabello.
+
+## Fondale lontano (1,5-15 km)
+
+Limiti di distanza, streaming World Partition, nebbia e acqua all'orizzonte: vedi `docs/uefn_fondale.md` (2026-11-19).
 
 ## Template
 

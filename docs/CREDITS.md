@@ -3,6 +3,16 @@
 ## Dati geografici
 - Dati cartografici © OpenStreetMap contributors, disponibili con licenza ODbL
   (https://www.openstreetmap.org/copyright).
+- Modello del terreno (fondale delle colline, dati in `ref/dem/`): Copernicus DEM GLO-30, licenza
+  "Copernicus WorldDEM-30" (https://documentation.dataspace.copernicus.eu/APIs/SentinelHub/Data/DEM/resources/license/License-COPDEM-30.pdf),
+  accesso da https://registry.opendata.aws/copernicus-dem/ il 19.11.2026. Nota obbligatoria per i dati modificati (mesh del fondale):
+  "produced using Copernicus WorldDEM-30 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under
+  COPERNICUS by the European Union and ESA; all rights reserved."
+  In caso di ridistribuzione dei dati: "The organisations in charge of the Copernicus programme by law or by delegation do not
+  incur any liability for any use of the Copernicus WorldDEM-30". Il progetto non è approvato né sostenuto dal programma Copernicus.
+- Copertura del suolo (colori del fondale): CORINE Land Cover 2018 (vettoriale), "Generated using European Union's Copernicus
+  Land Monitoring Service information", https://doi.org/10.2909/71c95a07-e296-44fc-b22b-415f42acfdf0 (accesso 19.11.2026,
+  servizio EEA image.discomap.eea.europa.eu). Dati modificati (rasterizzati e ricolorati).
 
 ## Asset di terze parti
 | Asset | Fonte | Autore | Licenza | Usato in |
@@ -49,3 +59,12 @@ Generate con `blender/scripts/morin_pav_kit.py` (numpy), nessun asset di terzi e
 | `T_Morin_Gazebo_Fregio_D/N/ORM` (2048 × 512, alfa) | fregio della pensilina: traversi, tre anelli raggiati per lato, riccioli e gocce pendenti |
 
 `M_Morin_Ghisa` (lampione, pensilina) riusa `T_Banchina_Ghisa_*` (Poly Haven Rusty Painted Metal, CC0) con una tinta.
+
+## Fondale (2026-11-19, `blender/scripts/morin_fondale.py`)
+- Mesh `SM_Fondale_Colline_*` e `SM_Fondale_Tenda`: produced using Copernicus WorldDEM-30 © DLR e.V. 2010-2014 and © Airbus Defence
+  and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved (dati modificati: filtrati,
+  triangolati, riproiettati).
+- Texture `T_Fondale_Colline_*_D`: colori derivati da CORINE Land Cover 2018 ("Generated using European Union's Copernicus Land
+  Monitoring Service information"), rumore, terrazze e case dipinte procedurali. Nessuna foto e nessun dato Google.
+- Edifici `SM_Fondale_Citta_*`: footprint © OpenStreetMap contributors (ODbL), Overpass API 19.11.2026, entro 1,5 km dalla partenza;
+  altezze da `building:levels`/`height` OSM o dal DSM Copernicus. `T_Fondale_Facciata_D` e `T_Fondale_Tenda_D`: procedurali.

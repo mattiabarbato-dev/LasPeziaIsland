@@ -311,7 +311,44 @@ Ordine per impatto visivo:
       2026-11-19: lampione, panchina v2, tombino e pensilina fatti (vedi kit pavimentazione v2). Restano cestino, rastrelliere, parapetto
 - [ ] (blender-artist) Battello turistico stilizzato, senza marchi reali
 - [ ] (blender-artist) Pini, oleandri, aiuole della fascia verde
-- [ ] (blender-artist) Fondale: sagome di edifici e colline
+- [x] (geo-scout) Scheda del fondale `ref/fondale.md` + dati `ref/dem/` (2026-11-19): Copernicus DEM GLO-30 (licenza verificata),
+      griglia locale 30 m ±10 km, profili d'orizzonte da 4 punti, cime OSM, copertura CORINE per azimut, edifici OSM entro 1,2 km,
+      grafico `docs/qa/fondale_profilo.png`, proposta tecnica (anelli, ≤ 55k tri, 8 settori, texture 1024). Crediti in `docs/CREDITS.md`.
+      Restano [S]: nomi dei crinali lontani, colle del centro, limiti di distanza in UEFN, colori da tarare
+- [x] (blender-artist) Fondale: sagome di edifici e colline (dalla scheda `ref/fondale.md` §7)
+      2026-11-19, `blender/arte_fondale.blend` + `blender/scripts/morin_fondale.py` (parametrico; build e export ripetibili).
+      Terreno RTIN dal DEM 30 m (filtro binomiale 3x3, errore ammesso 1 m < 1,5 km, 2 m a 1,5-5 km, 3 m + 2,5 m/km oltre, x4 sulle
+      celle non visibili dalla partenza; creste dei 4 profili forzate; costa raffinata e gonna a Z -10), 8 settori da 45° dalla
+      partenza `SM_Fondale_Colline_<N..NO>` = **47 887 tri LOD0** (1 389-7 656 per settore), LOD1 26 067 (54 %), LOD2 7 184 (15 %);
+      tenda dei crinali oltre 9,75 km `SM_Fondale_Tenda` a 13 km (412/210/106 tri, dal GeoTIFF + profili). Totale terreno 48 299.
+      Città (anello A 0,25-1,5 km): 2 249 edifici OSM estrusi (piani OSM o DSM) in 12 blocchi `SM_Fondale_Citta_<settore>_NN`
+      ≤ 5k tri, 33 728 / 16 947 / 6 143 tri; facciata generica `T_Fondale_Facciata_D` × colore vertice. Texture 1024 per settore
+      in UV polari (CORINE + quota + case dipinte), `blender/textures/fondale/`. 63 FBX in `exports/fondale/`, posizioni UE in
+      `exports/fondale/fondale_posizioni.csv` (pivot al centro della bbox, yaw 0, Z 0). Nessuna collisione.
+      Verifica silhouette (raycast sulle mesh) contro i profili: dalla partenza scarto medio +0,04°, RMS 0,21° (picchi: Santa Croce
+      10,16° vs 10,3°, Parodi 9,65° vs 9,7°, Castellana 6,8° vs 6,7°); dall'imbocco RMS 0,15°. Render `docs/qa/arte_fondale_v1_*.png`.
+      Blockout fondale **integrato, non sostituito** (escluso il suo rettangolo X -166..332, Y -305..302)
+- [x] (uefn-builder) Import e posa del fondale da `exports/fondale/` (vedi `fondale_posizioni.csv` e note in `docs/decisioni.md` 2026-11-19
+      "Fondale"): ImportFile, Nanite off, cull 0, niente collisione, Is Spatially Loaded = NO, materiale facciate × VertexColor
+      2026-11-19, dettagli in `docs/uefn_fondale.md` §8: 21 asset in `LaSpezia/Arte/Fondale` (LOD0 82 025 tri: terreno+tenda 48 297,
+      città 33 728/16 947/6 143 con LOD; colline e tenda solo LOD0, motivato), bbox = CSV, nessuna collisione, Nanite off. Colore vertice
+      della città reimportato con FbxFactory esplicita (ImportFile lo scarta). Master `M_Morin_Master_Fondale` + 10 MI. 21 attori
+      `Arte_Fondale_*` (Outliner `Arte/Fondale`): NoCollision, Spatially Loaded NO, HLOD NO, cull 0, ombre solo sulla città.
+      Barriere nuove `Barriera_Acqua_LatoMare` e `Barriera_Acqua_LatoMenoX` sui lati aperti del volume d'acqua. Validazione 0 errori;
+      Project Size v7 21,4 MiB in download (era 13,0). Render `docs/qa/uefn_fondale_v1_*.png`. 60 temporanei in `_Temp`
+      - [ ] (qa-tester) sessione: fondale senza pop-in, barriere d'acqua, nebbia alle 18, giunzione col mare
+      - [ ] (utente) colline più chiare/gialle delle foto e facciate molto chiare: tarare `Tinta` delle MI o l'albedo in Blender?
+- [x] (uefn-builder) Verificare la distanza massima di rendering/posizionamento in UEFN (fondale fino a ~10 km = 1 000 000 uu) e la nebbia
+      2026-11-19, sola lettura, dettagli in `docs/uefn_fondale.md`: cubi in memoria a 1,5-15 km disegnati (LWC attivo, cull 0,
+      piano lontano infinito); tetto = cupola del cielo a ~36 km → scala reale fino a 15 km, nessuna omotetia. Streaming World
+      Partition oggi spento (se attivato: raggio 256 m → fondale con Is Spatially Loaded = NO). Nebbia del template troppo uniforme:
+      proposta *Override nebbia* sul device (densità 0,003-0,004, diminuzione 0,01, opacità 1,0). Acqua V2 max 512 m per device:
+      non allungabile all'orizzonte, oltre resta la mesh del cielo. Render `docs/qa/uefn_fondale_*.png`
+- [x] (uefn-builder, dopo il fondale) Applicare *Override nebbia* su `Luce_OraDelGiorno` e tararla col fondale vero (`docs/uefn_fondale.md` §4)
+      2026-11-19 (§8.4): densità 0,004, diminuzione 0,02 (0,01 ingrigiva il cielo), opacità 1,0, colore (0,30; 0,38; 0,52), seconda nebbia 0.
+      Sole, cielo, ora 18 e priorità invariati. Antenne leggibili contro il Castellana; render prima/dopo `uefn_fondale_v1_nebbiaPrima_*`
+- [ ] (utente) Decidere se serve un anello di mare solo visivo oltre l'acqua di gioco (deroga a CLAUDE.md §4, `docs/uefn_fondale.md` §5)
+      2026-11-19: con il fondale e la nebbia nuova, dai render (135°) nessuna fascia scura alla giunzione: per ora sembra non servire
 - [~] (uefn-builder) Sostituzione progressiva del blockout; palme e arredi come istanze
       2026-11-19: sostituiti ciglio (kit banchina), palme (PalmaA) e aspetto del camminamento (override lastre). Restano ponte, fondale,
       arredi. Pavimentazione come mesh posata il 2026-11-19 (§11 di `docs/uefn_arte.md`). Memoria: Project Size dopo la sessione
@@ -346,6 +383,13 @@ Ordine per impatto visivo:
 
 ## Dopo l'MVP
 - [ ] Blocco 2: tratto centrale e imbarco battelli (ripetere Fasi 0-4 sul nuovo blocco)
+      Elementi confermati dall'utente il 2026-11-19 (foto in `ref/foto/arredi/` e `ref/foto/pavimentazione/`):
+      cannone antico su affusto e scultura "REDAMARE" (lettere in corten) sul ciglio **a metà dell'intera passeggiata (~275 m dal ponte)**;
+      scritta "PASSEGGIATA MORIN" in pietre bianche nei cubetti all'inizio lato città (~550 m)
+- [ ] Blocco 1, dettagli da fare: ancora monumentale nera inclinata **vicino al ponte** (foto `ref/foto/vista/banchina_vista_montagne_verso_ponte.jpg`);
+      ciglio a grandi blocchi bianchi arrotondati; fascia longitudinale di lastre a ~1/3 del camminamento dal mare [S];
+      Giardini a Mare (prato, aiuole di rose bordate in metallo, agavi, panchine bianche a schienale curvo); ponte con le foto in `ref/foto/ponte/`.
+      Aiuole delle palme: terra (confermato dall'utente)
 - [ ] Blocco 3: Molo Italia e faro rosso come finale esteso
 - [ ] Modalità aggiuntive: nascondino tra i giardini, gara a squadre
 
