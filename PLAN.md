@@ -6,36 +6,41 @@ Regole, paesaggio e metriche: vedi `CLAUDE.md`.
 
 ---
 
-## Punto di ripresa (aggiornato 2026-11-19, fine sessione)
+## Punto di ripresa (aggiornato 2026-11-19, fine seconda sessione)
 **Priorità (decisione dell'utente):** una mappa **il più simile possibile alla Spezia**, grafica **realistica per PC/console**.
 La modalità di corsa (Fase 2) è rimandata; il tempo di corsa non è un criterio. Vedi CLAUDE.md §1.
+**Ordine di lavoro voluto dall'utente, sempre:** modella → **importa in UEFN → verifica in sessione (utente) → commit e push**.
 
-**Dove siamo:** Fasi 0-1 fatte, **Cancello 1 superato** (prova manuale dell'utente, 2026-11-19). Sessioni UEFN funzionanti
-(regione Europa). Island Settings: costruzione Nessuno; ora fissa alle 18 (`Luce_OraDelGiorno`); acqua Acqua V2 a Z −100.
-Grafica v2 posata in UEFN: kit banchina (58 moduli, 18 bitte, 4 scalette) e 53 `SM_Morin_PalmaA` (P. canariensis),
-texture da foto dell'utente + CC0; lastre sul pavimento tramite `SM_Blockout_Passeggiata_Arte`. Dettagli in `docs/uefn_arte.md`.
+**Dove siamo** (tutto verificato in sessione dall'utente e pushato):
+- Cancello 1 superato. Ora fissa alle 18, Acqua V2 a Z −100, costruzione Nessuno.
+- Banchina (58 moduli a Z 0, bitte, scalette) e camminamento a lastre (tinta grigio-bruna).
+- Fascia palme v3: **54 palme su filari allineati**, aiuole 3,6 × 3,0 m a terra, strisce chiare laterali + trasversale a metà fra le
+  palme, cordolo 15 cm, 13 panchine (una ogni 2 palme, lato mare), 7 lampioni (ogni 4 palme), 8 coppie di tombini, gazebo con tetto
+  a piramide fra la 2ª e la 3ª palma dal ponte. Dettagli `docs/uefn_arte.md` §11-12.
+- Fondale v1: 8 settori di colline dal DEM Copernicus, tenda a 13 km, 12 blocchi città; foschia (override nebbia) e barriere sui
+  bordi dell'acqua. Dettagli `ref/fondale.md`, `docs/uefn_fondale.md`.
 
-**Prima cosa da fare alla ripresa**
-1. ~~(utente) Confermare in sessione le lastre del pavimento~~ → confermato dall'utente il 2026-11-19: visibili in gioco.
-2. (orchestratore) Verificare che `blender` e `unreal-mcp` rispondano (`blender` usa `uvx --system-certs`, vedi memoria pipeline).
+**Prima cosa alla ripresa:** verificare che `blender` e `unreal-mcp` rispondano (`blender` usa `uvx --system-certs`).
+Import in UEFN: SOLO il metodo di `docs/uefn_arte.md` §12 (ImportFile da zero in `_Temp` + `set_lod_from_static_mesh`;
+mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotano gli asset).
 
-**Prossimi step (in ordine proposto)**
-1. ~~(blender-artist) Mesh di pavimentazione~~ → v1 esportata e **posata in UEFN** il 2026-11-19 (`docs/uefn_arte.md` §11).
-   Restano: prova in sessione (qa-tester), colore dei cubetti (utente), UCX del blockout X 10-19 m (blender-artist).
-   **v2/v3 (fascia palme + arredi + gazebo) importata e posata in UEFN il 2026-11-19** (`docs/uefn_arte.md` §12): resta la prova
-   in sessione (qa-tester) e la conferma della tinta dei cubetti (utente).
-2. (blender-artist) Banchina: pezzi testata/angolo (estremità a X 19,2 m e 251 m), scaletta in nicchia, normali di bitta e
-   scaletta da pulire, LOD esportati con rotazione applicata ai vertici.
-3. (blender-artist) Palme B (dactylifera slanciata) e C; varianti del filare.
-4. (geo-scout + blender-artist) Ponte Thaon di Revel realistico (serve foto laterale e da sotto).
-5. Giardini a Mare, lampioni in ghisa con globo bianco, pini e oleandri; fondale (colline del golfo, profilo città).
-6. (utente) Foto ravvicinate frontali per texture nitide: tronco a 1 m, ciglio e cubetti dall'alto, lastre, ponte.
+**Prossimi step proposti**
+1. Tinta del fondale: colline meno chiare/gialle, facciate città più scure (MI); colle cittadino a NO più alto/mosso come in foto.
+2. Blockout del fondale (scatole bianche vicino al ponte/area militare) da sostituire con edifici bassi come in foto.
+3. Ponte Thaon di Revel realistico (foto in `ref/foto/ponte/`: legno a doghe con borchie, ringhiera bianca a montanti piegati e cavi).
+4. Dettagli Blocco 1: ancora monumentale vicino al ponte, ciglio a grandi blocchi bianchi, fascia longitudinale nelle lastre [S],
+   Giardini a Mare (prato, rose, agavi, panchine a schienale), texture del cordolo (bianco-azzurra, da correggere).
+5. Banchina: testata/angolo (X 19,2 e 251 m), normali di bitta e scaletta; Palme B/C.
+6. Blocco 2 (dopo): cannone + scultura REDAMARE a ~275 m, scritta "PASSEGGIATA MORIN" a ~550 m.
 
-**Note aperte:** asset non usati tenuti per scelta dell'utente (5 materiali `M_Banchina_*`/`M_Morin_PalmaA_*` dell'import FBX,
-`SM_Blockout_Passeggiata` originale); il progetto UEFN (`Documents/Fortnite Projects/LasPezia_Island`) non è in questo repository.
+**Decisioni in attesa dell'utente:** cancellare i 93 temporanei in `LaSpezia/_Temp` e i materiali inutilizzati `M_Banchina_*`,
+`M_Morin_PalmaA_*` (finché non dice sì, non si cancella); anello di mare solo visivo (per ora non serve, prova ok).
 
-**Riferimenti tecnici:** preset export e regola assi in `docs/scala.md` (usare sempre `blender/scripts/morin_export.py`);
-stato UEFN in `docs/uefn_blockout.md` e `docs/uefn_arte.md`; scelte in `docs/decisioni.md`.
+**Note:** il progetto UEFN (`Documents/Fortnite Projects/LasPezia_Island`) non è in questo repository. Foto stock (Alamy) in
+`ref/foto/vista/` solo come riferimento visivo, mai per texture.
+
+**Riferimenti tecnici:** preset export in `docs/scala.md` (usare sempre `blender/scripts/morin_export.py`); stato UEFN in
+`docs/uefn_blockout.md`, `docs/uefn_arte.md`, `docs/uefn_fondale.md`; scelte in `docs/decisioni.md`.
 
 ---
 
