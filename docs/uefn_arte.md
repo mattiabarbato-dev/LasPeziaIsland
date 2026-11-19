@@ -683,3 +683,53 @@ chiosco, ombrelloni e fioriere dietro il filare di palme.
 
 ### Temporanei
 18 `LaSpezia/_Temp/TMPC_<asset>_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente.
+
+## 17. Giardini a Mare v2 e blockout passeggiata v4 (2026-11-19, 22:40-22:47 ora locale)
+
+Sorgenti: `exports/giardini/` (9 FBX), posizioni **solo** `giardini_posizioni_v1.csv` (51 righe; il CSV `_blocco2` non è posato: oltre X 250 m
+non c'è suolo), texture `blender/textures/giardini/`, `exports/blockout/SM_Blockout_Passeggiata_Pav_v4.fbx`.
+Controllo iniziale: nessun asset né attore con questi nomi. Metodo del §13 (LOD0 col nome finale, LOD1/2 come `_Temp/TMPG_<asset>_LOD1/2`
++ `set_lod_from_static_mesh` dopo `remove_lods`; ImportFile aveva di nuovo messo 3 LOD automatici).
+
+### Asset
+| Asset | Cartella | Tri LOD0/1/2 | Bbox LOD0 (uu) | Convessi | Slot → MI | MinLOD Low/Med |
+|---|---|---|---|---|---|---|
+| `SM_Morin_OleandroAlberello_Bianco` | Arte/Giardini | 2.694 / 1.309 / 427 | X −190..182 · Y −191..146 · Z 0..413 | 1 (fusto) | Fusto, Chioma → `MI_Morin_Oleandro_Fusto`, `_Chioma` | 2 |
+| `SM_Morin_OleandroAlberello_Rosa` | Arte/Giardini | 2.734 / 1.335 / 427 | X −173..148 · Y −166..169 · Z 0..404 | 1 (fusto) | idem | 2 |
+| `SM_Morin_PanchinaLunga_Mod` | Arte/Giardini | 372 / 164 / 52 | X ±200 · Y ±22,5 · Z 0..45 | 1 (box) | `MI_Pav_Fascia` | 2 |
+| `Blockout/SM_Blockout_Passeggiata_Pav_v4` | Blockout | 128 (solo LOD0) | X −1230..25000 · Y −11800..8980 · Z −300..40 | 13 | Verde → `M_Blockout_Verde`, Pietra → `MI_Pav_Lastre` (arrivava su `M_Blockout_Pietra`) | 0 |
+
+Tutti: Nanite off, Use Simple Collision As Complex, soglie 1,0 / 0,2 / 0,08 (oleandri, panchina). Sezioni di ogni LOD sugli slot giusti.
+Texture `T_Morin_Oleandro_{Chioma,Fusto}_{D,N,ORM}` in `Arte/Giardini` (N = Normalmap senza flip, ORM = Masks, sRGB off).
+`MI_Morin_Oleandro_Chioma` su `M_Morin_Master_PBR_Masked` (come `MI_Albero_Latifoglia_Chioma`), `MI_Morin_Oleandro_Fusto` su `M_Morin_Master_PBR`.
+Nessun master nuovo. Insidia: in Python `static_materials[i].material_interface = ...` non ha effetto (copia della struct): usare `mesh.set_material(i, mi)`.
+
+### Posa
+| Attore (Outliner) | Tipo | Mesh | Istanze |
+|---|---|---|---|
+| `Arte_Giardini_OleandriBianco` (`Arte/Giardini`) | HISM (dup. di `Arte_Chiosco_FiorieraA` + `clear_instances`) | Bianco | 11 (Y −11950, Z 0, yaw dal CSV) |
+| `Arte_Giardini_OleandriRosa` | HISM | Rosa | 11 |
+| `Arte_Giardini_Panchine` | HISM | PanchinaLunga_Mod | 29 (Y −10170, Z 15, yaw 0; tratti X 122-178 / 183-227 / 233-249 m) |
+| `Blockout_Passeggiata_v4` (`Blockout`) | FortStaticMeshActor (dup. della v3) | Pav_v4 | (0,0,0), Query Only |
+
+**`Blockout_Passeggiata_v3` nascosto, non cancellato** (metodo §14: Actor Hidden In Game, componente Visible falso, No Collision,
+Actor Enable Collision no). Anche la v2 resta nascosta. Attori nel livello: 97.
+
+### Verifiche (line trace in editor)
+- Griglia 100 uu su X 11700..25000, Y −12000..−10100 ignorando oleandri e panchine: blockout v4 a +5 (prato provvisorio, 1.259 punti) e a 0,
+  `Blockout_Fondale_v2` a 0 (fascia oleandri Y ≥ 118 m), fascia palme +15, aiuole +17. **Nessuna superficie sopra +20** (siepe sparita),
+  unica eccezione il device `Luce_OraDelGiorno` a (24000, −10500), già esistente. Nessun buco: 16 punti senza impatto solo sul bordo X = 25000.
+- Panchine: 174/174 trace sotto le impronte → fascia +15 (appoggiano); piano di seduta colpito a +60 su 29/29. Trace orizzontale a Z 35 lungo
+  Y −10150/−10170/−10190: nessun ostacolo che le attraversi.
+- Oleandri: suolo `Blockout_Fondale_v2` Z 0 sotto 22/22; fusto colpito a Z 100 su 22/22; chioma a Z 300 senza collisione (voluto).
+
+### Salvataggio, validazione, render
+`save_dirty_packages` 22:46:22 (18 asset + 5 OFPA + 1 external object), date `.uasset` controllate; nessun pacchetto sporco.
+Validazione `LaSpezia/`: 222 controllati, 222 validi, 0 errori, 10 avvisi già noti. Log: solo tangenti degeneri del blockout v4 (innocuo),
+EOS/audio e deprecazioni Python. Render 1024 px, FOV 90, ombre: `docs/qa/uefn_giardini_v2.png` (UE 15300, −9650, 180; yaw −90; pitch −3;
+confronto con `ref/foto/vista/prato con alberelli.png`), `docs/qa/uefn_giardini_v2_b.png` (UE 13000, −9700, 180; yaw −72).
+
+### Temporanei e problemi aperti
+- 6 `LaSpezia/_Temp/TMPG_<asset>_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente.
+- Il prato provvisorio (`M_Blockout_Verde`) è verde menta chiarissimo: nel render stacca molto dagli oleandri; serve un materiale prato vero.
+- Oltre il prato (Y > 121 m) non c'è ancora Viale Italia con auto: si vedono le scatole del fondale.

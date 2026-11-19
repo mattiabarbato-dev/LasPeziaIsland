@@ -74,8 +74,14 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      `Blockout_Passeggiata_Pav_v4` (v3 intatta; backup `blender/arte_pavimentazione_pre_blockout_v4.blend`). Tolta la `SiepeLimite`;
      aiuole da X 117,5 (Y 102-107 e 111-116) abbassate a Z +0,05 (prato provvisorio, `M_Blockout_Verde`); a X < 94,5 invariate.
      Ray test 0,5 m su X 0-250, Y 62-118 (visivo e UCX): stessi identici punti scoperti della v3 (516, fuori dal bordo del blockout), nessun buco nuovo.
-   - [ ] (uefn-builder) Import kit giardini v2 (9 FBX, `MI_Morin_Oleandro_Chioma` masked two-sided) e posa dal CSV del Blocco 1 in HISM;
-     import di `SM_Blockout_Passeggiata_Pav_v4` al posto della v3 (nascondere la v3, non cancellarla).
+   - [x] (uefn-builder, 2026-11-19 22:47) Import kit giardini v2 e blockout v4 (`docs/uefn_arte.md` §17): 3 mesh in `LaSpezia/Arte/Giardini`
+     (tri LOD0/1/2 Bianco 2.694/1.309/427, Rosa 2.734/1.335/427, panchina 372/164/52; 1 UCX ciascuna, fusto/box), 6 texture,
+     `MI_Morin_Oleandro_Chioma` (master masked two-sided) e `MI_Morin_Oleandro_Fusto`; HISM `Arte_Giardini_OleandriBianco` 11,
+     `_OleandriRosa` 11, `_Panchine` 29 (solo CSV Blocco 1). `Blockout_Passeggiata_v4` posato, **`Blockout_Passeggiata_v3` nascosto**
+     (non cancellato). Line trace X 117-250 m: suolo continuo (prato +5, fascia +15), nessuna siepe, panchine su fascia +15.
+     Validazione 222/222, 0 errori, 10 avvisi noti. Render `docs/qa/uefn_giardini_v2.png`, `_b.png`.
+   - [ ] (utente) Conferma per cancellare gli attori nascosti `Blockout_Passeggiata_v2`/`_v3`, le loro mesh e i 6 `TMPG_*` in `_Temp`.
+   - [ ] (qa-tester) Prova in sessione: panchina lunga (sedersi/saltarci), passaggio tra gli oleandri, gradino fascia +15 → prato +5.
    - [ ] (geo-scout/utente) Disposizione delle aiuole geometriche con bordura di bosso nel prato (foto in pianta o vista aerea), poi
      `SM_Morin_BorduraBosso_Mod` (blender-artist).
    - [ ] (utente) Verificare [S]: altezza oleandri (~4 m), passo 5,5 m, posizione e varchi della panchina, tutore presente o no.
