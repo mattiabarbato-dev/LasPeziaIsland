@@ -80,14 +80,40 @@ La sommità è a Z 3140. Rotazione 0. Il lato mare resta aperto.
 | Label | Centro (X, Y, Z) | Larg. × Prof. (unità) | Ingombro X | Ingombro Y |
 |---|---|---|---|---|
 | `Barriera_LatoCitta` | (11850, −11930, −700) | 60 × 0,5 | −3510..27210 | −12058..−11802 (subito oltre la siepe, Y −11600..−11800) |
-| `Barriera_FineBlocco` | (25130, −9550, −700) | 0,5 × 10 | 25002..25258 | −12110..−6990 (siepe → ciglio, più 10 m in mare) |
+| `Barriera_FineBlocco` | (25130, 10930, −700) | 0,5 × 90 | 25002..25258 | −12110..33970 (dalla siepe attraverso tutto il mare; modificata il 2026-11-19, prima era Y −12110..−6990) |
 | `Barriera_Molo_AreaMilitare` | (−1360, −4340, −700) | 0,5 × 30 | −1488..−1232 | −12020..3340 (dal lato città fino oltre la riva dell'area militare, Y ≈ 2300) |
 | `Barriera_Mirabello_LatoPiuX` | (1110, 18875, −700) | 0,5 × 12 | 982..1238 | 15803..21947 |
 | `Barriera_Mirabello_LatoMenoX` | (−2150, 18875, −700) | 0,5 × 12 | −2278..−2022 | 15803..21947 |
 | `Barriera_Mirabello_Fondo` | (−520, 21880, −700) | 7 × 0,5 | −2312..1272 | 21752..22008 |
 
+**Chiusura della fine blocco (2026-11-19).** Prima si poteva aggirare `Barriera_FineBlocco` a nuoto (finiva a Y −6990),
+passare oltre X 25258 e risalire sul fondale cittadino a Z 0, che continua fino a X 33000 mentre `Barriera_LatoCitta`
+finisce a X 27210. Ora `Barriera_FineBlocco` ha profondità 90 unità (46080 uu) e attraversa tutto il volume d'acqua
+(acqua Y −11954..31054, barriera Y −12110..33970). Verifica dai componenti `BarrierBounds`, scala (0,5, 90, 10) e (60, 0,5, 10):
+- le due barriere si sovrappongono in X 25002..25258 · Y −12058..−11802, quindi all'angolo non c'è varco;
+- oltre X 25258 non si arriva più né da terra né dall'acqua; la base a Z −700 resta sotto il fondo dell'acqua (Z −534);
+- trace verticali a X 25130: fondale (Z 0) solo per Y ≤ −12000, altrove solo acqua. La barriera comincia subito dopo la fine
+  del camminamento (X 25000) e 8,7 m oltre il bordo degli spawn pad (X 24128), quindi non tocca la corsia.
+
+Sulle due barriere lunghe (`Barriera_LatoCitta`, `Barriera_FineBlocco`) *Influenza della distanza dissolvenza* è ora **NO**.
+Il centro di `Barriera_FineBlocco` è a ~190 m dalla partenza: con SÌ la barriera rischierebbe di disattivarsi
+oltre la distanza di dissolvenza. Le barriere non hanno collisione in modalità Crea, quindi le line trace in editor non le vedono.
+Che blocchino davvero va confermato in sessione (qa-tester).
+
 Le tre barriere di Mirabello chiudono la testata (X −2020..980, Y 16800..21740) su tre lati. Il lato verso il ponte resta aperto.
 I due lati partono 10 m in acqua (Y 15800).
+
+## Island Settings
+
+Attore `IslandSettings0` (`Device_ExperienceSettings_V2_UEFN`). Valori scritti con `DeviceToolset.SetClassicDeviceOption`
+e riletti con `ListClassicDeviceOptions` il 2026-11-19 (decisione dell'utente):
+
+| Opzione | Valore letto | Note |
+|---|---|---|
+| Consenti costruzione (`AllowBuilding`) | `None` (NESSUNO) | prima era TUTTI |
+| Preset locomozione (`LocomotionPreset`) | `Current BR` (BR ATTUALE) | invariato |
+| Consenti scatto (`bAllowSprinting`) | `True` (SÌ) | non modificabile finché il preset non è PERSONALIZZATO; lo scatto lo dà il preset BR |
+| Moltiplicatore velocità scatto | 1,4× | dal preset |
 
 ## Linea di vista e render
 
@@ -115,6 +141,6 @@ I due lati partono 10 m in acqua (Y 15800).
    È previsto che il rientro dall'acqua entro 3 s (Verse, Fase 2) risolva il problema. In alternativa servono altre barriere
    sulla riva o un bordo più alto nel fondale (blender-artist).
 3. **Tasca senza geometria** oltre X 25000 tra il fondale (Y < −11800) e il mare: ora è coperta dall'acqua e chiusa dalla barriera
-   di fine blocco. Se in futuro serve un bordo pulito, il fondale va esteso in Blender.
+   di fine blocco, che dal 2026-11-19 attraversa tutto il mare. Se in futuro serve un bordo pulito, il fondale va esteso in Blender.
 4. I materiali `M_Blockout_*` sono quelli dell'FBX (colori piatti). La pavimentazione è quasi bianca e sotto il sole radente
    abbaglia un po' nei render. Va bene per il blockout.

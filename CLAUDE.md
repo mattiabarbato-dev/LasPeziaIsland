@@ -49,9 +49,8 @@ Nessun agente deve trattare un dato [S] come certo: prima si verifica, poi si mo
 
 ### 2.2 Sezione trasversale (dal mare verso la città)
 È la "ricetta" del livello: ogni tratto della passeggiata ripete queste fasce.
-1. **Acqua del golfo** — calma, portuale, niente onde. Water Body nativo di UEFN.
 Misure da `ref/sezione.md` (Y dall'origine verso la città, ±0,5 m).
-1. **Acqua del golfo** — calma, portuale, niente onde. Water Body nativo di UEFN.
+1. **Acqua del golfo** — calma, portuale, niente onde. Device **Acqua V2** di UEFN (superficie Z −150).
 2. **Bordo banchina** (Y 80) — ciglio rettilineo in pietra, salto di ~1,5 m sull'acqua [S],
    bitte in ghisa ~0,45 m ogni ~12 m [S], scalette [S], parapetto presunto assente [S].
 3. **Fascia di ormeggio** — battelli turistici (~30-35 × 7 m [S]) e yacht ai pontili [V]: nel gioco
@@ -127,7 +126,9 @@ Si costruisce un blocco alla volta; un blocco si chiude solo quando è giocabile
 - **Vegetazione:** massimo 3 varianti di palma, 2 di pino, 2 di cespuglio; sempre istanziate.
 - **Texture:** 2048 px per il ponte, 1024 px per il resto, 512 px per il fondale. PNG o JPG.
 - **Collisioni:** solo box o convessi semplici (UCX_). Mai collisione per-poligono.
-- **Acqua:** Water Body nativo di UEFN, a cura di uefn-builder. Niente mesh d'acqua da Blender.
+- **Acqua:** device **Acqua V2** di UEFN (volume a scatola, niente onde), a cura di uefn-builder.
+  Non usare il Water Body Lake/Ocean nativo: referenzia asset `/Water/` che il validatore UEFN rifiuta.
+  Niente mesh d'acqua da Blender.
 - **Export FBX:** Selected Objects, Apply Scalings **"FBX Units Scale: None"** (`FBX_SCALE_NONE`),
   Scale 1.0, **Apply Transform attivo** (`bake_space_transform=True`), Apply Modifiers, Embed Textures,
   Path Mode Copy. Mai `FBX_SCALE_UNITS` né `FBX_SCALE_ALL`: lasciano i vertici in metri e in UEFN

@@ -22,3 +22,6 @@ Deroghe alla scala reale, scelte di design e cambi di piano. Il riepilogo breve 
 | 2026-11-18 | GridPlane del template spostati a Z −10000 (non cancellati) | A Z 0 coprivano il mare sotto il ponte e davanti al molo; la cancellazione la decide l'utente | uefn-builder |
 | 2026-11-18 | Barriere invisibili: base a Z −700 e alte 38 m; quella di fine blocco e i lati di Mirabello entrano 10 m in mare | Impedire di aggirarle a nuoto lungo la banchina; lato mare per il resto aperto | uefn-builder |
 | 2026-11-18 | Fondale: un box orientato per edificio OSM (47). Altezze Blosm (casuali per building=yes) ridotte a 6 m sul molo e a 8 m nell'area militare, tettoia 4 m, capannone 6 m; chiosco dei Giardini a Mare escluso (diventerà prop) | Edifici bassi sul molo 4-7 m [S] (`ref/elementi.md`) | blender-artist |
+| 2026-11-19 | CLAUDE.md §2.2 e §4: l'acqua è il device Acqua V2, non più il Water Body nativo | Conferma dell'utente alla scelta di uefn-builder del 2026-11-18 (validatore UEFN) | utente |
+| 2026-11-19 | Island Settings: costruzione disattivata (Nessuno) | Corsa a tempo: percorso uguale per tutti, niente scorciatoie costruite | utente |
+| 2026-11-19 | Scatto attivo | Stima 80-84 s con scatto (dentro 60-90 s) contro 112-118 s senza | utente |

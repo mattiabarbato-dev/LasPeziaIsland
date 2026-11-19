@@ -17,8 +17,8 @@ la prova in sessione non è partita (`StartSession` → `invalid_region`, region
    `docs/qa/2026-11-18_blockout_percorrenza.md` (§1, 2, 3, 6, 7, 8): tempo cronometrato, palme HISM in gioco, caduta in acqua, barriere.
 
 **Decisioni in attesa dell'utente**
-- Costruzione disattivata in Island Settings (proposta: Nessuno)?
-- Scatto attivo (tempo stimato 118 s senza, ~84 s con; obiettivo 60-90 s)?
+- ~~Costruzione disattivata in Island Settings~~ → confermato e applicato il 2026-11-19 (Nessuno)
+- ~~Scatto attivo~~ → confermato il 2026-11-19; già attivo con il preset "BR attuale"
 - Aggiornare CLAUDE.md §4 "Acqua": device **Acqua V2** al posto del Water Body nativo (quest'ultimo fa fallire il validatore UEFN)?
 
 **Riferimenti tecnici:** preset export e regola assi in `docs/scala.md` (usare sempre `blender/scripts/morin_export.py`);
@@ -134,7 +134,7 @@ Obiettivo: percorrere il Blocco 1 dall'inizio alla fine con volumi semplici, in 
       Da confermare in sessione (qa-tester): HISM palme in gioco, nuoto e risalita sul ciglio
 - [x] (uefn-builder) Barriere invisibili sul lato città e ai limiti del blocco
       6 Barrier device (Invisibile, Sempre, alte 3840 uu da Z −700): lato città Y −11930 (X −3510..27210), fine blocco X 25130
-      (Y −12110..−6990), molo/area militare X −1360 (Y −12020..3340), testata Mirabello su 3 lati. Lato mare aperto.
+      (Y −12110..−6990; dal 2026-11-19 fino a Y 33970), molo/area militare X −1360 (Y −12020..3340), testata Mirabello su 3 lati. Lato mare aperto.
       Aperto: chi nuota può raggiungere la riva del fondale (area militare, Mirabello) a Z 0 → serve il rientro dall'acqua (Verse)
 - [!] (qa-tester) Prova di percorrenza: tempo partenza -> fine ponte, punti d'incastro, linea di vista
       sull'antenna, caduta in acqua. Report in `docs/qa/`
@@ -146,9 +146,14 @@ Obiettivo: percorrere il Blocco 1 dall'inizio alla fine con volumi semplici, in 
 - [ ] (utente) Impostare la regione di matchmaking (Europa) in Fortnite/UEFN: senza, `StartSession` fallisce con
       `invalid_region`. Chiudere l'eventuale finestra di errore "Impossibile giocare" rimasta aperta nell'editor
 - [ ] (qa-tester) Ripetere in sessione le voci non verificate del report 2026-11-18 (§1, 2, 3, 6, 7, 8)
-- [ ] (uefn-builder) Chiudere l'uscita a nuoto oltre la fine del blocco: `Barriera_LatoCitta` finisce a X 27210,
+- [x] (uefn-builder) Chiudere l'uscita a nuoto oltre la fine del blocco: `Barriera_LatoCitta` finisce a X 27210,
       ma il fondale cittadino a Z 0 continua fino a X 33000 (oppure allungare in mare `Barriera_FineBlocco`, oggi fino a Y −6990)
-- [ ] (uefn-builder) Island Settings: "Consenti costruzione" è TUTTI. Proposta: Nessuno per la corsa (da confermare con l'utente)
+      2026-11-19: `Barriera_FineBlocco` portata a profondità 90 unità e centro (25130, 10930, −700): copre Y −12110..33970,
+      cioè tutto il volume d'acqua (Y −11954..31054), e si sovrappone a `Barriera_LatoCitta`. Oltre X 25258 non si arriva più.
+      *Influenza della distanza dissolvenza* = NO sulle due barriere lunghe. Da confermare in sessione che blocchino davvero
+- [x] (uefn-builder) Island Settings: "Consenti costruzione" è TUTTI. Proposta: Nessuno per la corsa (da confermare con l'utente)
+      2026-11-19 (confermato dall'utente): riletto `AllowBuilding` = None (NESSUNO). Scatto: `bAllowSprinting` = True,
+      governato dal preset di locomozione "BR attuale" (moltiplicatore 1,4×), lasciato com'è
 
 **Cancello 1:** si corre dalla partenza al fondo del ponte senza incastri; tempo misurato e annotato;
 la scala "sembra giusta" con un personaggio accanto a parapetti e palme.
