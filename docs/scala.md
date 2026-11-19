@@ -35,6 +35,12 @@ Script ufficiale: `blender/scripts/morin_export.py`. Applica il preset raccomand
 - Verificato il 2026-11-18: `exports/test/SM_Test_Assi_Script.fbx` ha header, UnitScaleFactor, vertici e indici
   identici a `SM_Test_Assi_RotZm90.fbx` (differenza 0,0). La Lcl Rotation Z vale −89,999989° invece di −90,000009°,
   cioè 2·10⁻⁵ gradi di arrotondamento. Le matrici, la selezione e l'oggetto attivo tornano identici dopo l'export.
+- `bake_rotation=True` (dal 2026-11-19, **da usare per i file `_LOD1`/`_LOD2`**): la rotazione −90° Z (e la matrix_world)
+  viene applicata ai vertici di copie temporanee omonime; nel file i nodi hanno Lcl Rotation e Translation nulle, quindi
+  anche `import_lod` di UEFN (che ignora la Lcl Rotation) li orienta come il LOD0. Solo mesh senza gerarchia; gli originali
+  vengono rinominati e ripristinati nel `finally`. Verificato leggendo gli FBX di `exports/pavimentazione/`: i vertici dei LOD
+  "cotti" coincidono con quelli del LOD0 ruotati di −90° (es. cordolo: LOD0 X −900..0 · Y −8915..−8845 con Lcl Rot −90;
+  LOD1 X −8915..−8845 · Y 0..900 con Lcl Rot 0). Il default resta `False`: il comportamento storico non cambia.
 
 ---
 

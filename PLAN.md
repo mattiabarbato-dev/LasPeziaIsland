@@ -20,8 +20,8 @@ texture da foto dell'utente + CC0; lastre sul pavimento tramite `SM_Blockout_Pas
 2. (orchestratore) Verificare che `blender` e `unreal-mcp` rispondano (`blender` usa `uvx --system-certs`, vedi memoria pipeline).
 
 **Prossimi step (in ordine proposto)**
-1. (blender-artist) Mesh di pavimentazione: lastre lato mare, cubetti ad archi con fasce chiare nella fascia palme, aiuole
-   quadrate delle palme, cordolo, panchine in pietra; poi togliere l'offset +2,5 cm della banchina.
+1. ~~(blender-artist) Mesh di pavimentazione~~ → v1 esportata e **posata in UEFN** il 2026-11-19 (`docs/uefn_arte.md` §11).
+   Restano: prova in sessione (qa-tester), colore dei cubetti e cordolo +3 cm da confermare (utente), UCX del blockout X 10-19 m (blender-artist).
 2. (blender-artist) Banchina: pezzi testata/angolo (estremità a X 19,2 m e 251 m), scaletta in nicchia, normali di bitta e
    scaletta da pulire, LOD esportati con rotazione applicata ai vertici.
 3. (blender-artist) Palme B (dactylifera slanciata) e C; varianti del filare.
@@ -261,15 +261,33 @@ Ordine per impatto visivo:
             `MI_Pav_Fascia` (1 m) su `M_Morin_Master_Pav`, che proietta in coordinate mondo (le UV del blockout sono nulle).
             `MI_Pav_Lastre` messo come override sull'attore `Blockout_Passeggiata` (slot Pietra), asset invariato. La fascia palme mostra
             lastre finché non arriva la mesh. 2026-11-19
-      - [ ] mesh: camminamento, fasce, aiuole quadrate bordate, cordolo con striscia tattile
+      - [x] mesh v1 2026-11-19 (in Blender, da importare): sorgente `blender/arte_pavimentazione.blend` (script
+            `blender/scripts/morin_pav_kit.py`), FBX in `exports/pavimentazione/`, posizioni UE in `pav_posizioni.csv`.
+            `SM_Pav_Camminamento_4m` 2 tri (4 × 8,16 m, stesse trasformazioni dei 58 moduli banchina, Z 0),
+            `SM_Pav_Cordolo_9m` 76/26/18 tri (striscia tattile + cordolo chiaro a +3 cm), `SM_Pav_FasciaPalme_9m` 50 tri
+            (cubetti + fasce chiare 0,25 m, 27 istanze a X 975 + 900k uu), `SM_Pav_Aiuola` 64/26/18 (2,2 m, 53 alle palme),
+            `SM_Morin_Panchina` 240/104/32 (2,2 × 0,5 × 0,45 m, 4 istanze X 34,5-61,5 m). LOD esportati con rotazione nei vertici
+            (`morin_export.py`, nuova opzione `bake_rotation`). Texture nuova `T_Pav_Terra_*` (procedurale). Blockout
+            ribassato `exports/blockout/SM_Blockout_Passeggiata_Pav.fbx` (128 tri, 17 UCX). Render `docs/qa/arte_pav_v1_corsia.png`,
+            `arte_pav_v1_alto.png`. [S]: cordolo quasi a raso (OSM dice 20 cm), misure di aiuole, fasce e panchine stimate dalle foto
+      - [x] (uefn-builder) 2026-11-19: kit importato in `LaSpezia/Arte/Pavimentazione` (senza texture/materiali duplicati), Nanite off,
+            Simple-as-Complex, convessi = UCX (blockout: 13, come gli oggetti UCX dell'FBX, non 17). LOD di cordolo/aiuola/panchina
+            via asset temporanei (`import_lod` li ruota ancora di +90°). `MI_Pav_Terra` (tile 2 m). Posa HISM in `Arte/Pavimentazione`:
+            58 camminamento, 27 fascia, 27 cordolo, 53 aiuole, 4 panchine. Banchina −2,5 cm (moduli Z 0, bitte −1,2, scalette −1,3).
+            `Blockout_Passeggiata` → `SM_Blockout_Passeggiata_Pav`. Tinta lastre (0,60; 0,56; 0,48) verso il grigio-bruno delle foto.
+            Trace: nessun buco, cordolo +3, aiuole +4,5, panchine +45; linea di vista invariata; validazione pulita; sessione cotta,
+            download 12,1 MiB. Dettagli e problemi aperti in `docs/uefn_arte.md` §11
+      - [ ] (qa-tester) prova in sessione di cordolo, aiuole, panchine e raccordo ciglio; (utente) colore dei cubetti, cordolo +3 cm [S]
+      - [ ] panchine e altri arredi oltre X 62 m (OSM: altre panchine solo a X 256-288, fuori dal blocco); pensilina a X 40
 - [ ] (blender-artist) Arredi: lampione, panchina, cestino, parapetto
 - [ ] (blender-artist) Battello turistico stilizzato, senza marchi reali
 - [ ] (blender-artist) Pini, oleandri, aiuole della fascia verde
 - [ ] (blender-artist) Fondale: sagome di edifici e colline
 - [~] (uefn-builder) Sostituzione progressiva del blockout; palme e arredi come istanze
       2026-11-19: sostituiti ciglio (kit banchina), palme (PalmaA) e aspetto del camminamento (override lastre). Restano ponte, fondale,
-      arredi, pavimentazione come mesh. Memoria: Project Size mostra ancora l'ultima versione cotta (solo blockout, 531 KB); stima
-      texture nuove ≈ 88 MiB a piena risoluzione su 300 MiB di limite di pubblicazione. Da rileggere dopo una sessione.
+      arredi. Pavimentazione come mesh posata il 2026-11-19 (§11 di `docs/uefn_arte.md`). Memoria: Project Size dopo la sessione
+      delle 10:21 UTC = 12,1 MiB in download (era 531 KB col solo blockout); stima texture ≈ 99 MiB a piena risoluzione su 300 MiB
+      di limite di pubblicazione (calcolo esatto dal pannello Memoria, utente).
       Per `GetCost` serve il percorso del Mali Offline Compiler (preferenze dell'editor, utente)
 - [ ] (uefn-builder) Luce del tardo pomeriggio, cielo, nebbia leggera sul golfo
 - [ ] (uefn-builder) Audio ambientale: gabbiani, acqua, sartie

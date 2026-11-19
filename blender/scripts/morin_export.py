@@ -17,6 +17,9 @@ Cosa fa export_fbx():
      (location / rotazione / scala esatte), visibilita, selezione e oggetto attivo.
      Nessun transform_apply, nessun operatore che lascia passi di undo. Il .blend risulta
      "dirty" (sono state toccate proprieta) ma i dati tornano identici.
+     Con bake_rotation=True (2026-11-19, per i file LOD e `import_lod` di UEFN) la rotazione e la
+     matrix_world vanno invece nei VERTICI di copie temporanee omonime (originali rinominati e
+     ripristinati nel finally): nel file i nodi hanno Lcl Rotation/Translation nulle.
   5. Report (dict + stampa): file, byte, oggetti, triangoli per mesh valutati con i
      modificatori, confronto con i budget di CLAUDE.md §4, bounding box in metri e in uu UE.
 
@@ -64,6 +67,9 @@ BUDGETS = (
     ("Bitta", 4000),       # prop
     ("Scaletta", 4000),    # prop
     ("Banchina", 2000),    # modulo banchina
+    ("Aiuola", 4000),      # prop (2026-11-19, kit pavimentazione)
+    ("Panchina", 4000),    # prop
+    ("Pav", 2000),         # moduli di pavimentazione (come modulo banchina)
 )
 
 # Rotazione applicata solo in export (docs/scala.md, giro 3).
@@ -226,9 +232,47 @@ def _resolve_path(filepath, project_root):
 # API
 # --------------------------------------------------------------------------------------------
 
+def _make_baked_copy(o, depsgraph, coll):
+    """Copia temporanea di `o` con mesh valutata e trasformata da EXPORT_ROTATION @ matrix_world
+    (rotazione -90 Z applicata ai VERTICI), trasformazione dell'oggetto = identita, stesso nome di `o`.
+    L'originale viene rinominato e va ripristinato da _drop_baked_copy()."""
+    name = o.name
+    ev = o.evaluated_get(depsgraph)
+    me = bpy.data.meshes.new_from_object(ev, preserve_all_data_layers=True, depsgraph=depsgraph)
+    me.transform(EXPORT_ROTATION @ o.matrix_world)
+    if (o.matrix_world.determinant() < 0):
+        me.flip_normals()
+    me.update()
+    o.name = name + "__morin_src"
+    tmp = bpy.data.objects.new(name, me)
+    coll.objects.link(tmp)
+    if tmp.name != name:  # non dovrebbe succedere: il nome e stato appena liberato
+        raise RuntimeError(f"nome temporaneo non disponibile: {name} -> {tmp.name}")
+    for i, slot in enumerate(o.material_slots):
+        if i < len(tmp.material_slots) and slot.link == "OBJECT":
+            tmp.material_slots[i].link = "OBJECT"
+            tmp.material_slots[i].material = slot.material
+    return tmp
+
+
+def _drop_baked_copy(tmp, original, name):
+    me = tmp.data
+    bpy.data.objects.remove(tmp)
+    if me is not None and me.users == 0:
+        bpy.data.meshes.remove(me)
+    original.name = name
+
+
 def export_fbx(objects, filepath, mode="asset", object_types=frozenset({"MESH"}),
-               include_ucx=True, overwrite=False, project_root=None, verbose=True):
+               include_ucx=True, overwrite=False, project_root=None, verbose=True,
+               bake_rotation=False):
     """Esporta `objects` (+ i loro UCX_) in `filepath` col preset del progetto.
+
+    bake_rotation  False (default, comportamento storico): la rotazione -90 Z finisce nella Lcl Rotation
+                   dei nodi FBX. True: la rotazione (e l'intera matrix_world) e applicata ai VERTICI di copie
+                   temporanee con lo stesso nome, quindi nel file i nodi hanno Lcl Rotation/Translation nulle.
+                   Serve per i file LOD da importare con `import_lod` di UEFN, che ignora la Lcl Rotation
+                   (docs/uefn_arte.md §1 e §10). Solo mesh senza gerarchia; gli originali non vengono toccati.
 
     objects       lista di bpy.types.Object (i figli NON vengono aggiunti in automatico).
     filepath      .fbx dentro <progetto>/exports/ (assoluto o "//relativo al .blend").
@@ -316,6 +360,11 @@ def export_fbx(objects, filepath, mode="asset", object_types=frozenset({"MESH"})
             warnings.append(f"{o.name}: ha animazioni o driver (bake_anim=False).")
 
     roots = [o for o in objs if o.parent is None or o.parent.name not in names]
+    if bake_rotation:
+        if len(roots) != len(objs) or any(o.children for o in objs):
+            raise MorinExportError("bake_rotation=True: solo oggetti senza gerarchia (niente parent/figli).")
+        if any(o.type != "MESH" for o in objs):
+            raise MorinExportError("bake_rotation=True: solo oggetti MESH.")
 
     if mode == "asset":
         bad = [(o.name, tuple(round(v, 5) for v in o.matrix_world.translation))
@@ -349,6 +398,7 @@ def export_fbx(objects, filepath, mode="asset", object_types=frozenset({"MESH"})
 
     result = None
     error = None
+    baked = []  # (tmp, originale, nome) per bake_rotation
     try:
         for o in objs:
             if o.hide_viewport:
@@ -358,12 +408,22 @@ def export_fbx(objects, filepath, mode="asset", object_types=frozenset({"MESH"})
         for o in view_layer.objects:
             if o.select_get(view_layer=view_layer):
                 o.select_set(False, view_layer=view_layer)
-        for o in objs:
-            o.select_set(True, view_layer=view_layer)
-        view_layer.objects.active = objs[0]
 
-        for o in roots:
-            o.matrix_world = EXPORT_ROTATION @ o.matrix_world
+        if bake_rotation:
+            for o in objs:
+                name = o.name
+                tmp = _make_baked_copy(o, depsgraph, scene.collection)
+                baked.append((tmp, o, name))
+            view_layer.update()
+            for tmp, _o, _n in baked:
+                tmp.select_set(True, view_layer=view_layer)
+            view_layer.objects.active = baked[0][0]
+        else:
+            for o in objs:
+                o.select_set(True, view_layer=view_layer)
+            view_layer.objects.active = objs[0]
+            for o in roots:
+                o.matrix_world = EXPORT_ROTATION @ o.matrix_world
         view_layer.update()
 
         os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -373,6 +433,11 @@ def export_fbx(objects, filepath, mode="asset", object_types=frozenset({"MESH"})
     except Exception as exc:  # ripristino garantito dal finally, poi rilancio
         error = exc
     finally:
+        for tmp, orig, name in reversed(baked):
+            try:
+                _drop_baked_copy(tmp, orig, name)
+            except Exception as exc:  # non deve impedire il resto del ripristino
+                warnings.append(f"ripristino della copia temporanea di {name} fallito: {exc!r}")
         for o in roots:
             _restore_transform(o, prev_tf[o.name])
         for o in objs:
@@ -429,7 +494,8 @@ def export_fbx(objects, filepath, mode="asset", object_types=frozenset({"MESH"})
         warnings=warnings,
         is_dirty_before=was_dirty,
         is_dirty_after=bpy.data.is_dirty,
-        preset=dict(FBX_PRESET, object_types=sorted(object_types), export_rotation_z_deg=-90.0),
+        preset=dict(FBX_PRESET, object_types=sorted(object_types), export_rotation_z_deg=-90.0,
+                    export_rotation_baked_in_vertices=bool(bake_rotation)),
     )
     if verbose:
         _print_report(report)
@@ -446,7 +512,9 @@ def export_selected(filepath, mode="asset", **kwargs):
 
 def _print_report(r):
     print("=" * 72)
-    print(f"[morin_export] {r['file']}  ({r['bytes']} byte, mode={r['mode']})")
+    baked = r["preset"].get("export_rotation_baked_in_vertices")
+    print(f"[morin_export] {r['file']}  ({r['bytes']} byte, mode={r['mode']}"
+          f"{', rotazione nei vertici' if baked else ''})")
     for m in r["meshes"]:
         b = "" if m["budget"] is None else f"  budget {m['budget']} ({m['budget_key']}): " \
                                            f"{'OK' if m['within_budget'] else 'SUPERATO'}"

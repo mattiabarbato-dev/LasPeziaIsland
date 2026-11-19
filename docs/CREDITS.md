@@ -33,6 +33,7 @@ sintesi tileable). Nei ritagli non ci sono persone, targhe, loghi o scritte (la 
 | `T_Pav_Fascia_D/N/ORM` | `banchina/Immagine 2026-11-19 060216.png` (fascia chiara al sole) | superficie e colore della pietra chiara | giunto ogni 1 m, grana Poly Haven |
 | `T_Morin_PalmaA_Tronco_D/N/ORM` (metà sinistra, fusto) | `palme/Immagine 2026-11-19 055957.png` (tronco in primo piano, striscia centrale) | corteccia e cicatrici del fusto, colore | resa tileable, grana Poly Haven palm_tree_bark, normal/AO derivati dall'albedo |
 | `T_Morin_PalmaA_Tronco_D/N/ORM` (metà destra, ananas) | `palme/Immagine 2026-11-19 055957.png` (ananas sotto la chioma) | colori delle placche e dei solchi (campionati) | squame a rombi procedurali (più grandi del fusto) |
+| `T_Pav_Terra_D/N/ORM` (2026-11-19, aiuole) | `banchina/Immagine 2026-11-19 060216.png` (terra dell'aiuola in basso a sinistra) | solo i colori della terra (campionati, de-lit a occhio) | tutto il resto procedurale (rumore periodico, sassolini, normal/AO derivati dall'altezza); nessun asset di terzi |
 | `T_Morin_PalmaA_Fronde_D/N/ORM` | `palme/palma_1.png` e `palme/Immagine 2026-11-19 055957.png` (chiome) | verdi delle foglioline e bruni delle fronde secche (campionati) | fronde modellate in Blender e renderizzate dall'alto (atlas con alfa) |
 
 `palme/palma_1.png`, `banchina/Immagine 2026-11-19 055927.png` e `passegiata_2.png` sono state usate anche come riferimento

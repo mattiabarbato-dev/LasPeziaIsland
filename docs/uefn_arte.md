@@ -104,6 +104,7 @@ del blockout (2 cm di margine). In questo tratto il ciglio sta tra Y −8032 e �
 **Quota.** La faccia superiore del modulo è inclinata e ha piccoli dislivelli fra i blocchi (da −2,7 a +0,2 cm). Per non
 compenetrare il pavimento del blockout (Z 0) né fare z-fighting, i moduli stanno a **Z +2,5**. La collisione del ciglio è a Z 2,0,
 quindi il gradino col pavimento è di 2 cm. Quando arriverà la mesh di pavimentazione l'offset va tolto.
+**Aggiornamento 2026-11-19 (kit pavimentazione, §11):** offset tolto. Moduli a Z 0, bitte a Z −1,2, scalette a Z −1,3; collisione del ciglio a Z −0,5.
 
 | Attore | Mesh | Istanze | Posizioni chiave |
 |---|---|---|---|
@@ -210,9 +211,124 @@ Il device `Acqua_Golfo_Device` è stato spostato da Z −534 a **Z −484**; il 
    Lcl Rotation nel nodo), così un futuro `import_lod` diretto funziona. Oggi c'è il giro con gli asset temporanei (§1).
 3. **(blender-artist)** Testata/angolo del ciglio: a X 1920 l'estremità del primo modulo resta a vista verso lo smusso a 45°
    del blockout; a X 25120 l'ultimo modulo finisce nel vuoto (dietro la barriera). Serve il pezzo d'angolo già in PLAN.
-4. **(blender-artist)** Mesh di pavimentazione: la fascia delle palme oggi mostra lastre (slot Pietra unico del blockout, ora sulla copia
+4. ~~**(blender-artist)** Mesh di pavimentazione~~ → kit v1 posato il 2026-11-19 (§11). Testo originale: la fascia delle palme oggi mostra lastre (slot Pietra unico del blockout, ora sulla copia
    `SM_Blockout_Passeggiata_Arte`). Con la mesh dedicata si ripunta l'attore e si toglie l'offset Z +2,5 dei moduli.
 5. **(utente)** Impostare il percorso del Mali Offline Compiler per avere `GetCost`.
 6. **(qa-tester, in sessione)** Palme e bitte HISM visibili e solide in gioco; risalita dalle scalette; nuoto con l'acqua a −1 m;
    rilettura di Project Size e memoria dopo la cottura.
 7. I materiali `M_Banchina_*`/`M_Morin_PalmaA_*` creati dall'import FBX non sono usati: si possono eliminare (serve conferma).
+
+## 11. Kit pavimentazione v1 (2026-11-19, 10:10-10:25 UTC)
+
+Sorgenti: `exports/pavimentazione/*.fbx`, posizioni `exports/pavimentazione/pav_posizioni.csv`, blockout `exports/blockout/SM_Blockout_Passeggiata_Pav.fbx`.
+
+### Import
+`StaticMeshToolset.ImportFile` con **materiali e texture disattivati** (`bImportMaterials=false`): gli slot arrivano col nome del materiale
+Blender e WorldGridMaterial; **nessuna texture né materiale duplicato creato** (le 2048 incorporate negli FBX non sono state importate).
+L'import genera 3 LOD automatici su ogni mesh: rimossi con `RemoveLods` prima di mettere quelli manuali.
+Nanite spento (`nanite_settings.enabled = False`; nota: `IsNaniteMesh` risponde True anche sugli asset banchina, noti come non Nanite: non è affidabile).
+**Use Simple Collision As Complex** su tutti.
+
+| Asset | Cartella | Tri LOD0/1/2 | Bbox locale (uu) | Convessi | Slot → MI |
+|---|---|---|---|---|---|
+| `SM_Pav_Camminamento_4m` | Arte/Pavimentazione | 2 (nessun LOD, deroga) | X 0..400 · Y −870..−54 · Z 0 | 1 (Z −30..0) | Lastre → `MI_Pav_Lastre` |
+| `SM_Pav_FasciaPalme_9m` | Arte/Pavimentazione | 50 (nessun LOD, deroga) | X 0..900 · Y −10200..−8915 · Z 0 | 1 (Z −30..0) | Cubetti → `MI_Pav_Cubetti`, Fascia → `MI_Pav_Fascia` |
+| `SM_Pav_Cordolo_9m` | Arte/Pavimentazione | 76 / 26 / 18 | X 0..900 · Y −8915..−8845 · Z −15..3 | 2 (striscia Y −8885..−8845 top 1,2; cordolo Y −8915..−8885 top 3,0) | Fascia → `MI_Pav_Fascia` |
+| `SM_Pav_Aiuola` | Arte/Pavimentazione | 64 / 26 / 18 | X ±110 · Y ±110 · Z −3..6 | 1 (top 4,5) | Fascia → `MI_Pav_Fascia`, Terra → `MI_Pav_Terra` |
+| `SM_Morin_Panchina` | Arte/Pavimentazione | 240 / 104 / 32 | X ±110 · Y ±25 · Z 0..45 | 1 (top 45) | Fascia → `MI_Pav_Fascia` |
+| `SM_Blockout_Passeggiata_Pav` | Blockout | 128 | X −1230..25000 · Y −11800..8980 · Z −300..150 | **13** (= 13 oggetti UCX nell'FBX) | Pietra → `MI_Pav_Lastre`, Verde → `M_Blockout_Verde` |
+
+Triangoli e bbox coincidono col report di blender-artist. Soglie LOD 1,0 / 0,2 / 0,08 (come la banchina). MinLOD Low/Medium:
+2 sui tre asset con LOD (default UEFN), **0** su camminamento, fascia e blockout (con un solo LOD il valore 2 dava un avviso di validazione).
+
+**LOD.** `import_lod` diretto (file `_LOD1/_LOD2` con rotazione applicata ai vertici) ha dato LOD **ruotati di +90°**
+(cordolo LOD1 X 8845..8915 · Y 0..900; panchina LOD1 X ±25 · Y ±110). La rotazione nei vertici non basta: `import_lod` non applica
+la conversione d'assi di `ImportFile`. Corretto col metodo del §1: `ImportFile` in `Arte/_TmpLOD` + `set_lod_from_static_mesh(..., reuse_existing_material_slots=True)`
+dopo aver messo sugli slot dei temporanei le stesse MI. Verificato: bbox dei LOD1/LOD2 identici al LOD0, vertici dei LOD contenuti
+in quelli del LOD0 (cordolo LOD1 100 %), sezioni sugli slot giusti, nessuno slot in più. I 6 temporanei (creati in questo task,
+nessun referencer) e la cartella `_TmpLOD` sono stati eliminati.
+
+**Blockout, UCX.** Nell'FBX ci sono 13 oggetti `UCX_SM_Blockout_PassPav_*` (Aiuole 6, Lastra 4, Molo 2, SiepeLimite 1), non 17: in UEFN 13 convessi.
+Il convesso del tratto X 1020..1920 resta con la faccia a **Z 0** anche dove la mesh è ribassata a −15 (X 975..1920, Y −8845..−10200):
+innocuo, perché lì sopra ci sono fascia e cordolo con collisione a Z 0 / +1,2 / +3, ma è un'incoerenza da segnalare a blender-artist.
+Avvisi di import su `SM_Blockout_Passeggiata_Pav`: "basi tangenti degeneri" e "normali/bi-normali quasi nulle" (MikkTSpace).
+
+### Texture e materiali
+- `T_Pav_Terra_D` (sRGB), `_N` (Normalmap, sRGB off, nessun flip), `_ORM` (Masks, sRGB off), 2048 × 2048, da `blender/textures/`.
+- `MI_Pav_Terra` su `M_Morin_Master_Pav`, `Tile_m` 2,0.
+- **Tinta lastre.** Il master ha già il parametro vettoriale `Tinta` (moltiplica la BaseColor): nessuna modifica al master.
+  Misure (media sRGB, lette con Blender in background): texture `T_Pav_Lastre_D` 191/189/180 (albedo lineare 0,52/0,49/0,43);
+  `passegiata_1.png` (zona del pavimento, cielo coperto) 194/189/182; `pav_1.png` (sera, ombra) 143/143/144.
+  L'albedo era troppo alto per una pietra grigia e con la luce delle 18 virava al rosa/malva. `MI_Pav_Lastre.Tinta` = **(0,60; 0,56; 0,48)**:
+  albedo medio ≈ 0,31/0,28/0,20 lineare, grigio-bruno. Provata prima (0,60; 0,60; 0,63): più scura ma ancora fredda/violacea.
+  Confronto: `docs/qa/uefn_pav_v1_lastre_prima.png` / `uefn_pav_v1_lastre_dopo.png` (stessa camera, X 100 m).
+  La tinta vale anche per il blockout (`SM_Blockout_Passeggiata_Pav`, slot Pietra), quindi per molo e tratto X < 9,75 m.
+
+### Posa (cartella Outliner `Arte/Pavimentazione`)
+Attori ottenuti duplicando `Arte_Banchina_Moduli` (stessa struttura: `Actor` + `HierarchicalInstancedStaticMeshComponent`, Static,
+profilo `FortStaticMesh`), in (0,0,0), istanze dal CSV.
+
+| Attore | Mesh | Istanze | Note |
+|---|---|---|---|
+| `Arte_Pav_Camminamento` | SM_Pav_Camminamento_4m | **58** | X 1920..24720, Y −8032,0..−7982,61, Z 0, yaw 0,1241° (come i moduli banchina) |
+| `Arte_Pav_FasciaPalme` | SM_Pav_FasciaPalme_9m | **27** | X 975 + 900·k (ultima 24375, copre fino a 25275), Y 0, yaw 0 |
+| `Arte_Pav_Cordolo` | SM_Pav_Cordolo_9m | **27** | come la fascia |
+| `Arte_Pav_Aiuole` | SM_Pav_Aiuola | **53** | ai piedi delle 53 palme (Y −9260 e −9960) |
+| `Arte_Pav_Panchine` | SM_Morin_Panchina | **4** | X 34,5 / 43,5 / 52,5 / 61,5 m, Y −9340 |
+
+Contemporaneamente: `Arte_Banchina_Moduli` Z 2,5 → **0**, `Arte_Banchina_Bitte` 1,3 → **−1,2**, `Arte_Banchina_Scalette` 1,2 → **−1,3** (tutte le istanze).
+`Blockout_Passeggiata` (FortStaticMeshActor) ora usa **`SM_Blockout_Passeggiata_Pav`**, nessun override; `SM_Blockout_Passeggiata` e `_Arte` restano nel progetto.
+Ogni modifica preceduta da `modify()` su attore e componente dentro `ScopedEditorTransaction`. Nota: `unreal.Rotator(a, b, c)` è (roll, pitch, yaw):
+la prima posa del camminamento aveva lo yaw finito nel pitch, corretta subito con argomenti nominati (verificato: roll 0, pitch 0, yaw 0,1241).
+
+**Salvataggio.** 20 pacchetti salvati (6 mesh, MI e 3 texture, 9 pacchetti OFPA, 1 external object); tutti i `.uasset` OFPA degli attori toccati
+hanno data 10:17:26-27 UTC; quello di `Blockout_Passeggiata` (`4/ZR/QVW7OHB54ZLHC2SCCL2SYW.uasset`) contiene il riferimento a
+`SM_Blockout_Passeggiata_Pav`, quello del camminamento a `SM_Pav_Camminamento_4m`. Poi salvati `MI_Pav_Lastre` (tinta) e i MinLOD. Nessun pacchetto sporco.
+
+### Verifiche
+Line trace (semplice e complessa identiche):
+
+| Punto | Impatto |
+|---|---|
+| Camminamento (X 100/200 m, Y −84/−85 m) | Z 0, `Arte_Pav_Camminamento` |
+| Raccordo ciglio/lastre: retta−54,5 e retta−56 | Z 0, camminamento; ciglio (retta−30/−50) Z −0,5, `Arte_Banchina_Moduli` |
+| Striscia tattile (Y −88,55) | Z +1,2; cordolo (Y −88,85/−89,05) **Z +3,0**, uguale da X 9,8 a 108 m |
+| Fascia palme (Y −96/−101,5 e sul filare) | Z 0, `Arte_Pav_FasciaPalme` (anche a X 15 m e 251 m) |
+| Aiuola (terra e bordo) | Z +4,5 (un solo UCX: la terra visiva è a +2,5/+4, il bordo a +6) |
+| Panchina | Z +45 |
+| Oltre Y 102 | Z +40, siepe del blockout (invariata) |
+
+Scansione a griglia 100 × 25 uu da X 9,8 a 250 m, dal ciglio a Y −101,95 m (circa 21.000 trace): **nessun buco**, nessun impatto sotto Z −1,
+il blockout ribassato a −15 non è mai il primo impatto; il blockout a Z 0 è colpito solo nel tratto previsto X < 19,2 m, Y > −88,45 m.
+Z-fighting: al raccordo X 9,75 m il blockout passa da Z 0 a −15 esattamente a X 975 (vertici letti dalla mesh), dove iniziano fascia e cordolo;
+a Y 102 fascia (Z 0) e giardino del blockout si toccano solo lungo lo spigolo, senza facce sovrapposte. Nei render nessuno sfarfallio.
+Linea di vista dalla partenza (24000, −8450, 180) alle antenne (−220, 8040) e (−370, 12860) a Z 10/20/30 m: tutte su `Blockout_Ponte`
+a 25-52 uu dal bersaglio, **invariata**.
+
+Render 1024 px con ombre (`docs/qa/`): `uefn_pav_v1_partenza.png` (partenza verso il ponte), `uefn_pav_v1_aiuole_alto.png` (vista alta su aiuole,
+fasce e panchina), `uefn_pav_v1_ciglio.png` (ciglio dal mare con bitta, lastre, cordolo), `uefn_pav_v1_cordolo.png` (striscia tattile e cordolo),
+`uefn_pav_v1_lastre_prima.png` / `_dopo.png` (tinta).
+
+Validazione: `ValidateAssets` su 55 asset (`LaSpezia/Arte` + blockout nuovo + mappa): 55 validi, 0 errori, 0 avvisi (dopo la correzione dei MinLOD).
+`EditorValidatorSubsystem` sui 10 attori Arte_* e `Blockout_Passeggiata`: VALID. Log dell'editor: nessun errore nuovo legato al progetto
+(solo avvisi di import su tangenti del blockout e "LOD pattern mismatch" di Interchange sui nomi `_LOD1/_LOD2`, innocuo).
+
+### Sessione e memoria
+Sessione avviata (`StartSession`, Connected, cottura 10:21 UTC, lasciata aperta). Libreria shader del progetto: **51 shader** (come prima: nessun master nuovo).
+Client: nessun avviso `LogMaterial` sui materiali del progetto.
+**Project Size** (ultima versione cotta, v5 del 10:21:24): download **12.688.568 byte (12,1 MiB)**, upload 122.023.684 byte (116 MiB),
+di cui texture 10,8 MB in download. Pavimentazione in download: texture circa 4,9 MB, mesh 44 KB, blockout nuovo 28 KB.
+Limiti: memoria di pubblicazione 300 MiB, download 400 MiB. Project Size non dà la memoria; stima texture a piena risoluzione
+con i mip: circa 99 MiB (88 + 10,7 delle 3 Terra), ora tutte referenziate dal livello. Il calcolo di memoria esatto resta da fare dal pannello dell'utente.
+
+### Problemi aperti (pavimentazione)
+1. **(blender-artist)** `import_lod` continua a ruotare i LOD di +90° anche con `bake_rotation`: o si accetta il metodo dei temporanei
+   (funziona, documentato), o va provato un export dei LOD senza la rotazione −90°. Non bloccante.
+2. **(blender-artist)** `SM_Blockout_Passeggiata_Pav`: UCX del tratto X 10,2-19,2 m non ribassato (vedi sopra); tangenti degeneri e normali quasi nulle.
+   Nel brief si parlava di 17 UCX, nell'FBX sono 13.
+3. **(blender-artist/utente)** Fascia e cordolo arrivano a X 252,75 m, 2,75 m oltre la fine del blockout (X 250): come l'ultimo modulo banchina,
+   finiscono nella zona della `Barriera_FineBlocco`.
+4. **(utente)** `MI_Pav_Cubetti` nei render appare violaceo/rosato come le lastre prima della correzione: da confrontare con le foto
+   (stesso parametro `Tinta`). Non toccato perché fuori dal task.
+5. Cordolo a +3 cm lasciato come richiesto ([S], in attesa di conferma dell'utente).
+6. **(qa-tester)** Prova in sessione: percorrenza su cordolo, aiuole (+4,5) e panchine; nessun inciampo al raccordo ciglio (−0,5 cm).
