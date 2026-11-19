@@ -120,3 +120,16 @@ Foto: `ref/foto/vista/chiosco_con_ombrelloni_e_tavolini.png` (C1) e `..._2.png` 
   (file di QA, non va pubblicato).
 - v2 (2026-11-19): `T_Morin_Oleandro_Chioma_*` rigenerata con più fiori e rosa fucsia (stessa origine [SV], solo colori campionati).
   Confronto `docs/qa/arte_giardini_v2_confronto.png` (file di QA con la cattura sfocata nelle parti di UI, non va pubblicato).
+
+### Vista verso la città: prato, Viale Italia, palazzi (blender-artist, 2026-11-19) — `blender/textures/viale/`, `blender/scripts/morin_viale.py`
+Foto: `ref/foto/vista/prato con alberelli.png` (cattura Street View) e `ref/foto/vista/vista_dall_alto_2.png` (solo riferimento).
+- **[SV]** `T_Fondale_Palazzo_A/B/C_D/N/ORM` (1024, facciata intera + strisce coppi/stucco/muro): **procedurali** (finestre, persiane,
+  cornici, timpani, bugnato, cornicione disegnati dallo script); dalla cattura solo i colori a occhio (giallo, rosa, ocra delle facciate,
+  verde delle persiane, stucco chiaro) e lo schema (5-6 piani, persiane verdi, cornici chiare). Nessun ritaglio di foto.
+- **[SV]** `T_Morin_Prato_D/N/ORM` (2048, tileable 4 m): procedurale; verde del prato tarato sulla mediana dei pixel del prato nella
+  cattura (x 860-940, y 240-262), riportata a luce piena.
+- `T_Morin_Bosso_*` (1024), `T_Viale_Segnaletica_*` (512), `T_Morin_Auto_*` (1024, atlante): procedurali. Auto generiche senza marchi,
+  vano targa vuoto (niente targhe).
+- Riusi: `T_Molo_Asfalto_*` (asfalto del viale, sezione molo [SV]), `T_Pav_Fascia_*` (cordoli). Fronti dei palazzi da OSM
+  (© OpenStreetMap contributors, ODbL; isole di `SM_Blockout_Fondale_v2_Edifici`).
+- Il confronto `docs/qa/arte_viale_v1_confronto.png` contiene la cattura con UI e una persona: file di QA, non va pubblicato.

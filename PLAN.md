@@ -85,6 +85,23 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
    - [ ] (geo-scout/utente) Disposizione delle aiuole geometriche con bordura di bosso nel prato (foto in pianta o vista aerea), poi
      `SM_Morin_BorduraBosso_Mod` (blender-artist).
    - [ ] (utente) Verificare [S]: altezza oleandri (~4 m), passo 5,5 m, posizione e varchi della panchina, tutore presente o no.
+   - [x] (blender-artist, 2026-11-19) **Vista verso la città v1: prato, aiuole, Viale Italia, palazzi** (foto `prato con alberelli.png`):
+     `blender/arte_viale.blend` (copia di arte_giardini.blend + fondale linkato per il render), script `blender/scripts/morin_viale.py`,
+     texture `blender/textures/viale/`. 25 FBX in `exports/viale/`, CSV `exports/viale/viale_posizioni_v1.csv` (107 righe, coordinate UE).
+     Tri LOD0/1/2 e dimensioni LOD0: `SM_Morin_Prato_Giardini` 48 (pezzo unico, 132,5 × 18,95 m, Z +0,08, UCX fino a Y 118) ·
+     `SM_Morin_Aiuola_Bosso` 76/40/28 (12 × 3 × 0,36 m, UCX box; 8 istanze Y 110) · `SM_Viale_Italia_Strada` 88/80/32 (modulo 19 × 24,15 m,
+     7 istanze X 117-250, origine Y 120,85) · `SM_Morin_Auto_A/B/C` 324/204/124 (3,95/4,35/4,45 × 1,76-1,84 × 1,45-1,64 m; 41 istanze
+     in sosta a Y 122,15 e 137,45) · `SM_Fondale_Palazzo_A` 2.264/878/22 (21,2 × 19,2 × 26,9 m), `_B` 2.740/1.186/22 (25,7 × 19,6 × 26,8 m),
+     `_C` 1.940/754/22 (21,2 × 17,2 × 22,8 m); 13 istanze sui fronti OSM (Y 206-208 e 253-266). Alberi dei Giardini pubblici nel CSV con
+     asset già in UEFN: 24 tra `SM_Albero_LatifogliaA/B` e `SM_Morin_PinoDomestico` + 13 `SM_Morin_PalmaA` (Y 147-200).
+     Materiali: `M_Morin_Prato`, `M_Morin_Bosso`, `M_Viale_Segnaletica`, `M_Morin_Auto`, `M_Fondale_Palazzo_A/B/C` (nuovi) + riuso
+     `M_Molo_Asfalto`, `M_Pav_Fascia`. Blockout nuovo `exports/blockout/SM_Blockout_Fondale_v3.fbx` (417 tri, 43 UCX; v2 557/57;
+     sorgente `blender/blockout_blocco1.blend` collezione `Blockout_Fondale_v3`, backup `blockout_blocco1_pre_fondale_v3.blend`).
+     Confronto `docs/qa/arte_viale_v1_confronto.png` (camera `CAM_Viale_F1` a X 221,8, Y 93,4).
+   - [ ] (uefn-builder) Import vista città v1: FBX `exports/viale/` + CSV; posare `SM_Blockout_Fondale_v3` e **nascondere** l'attore
+     `Blockout_Fondale_v2` (non cancellare). Facoltativo: `MI_Morin_Prato` anche sullo slot Verde del Fondale_v3 (Giardini pubblici).
+   - [ ] (utente/geo-scout) Verificare [S]: sezione del viale (sosta lato giardini, spartitraffico, sosta lato città, strisce bianche o blu),
+     senso di marcia, disegno delle aiuole di bosso, densità degli alberi dei Giardini pubblici.
    - [ ] (blender-artist → uefn-builder) Layout fascia palme **v4**: filari da X 20,4 (via le palme a X 12), tutto il resto −0,6 m,
      gazebo a X ≈ 33,9; in UEFN solo spostamenti di attori (niente reimport).
    - [x] (uefn-builder, 2026-11-19 18:15) Import e posa del kit molo v2 (`docs/uefn_arte.md` §13): 14 mesh in `LaSpezia/Arte/Molo` e
