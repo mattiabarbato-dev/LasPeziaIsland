@@ -56,6 +56,18 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      Line trace: nessuna aiuola sopra il tassello, suolo continuo. Render `docs/qa/uefn_chiosco_v2.png`, `uefn_chiosco_v2_b.png`.
    - [ ] (utente) Conferma per cancellare l'attore `Blockout_Passeggiata_v2` e l'asset `SM_Blockout_Passeggiata_Pav_v2`; pulizia dei 18 `TMPC_*` in `_Temp`.
    - [ ] (qa-tester) Prova in sessione del dehors: gradino del tassello (+15), passaggio fra tavoli e fioriere, collisione degli ombrelloni.
+   - [x] (blender-artist, 2026-11-19) **Giardini a Mare v1: oleandri ad alberello + panchina lunga** (scheda `ref/zona_parcheggio_chiosco.md` §4,
+     foto `prato con alberelli.png`): `blender/arte_giardini.blend` (copia di arte_chiosco.blend, contesto linkato), script
+     `blender/scripts/morin_giardini.py`, texture `blender/textures/giardini/` (chioma 2048 RGBA con 2 quadranti bianchi e 2 rosa,
+     fusto 1024). 9 FBX in `exports/giardini/`. Tri LOD0/1/2: `SM_Morin_OleandroAlberello_Bianco` e `_Rosa` 1.021/522/155
+     (2,18 × 2,14 × 3,71 m, fusto 1,7 m con tutore, UCX solo sul fusto) · `SM_Morin_PanchinaLunga_Mod` 306/134/42 (4,0 × 0,45 × 0,45 m,
+     M_Pav_Fascia riusato, UCX box). CSV `giardini_posizioni_v1.csv` (Blocco 1, X ≤ 250: 22 oleandri + 29 moduli panchina) e
+     `giardini_posizioni_v1_blocco2.csv` (X > 250: 55 + 69). Oleandri Y 119,5 X 131-549 passo 5,5 m alternati, Z 0; panchina asse Y 101,7,
+     Z +0,15, tratti X 122-178 / 183-227 / 233-249 (varchi del blockout v3). Confronto `docs/qa/arte_giardini_v1_confronto.png`.
+   - [ ] (blender-artist) Blockout passeggiata **v4**: abbassare o togliere la `SiepeLimite` (1,5 m, Y 116-118) che nasconde i fusti degli
+     oleandri; in foto fra prato e viale non c'è siepe alta. Valutare anche le aiuole-scatola Y 102-107 (Z +0,40) contro la panchina (Y ≤ 101,93).
+   - [ ] (uefn-builder) Import kit giardini (9 FBX, `MI_Morin_Oleandro_Chioma` masked two-sided) e posa dal CSV del Blocco 1 in HISM.
+   - [ ] (utente) Verificare [S]: altezza oleandri (~3,7 m), passo 5,5 m, posizione e varchi della panchina, tutore presente o no.
    - [ ] (blender-artist → uefn-builder) Layout fascia palme **v4**: filari da X 20,4 (via le palme a X 12), tutto il resto −0,6 m,
      gazebo a X ≈ 33,9; in UEFN solo spostamenti di attori (niente reimport).
    - [x] (uefn-builder, 2026-11-19 18:15) Import e posa del kit molo v2 (`docs/uefn_arte.md` §13): 14 mesh in `LaSpezia/Arte/Molo` e
@@ -382,7 +394,7 @@ Ordine per impatto visivo:
 - [~] (blender-artist) Arredi: lampione, panchina, cestino, parapetto
       2026-11-19: lampione, panchina v2, tombino e pensilina fatti (vedi kit pavimentazione v2). Restano cestino, rastrelliere, parapetto
 - [ ] (blender-artist) Battello turistico stilizzato, senza marchi reali
-- [ ] (blender-artist) Pini, oleandri, aiuole della fascia verde
+- [~] (blender-artist) Pini, oleandri, aiuole della fascia verde (2026-11-19: oleandri ad alberello e panchina lunga fatti, vedi Giardini a Mare v1; pino domestico nel kit molo)
 - [x] (geo-scout) Scheda del fondale `ref/fondale.md` + dati `ref/dem/` (2026-11-19): Copernicus DEM GLO-30 (licenza verificata),
       griglia locale 30 m ±10 km, profili d'orizzonte da 4 punti, cime OSM, copertura CORINE per azimut, edifici OSM entro 1,2 km,
       grafico `docs/qa/fondale_profilo.png`, proposta tecnica (anelli, ≤ 55k tri, 8 settori, texture 1024). Crediti in `docs/CREDITS.md`.

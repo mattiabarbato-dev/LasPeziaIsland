@@ -109,3 +109,12 @@ Foto: `ref/foto/vista/chiosco_con_ombrelloni_e_tavolini.png` (C1) e `..._2.png` 
   grigio delle fioriere campionato da C2 x 160-200 / 880-915, y 280-330; tela degli ombrelloni da C2 x 600-900, y 95-160.
 - Arbusti delle fioriere (v2, 3 varianti): riuso di `T_Albero_Latifoglia_Chioma_*` (sezione molo, [SV]) e `T_Morin_PinoDomestico_Chioma_*` (procedurale). Pavimento `SM_Pav_Chiosco`: riuso di `T_Pav_Cubetti_*`.
 - Nessun ritaglio di foto nelle texture: niente persone, targhe, UI o insegne.
+
+### Giardini a Mare v1 (2026-11-19, `blender/scripts/morin_giardini.py`)
+- **[SV]** `T_Morin_Oleandro_Chioma_D/N/ORM` (2048, atlante RGBA: quadranti in alto fiori bianchi, in basso rosa): **procedurale**
+  (foglie lanceolate e fiori a 5 petali disegnati dallo script); dalla cattura `ref/foto/vista/prato con alberelli.png` solo i colori
+  campionati (bianco x 345-440, y 110-170; rosa x 840-925 e 1040-1100, y 120-190; foglie x 840-925), riportati a luce piena.
+- `T_Morin_Oleandro_Fusto_D/N/ORM` (1024): procedurale.
+- `SM_Morin_PanchinaLunga_Mod`: riuso di `T_Pav_Fascia_*` (kit pavimentazione).
+- Nessun ritaglio di foto nelle texture. La cattura nel confronto `docs/qa/arte_giardini_v1_confronto.png` ha freccia, logo e filigrana sfocati
+  (file di QA, non va pubblicato).
