@@ -332,3 +332,112 @@ con i mip: circa 99 MiB (88 + 10,7 delle 3 Terra), ora tutte referenziate dal li
    (stesso parametro `Tinta`). Non toccato perché fuori dal task.
 5. Cordolo a +3 cm lasciato come richiesto ([S], in attesa di conferma dell'utente).
 6. **(qa-tester)** Prova in sessione: percorrenza su cordolo, aiuole (+4,5) e panchine; nessun inciampo al raccordo ciglio (−0,5 cm).
+
+## 12. Pavimentazione v2/v3 e arredi (2026-11-19, 11:27-11:45 UTC)
+
+Sorgenti: `exports/pavimentazione/` (cordolo, fascia, aiuola, panchina), `exports/arredi/` (lampione, tombino),
+**`exports/arredi/gazebo_v3/`** (gazebo; quello in `exports/arredi/` è la v2 superata). Posizioni `pav_posizioni_v3.csv` e `palme_posizioni_v3.csv`.
+Ripresa del tentativo interrotto alle 11:16 UTC (finestra modale): nessun asset né attore cancellato.
+
+### Metodo di import che funziona (sostituire il contenuto di un asset esistente)
+1. **Import da zero con nome nuovo** in `LaSpezia/_Temp` con `StaticMeshToolset.ImportFile` (`bImportMaterials/bImportTextures=false`,
+   `bCombineMeshes=true`): passa da `FbxFactory`, applica la conversione d'assi e porta gli UCX. Un file per LOD0, `_LOD1`, `_LOD2`.
+   Controllo bbox e convessi su ogni temporaneo prima di usarlo.
+2. Sugli slot dei temporanei e dell'asset di destinazione si mettono **le stesse MI** (stesso nome di slot).
+3. Sull'asset esistente (stesso percorso, quindi HISM e riferimenti restano validi): `StaticMeshEditorSubsystem.remove_lods`, poi
+   `set_lod_from_static_mesh(dest, i, tmp_i, 0, reuse_existing_material_slots=True)` per i = 0, 1, 2 (funziona anche sul LOD0).
+4. Collisione: `dest.body_setup.set_editor_property('agg_geom', tmp.body_setup.agg_geom)` + `collision_trace_flag = CTF_USE_SIMPLE_AS_COMPLEX`.
+   Verificato con `export_text()` (identico al temporaneo) e con line trace in editor.
+5. `nanite_settings.enabled = False`, `set_lod_screen_sizes([1.0, 0.2, 0.08])`. Tutto dentro `ScopedEditorTransaction` con `modify()`.
+
+**Da NON usare:** `AssetImportTask` senza factory esplicita (passa da Interchange: ignora `FbxImportUI`, ruota di 90°, perde gli UCX, ha messo
+Nanite on sulla panchina); reimport/sostituzione con `FbxFactory` o `replace_existing` (può aprire la finestra modale che blocca l'editor e
+lascia comunque la mesh ruotata); `import_lod` (ruota i LOD di +90°). `ImportFile` rifiuta nomi esistenti: per questo il giro dei temporanei.
+`StaticMesh.post_edit_change()` non esiste in Python: non serve, `set_editor_property` notifica da solo.
+
+### Asset (verificati in editor; bbox per LOD letta con GeometryScript dalla mesh sorgente di ogni LOD)
+| Asset | Cartella | Tri LOD0/1/2 | Bbox (uu) | Convessi = UCX | Slot → MI |
+|---|---|---|---|---|---|
+| `SM_Pav_Cordolo_9m` | Arte/Pavimentazione | 74 / 24 / 20 | X 0..900 · Y −8915..−8845 · Z −15..15 (tutti i LOD) | 2 | Fascia → `MI_Pav_Fascia` |
+| `SM_Pav_FasciaPalme_9m` | Arte/Pavimentazione | 36 (nessun LOD) | X 0..900 · Y −10200..−8915 · Z −15..15 | 1 | Cubetti → `MI_Pav_Cubetti`, Fascia → `MI_Pav_Fascia` |
+| `SM_Pav_Aiuola` | Arte/Pavimentazione | 64 / 26 / 18 | X ±180 · Y ±150 · Z −3..2 (tutti) | 1 | Fascia, Terra → `MI_Pav_Fascia`, `MI_Pav_Terra` |
+| `SM_Morin_Panchina` | Arte/Pavimentazione | 306 / 134 / 42 | X ±140 · Y ±25 · Z 0..45 (tutti) | 1 | Fascia → `MI_Pav_Fascia` |
+| `SM_Morin_Lampione` | Arte/Arredi | 2.400 / 1.078 / 294 | X ±74 · Y ±19 · Z 0..482 (LOD1 Y ±18,1, LOD2 Y ±16,5: globi decimati) | 2 (base + fusto) | Ghisa → `MI_Morin_Ghisa`, Globo → `MI_Morin_Globo` |
+| `SM_Morin_Tombino` | Arte/Arredi | 20 / 4 / 4 | X ±88,2 · Y ±30,2 · Z −1..0,4 (LOD1/2: due quad a Z 0,4, X ±87 · Y ±29) | 1 (Z −5..0) | Tombino → `MI_Morin_Tombino` |
+| `SM_Morin_Gazebo` (v3) | Arte/Arredi | 2.570 / 1.392 / 432 | X ±200 · Y ±173,2 · Z 0..512 (tutti) | 16 | Ghisa, Fregio, Fascia → `MI_Morin_Ghisa`, `MI_Morin_Gazebo_Fregio`, `MI_Pav_Fascia` |
+
+Tutti: Nanite off, Use Simple Collision As Complex, soglie LOD 1,0 / 0,2 / 0,08 (fascia: solo 1,0), MinLOD Low/Medium 2 (fascia 0),
+sezioni di ogni LOD sugli slot giusti, numero di slot invariato.
+
+### Texture e materiali
+- `T_Morin_Tombino_D/N/ORM` 1024 × 1024 e `T_Morin_Gazebo_Fregio_D/N/ORM` 2048 × 512 (alfa nella D) in `Arte/Arredi`, da `blender/textures/`;
+  N = Normalmap senza flip, ORM = Masks, sRGB off.
+- `MI_Morin_Ghisa`: `M_Morin_Master_PBR` con `T_Banchina_Ghisa_*`, Tinta (0,42; 0,50; 0,60).
+- `MI_Morin_Tombino`: `M_Morin_Master_PBR` con `T_Morin_Tombino_*`.
+- `MI_Morin_Gazebo_Fregio`: `M_Morin_Master_PBR_Masked` (two-sided, clip 0,33) con `T_Morin_Gazebo_Fregio_*`.
+- `MI_Morin_Globo`: **nuovo master `Arte/Materiali/M_Morin_Master_Emissivo`** (opaco; `Colore` → BaseColor, `Roughness`, `Colore × Emissivo` → Emissive;
+  usage ISM e Nanite), perché i master PBR non hanno emissivo. MI: Colore (0,85; 0,85; 0,82), Emissivo 0,5, Roughness 0,3.
+  Libreria shader del progetto in sessione: 51 → **55 shader**.
+- **`MI_Pav_Cubetti.Tinta`** (1; 1; 1) → **(0,62; 0,58; 0,52)**. Misure (Blender in background, valori sRGB): `pav_palme.png` cubetti al sole
+  181/166/157 e 190/178/171 (grigio-bruno caldo, R > G > B), texture `T_Pav_Cubetti_D` 92/93/95 (neutra, appena fredda): con la luce
+  delle 18 il render virava al malva. Provata (0,80; 0,74; 0,58): troppo beige-arancio. Render `uefn_pav_v3_cubetti_prima.png` / `_dopo.png` (stessa camera).
+
+### Posa (Outliner: `Arte/Pavimentazione`, `Arte/Palme`, nuova `Arte/Arredi`)
+| Attore | Mesh | Istanze | Note |
+|---|---|---|---|
+| `Arte_Pav_Cordolo`, `Arte_Pav_FasciaPalme` | cordolo, fascia | 27 + 27 | posizioni invariate (X 975 + 900·k) |
+| `Arte_Pav_Aiuole` | SM_Pav_Aiuola | **54** | dal CSV v3, Z 15 |
+| `Arte_Pav_Panchine` | SM_Morin_Panchina | **13** | X 1650 + 1800·k, Y −9210, Z 15 |
+| `Arte_Palme_PalmaA` | SM_Morin_PalmaA | **54** | `palme_posizioni_v3.csv`, Z 15; yaw/scala con `random.Random(20261119)` in ordine di CSV (`uniform(0,360)`, poi `uniform(0.9,1.1)`): stesso generatore di prima (prima palma −74,13° / 1,041) |
+| `Arte_Arredi_Lampioni` (nuovo HISM) | SM_Morin_Lampione | **7** | X 1680 + 3600·k, Y −9285, Z 15 |
+| `Arte_Arredi_Tombini` (nuovo HISM) | SM_Morin_Tombino | **8** | dal CSV, yaw 0 / −180 |
+| `Arte_Arredi_Gazebo` (FortStaticMeshActor) | SM_Morin_Gazebo | 1 | (2550, −9300, 15), yaw 0 |
+
+Nuovi HISM ottenuti duplicando `Arte_Banchina_Moduli` (Actor + HISM, profilo `FortStaticMesh`, attore in 0,0,0). Mobilità dei componenti di
+aiuole e panchine portata da **Movable a Static** (come palme, moduli e arredi nuovi). Camminamento e banchina non toccati.
+
+### Verifiche (line trace e sweep in editor, semplice = complessa)
+- Cordolo a X 10/20/50/120/200/249 m: lastre Z 0 → striscia tattile +1,2 → cordolo **+15** → fascia +15: gradino 15 cm ovunque (< 40 cm).
+- Inizio fascia: X 9,70 m blockout Z 0; X 9,80 m fascia +15 e striscia +1,2 (testata a X 9,75).
+- Bordo Y 102: fascia +15 fino a Y −101,9; oltre, siepe del blockout a +40 (gradino 25 cm) o varchi dei giardini a Z 0 (gradino 15 cm in discesa).
+- Aiuola: bordo e terra +17 (UCX top +2), fuori impronta fascia +15. Panchine +60 (top 45 + 15), larghezza ±25 verificata.
+- Lampioni: fusto colpito a Z 100, 353 e 393 (UCX del fusto fino in cima); trace verticali a ±55 cm dal fusto (bracci e globi) colpiscono la fascia:
+  **globi e bracci senza collisione**.
+- Tombini a raso: UCX Z −5..0 locale, cioè a filo della fascia (+15); il trace vede la fascia.
+- Gazebo: 6 colonne colpite a Z 150 (r ≈ 1,73 m) e plinti a Z 40 (r ≈ 1,80 m); 3 panchine interne +60; tetto da sopra Z 487 (convesso unico, Z mondo 303..487).
+  Sweep di capsula r 32 / hh 75: giro attorno a r 2,3 / 2,6 / 3,0 m **nessun impatto** (la gronda è sopra la capsula); a r 3,3 m tocca le aiuole vicine
+  (distanza netta 0,7 m, come da Blender). Entrata verso il centro **libera dai tre varchi a 30°, 150°, 270°**; dagli altri tre lati le panchine
+  fermano la capsula a r 1,62 m, verso le colonne a r 2,12 m. Uscita dal centro libera dagli stessi tre varchi. Nessuna sovrapposizione iniziale
+  in 6 punti interni; salto al centro fermato dal tetto con la testa a Z 303, nessun incastro.
+- Palme: tronco colpito a Z 100, 400 e 700 su **54 / 54** (ventaglio di trace su ±3 m); chioma senza collisione (Z 1050 nessun impatto).
+- Linea di vista dalla partenza (24000, −8450, 180) alle antenne a Z 10/20/30 m: `Blockout_Ponte` a 25-52 uu dal bersaglio, **invariata**.
+  Distanza minima delle linee da lampioni e gazebo 11 m; margine minimo delle chiome (sfere r 5,2 m × scala) 6,85 m.
+- Z-fighting: nessuna faccia complanare a vista (aiuole +0,8/+2 cm, tombino +0,4 cm; i 72 vertici del gazebo a Z 0 sono fondi di plinti e panchine,
+  facce rivolte in basso). Nei render nessuno sfarfallio.
+
+### Render (1024 px, ombre, `docs/qa/`)
+`uefn_pav_v3_occhi.png` (altezza occhi dalle lastre verso panchina e lampione, confronto con `113500`), `uefn_pav_v3_alto.png` (vista alta della fascia),
+`uefn_pav_v3_gazebo.png` (confronto `gazzebo2.png`), `uefn_pav_v3_dalponte.png` (dal molo del ponte: prime palme e gazebo), `uefn_pav_v3_partenza.png`
+(antenne visibili), `uefn_pav_v3_cubetti_prima.png` / `_dopo.png`.
+
+### Salvataggio, validazione, sessione
+- Alle 11:35:50 UTC un `InternalPromptForCheckoutAndSave` non lanciato da questo agente (probabilmente "Salva tutto" dall'editor) ha salvato i pacchetti
+  sporchi di quel momento (mesh già corrette, MI, texture, temporanei). Il resto (tinta cubetti, 7 pacchetti OFPA, 1 external object) è stato salvato con
+  `save_dirty_packages` alle 11:40:49 UTC. Date dei `.uasset` controllate su disco; **nessun pacchetto sporco** rimasto.
+- `ValidateAssets` su `LaSpezia/Arte` + mappa: 68 controllati, 68 validi, 0 errori, 0 avvisi. `EditorValidatorSubsystem` sui 9 attori Arte_Pav/Arredi/Palme: VALID.
+  Log: nessun errore o avviso nuovo sul progetto (solo deprecazioni Python e avvisi di rete/EOS).
+- `PushChanges` sulla sessione aperta: cottura v6 server e client completata (11:43:32 UTC). **Project Size v6**: download **13.647.813 byte (13,0 MiB)**,
+  upload 124.950.798 byte (119 MiB); texture 11,4 MB in download, mesh 1,45 MB. I temporanei di `_Temp` non sono referenziati e non entrano nella cottura.
+
+### Temporanei in `LaSpezia/_Temp` (non cancellati, per regola dell'utente; nessun referencer)
+- Di questo task (19): `TMP3_SM_Pav_Cordolo_9m` (+`_LOD1`, `_LOD2`), `TMP3_SM_Pav_FasciaPalme_9m`, `TMP3_SM_Pav_Aiuola` (+2), `TMP3_SM_Morin_Panchina` (+2),
+  `TMP3_SM_Morin_Lampione` (+2), `TMP3_SM_Morin_Tombino` (+2), `TMP3_SM_Morin_Gazebo` (+2, da `gazebo_v3`).
+- Del tentativo interrotto (14): `TMP_SM_Pav_Cordolo_9m_LOD1/2`, `TMP_SM_Pav_Aiuola_LOD1/2`, `TMP_SM_Morin_Panchina_LOD1/2`, `TMP_SM_Morin_Lampione_LOD1/2`,
+  `TMP_SM_Morin_Tombino_LOD1/2`, `TMP_SM_Morin_Gazebo_LOD1/2` (gazebo v2), `TMP_Test_Panchina_FFX_0`, `TMP_Test_Panchina_FFX_1`.
+Si possono eliminare in blocco quando l'utente lo conferma.
+
+### Problemi aperti
+1. **(qa-tester)** Prova in sessione: gradino del cordolo, ingresso nel gazebo dai tre varchi, panchine, lampioni, palme alle posizioni nuove.
+2. **(utente)** Tinta dei cubetti (0,62; 0,58; 0,52) da confermare a occhio; idem `MI_Morin_Globo` (emissivo 0,5, all'ora 18 quasi invisibile).
+3. **(utente)** Pulizia di `_Temp` (33 asset) e dei vecchi `M_Banchina_*`/`M_Morin_PalmaA_*` non usati: serve conferma.
+4. Siepe del blockout a +40 dietro la fascia (+15): gradino di 25 cm, salibile; da sostituire con la fascia verde vera.

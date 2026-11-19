@@ -21,7 +21,9 @@ texture da foto dell'utente + CC0; lastre sul pavimento tramite `SM_Blockout_Pas
 
 **Prossimi step (in ordine proposto)**
 1. ~~(blender-artist) Mesh di pavimentazione~~ → v1 esportata e **posata in UEFN** il 2026-11-19 (`docs/uefn_arte.md` §11).
-   Restano: prova in sessione (qa-tester), colore dei cubetti e cordolo +3 cm da confermare (utente), UCX del blockout X 10-19 m (blender-artist).
+   Restano: prova in sessione (qa-tester), colore dei cubetti (utente), UCX del blockout X 10-19 m (blender-artist).
+   **v2/v3 (fascia palme + arredi + gazebo) importata e posata in UEFN il 2026-11-19** (`docs/uefn_arte.md` §12): resta la prova
+   in sessione (qa-tester) e la conferma della tinta dei cubetti (utente).
 2. (blender-artist) Banchina: pezzi testata/angolo (estremità a X 19,2 m e 251 m), scaletta in nicchia, normali di bitta e
    scaletta da pulire, LOD esportati con rotazione applicata ai vertici.
 3. (blender-artist) Palme B (dactylifera slanciata) e C; varianti del filare.
@@ -278,8 +280,35 @@ Ordine per impatto visivo:
             Trace: nessun buco, cordolo +3, aiuole +4,5, panchine +45; linea di vista invariata; validazione pulita; sessione cotta,
             download 12,1 MiB. Dettagli e problemi aperti in `docs/uefn_arte.md` §11
       - [ ] (qa-tester) prova in sessione di cordolo, aiuole, panchine e raccordo ciglio; (utente) colore dei cubetti, cordolo +3 cm [S]
-      - [ ] panchine e altri arredi oltre X 62 m (OSM: altre panchine solo a X 256-288, fuori dal blocco); pensilina a X 40
-- [ ] (blender-artist) Arredi: lampione, panchina, cestino, parapetto
+      - [x] v2 fascia palme + arredi 2026-11-19 (in Blender, da importare; dati [V-utente] in `ref/sezione.md` §6): filari allineati,
+            fascia a **Z +0,15** con cordolo a gradino di 15 cm, strisce sul bordo aiuole lato corridoio + trasversale a metà fra due palme.
+            Ri-esportati con lo stesso nome: `SM_Pav_Cordolo_9m` 74/24/20, `SM_Pav_FasciaPalme_9m` 36, `SM_Pav_Aiuola` 64/26/18 (3,6 × 3,0 m),
+            `SM_Morin_Panchina` 306/134/42 (2,8 × 0,5 × 0,45 m, 3 piedi). Nuovi in `exports/arredi/`: `SM_Morin_Lampione` 2.400/1.078/294
+            (1,48 × 0,38 × 4,82 m, 2 UCX), `SM_Morin_Tombino` 20/4/4 (1,76 × 0,60 m, 1 UCX), `SM_Morin_Gazebo` 2.522/1.344/574
+            (4,0 × 3,46 × 4,25 m, 16 UCX). Posizioni `exports/pavimentazione/pav_posizioni_v2.csv` (194 istanze) e `palme_posizioni_v2.csv`
+            (53 palme, Z 15). Copia v1: `blender/arte_pavimentazione_v1.blend`. Render `docs/qa/arte_pav_v2_*.png`
+      - [x] (uefn-builder) v2 + v3 in UEFN 2026-11-19 (11:27-11:45 UTC; il primo tentativo delle 11:16 si era fermato per una finestra
+            modale): import da zero in `LaSpezia/_Temp` con `ImportFile` e copia nell'asset esistente di LOD0/1/2 e collisione (metodo e cosa
+            NON usare in `docs/uefn_arte.md` §12). Cordolo 74/24/20 (2 UCX), fascia 36 (1), aiuola 64/26/18 (1), panchina 306/134/42 (1),
+            lampione 2.400/1.078/294 (2), tombino 20/4/4 (1), gazebo v3 2.570/1.392/432 (16): bbox di ogni LOD verificate, Nanite off,
+            Simple-as-Complex. MI nuove `MI_Morin_Ghisa/Globo/Tombino/Gazebo_Fregio` (+ master `M_Morin_Master_Emissivo`), texture tombino
+            1024 e fregio 2048×512; tinta `MI_Pav_Cubetti` (0,62; 0,58; 0,52). Posa: 54 aiuole, 13 panchine, 54 palme (Z 15), HISM
+            `Arte_Arredi_Lampioni` 7 e `Arte_Arredi_Tombini` 8, `Arte_Arredi_Gazebo` a (2550, −9300, 15). Trace: gradino cordolo 15 cm,
+            fascia da X 9,75, lampioni solidi solo nel fusto, tombini a raso, gazebo senza incastri (3 varchi liberi), 54/54 tronchi,
+            linea di vista invariata. Validazione 68/68, push v6: download 13,0 MiB. 33 temporanei in `_Temp` (non cancellati, elenco nel doc).
+            Render `docs/qa/uefn_pav_v3_*.png`
+      - [ ] (utente) conferma misure [S]: aiuola 3,6 × 3,0, spostamento panchina 0,5 m verso il mare, pensilina Ø 3,2 m (dalle foto coincide con OSM)
+      - [x] v3 gazebo e posizioni 2026-11-19 (in Blender, da importare; correzioni [V-utente]): tetto a piramide esagonale con falde
+            a ~30°, lanternino e pinnacolo, h 5,12 m; `SM_Morin_Gazebo` **2.570 / 1.392 / 432 tri** (4,0 × 3,46 × 5,12 m, 16 UCX, tetto = 1 convesso)
+            in `exports/arredi/gazebo_v3/` (stessi nomi file). Un solo gazebo a **X 25,5, Y 93** (UE 2550, −9300, 15), fra la 2ª e la 3ª palma;
+            torna Palma_F1_04 (X 39) con l'aiuola: **54 palme**. CSV `pav_posizioni_v3.csv` (195 istanze) e `palme_posizioni_v3.csv` (54),
+            controllo impronte 0 conflitti. Rispetto alla v2 cambiano solo: Gazebo_00 (X 4000 → 2550), + Aiuola_F1_04 e + Palma_F1_04 (3900, −9260, 15).
+            Copia v2: `blender/arte_pavimentazione_v2.blend`. Render `docs/qa/arte_pav_v3_gazebo.png`, `arte_pav_v3_dalponte.png`
+      - [x] (uefn-builder) v3 applicata insieme alla v2 (vedi sopra): gazebo da `gazebo_v3/`, 54 palme e 54 aiuole
+      - [ ] (qa-tester) prova in sessione della v3: cordolo, gazebo (ingresso dai varchi), panchine, lampioni; (utente) tinta cubetti e globi;
+            (utente) conferma per eliminare i 33 temporanei di `LaSpezia/_Temp`
+- [~] (blender-artist) Arredi: lampione, panchina, cestino, parapetto
+      2026-11-19: lampione, panchina v2, tombino e pensilina fatti (vedi kit pavimentazione v2). Restano cestino, rastrelliere, parapetto
 - [ ] (blender-artist) Battello turistico stilizzato, senza marchi reali
 - [ ] (blender-artist) Pini, oleandri, aiuole della fascia verde
 - [ ] (blender-artist) Fondale: sagome di edifici e colline
@@ -331,3 +360,6 @@ Ordine per impatto visivo:
 | 2026-11-18 | Export FBX con `FBX_SCALE_NONE` + `bake_space_transform=True` | Unico preset che dà 1 m = 100 uu con l'import MCP (test di scala, giro 2) |
 | 2026-11-18 | Blockout: scala di Mirabello sostituita da rampa al 7 %, quote ponte [S], varchi nei giardini | Pilastro 3; dettagli in `docs/decisioni.md` |
 | 2026-11-19 | Acqua a −1,0 m; grafica v2 di banchina e palme importata in UEFN (HISM), segnaposto nascosti | Scelta dell'utente; dettagli in `docs/uefn_arte.md` e `docs/decisioni.md` |
+| 2026-11-19 | Pavimentazione v2: filari allineati, cordolo a gradino di 15 cm (fascia palme a Z +0,15), panchine/lampioni/tombini/pensilina | Dati confermati dall'utente; dettagli e stime [S] in `docs/decisioni.md` |
+| 2026-11-19 | Pavimentazione v3: gazebo con tetto a piramide (h 5,12 m), uno solo a X 25,5 fra la 2ª e la 3ª palma; torna la palma F1_04 (54 palme) | Correzioni dell'utente; dettagli in `docs/decisioni.md` |
+| 2026-11-19 | v2/v3 in UEFN: asset aggiornati copiando LOD e collisione da temporanei importati da zero (mai reimport); master emissivo per i globi; tinta cubetti (0,62; 0,58; 0,52) | Evita la finestra modale e la rotazione di Interchange; dettagli in `docs/uefn_arte.md` §12 e `docs/decisioni.md` |

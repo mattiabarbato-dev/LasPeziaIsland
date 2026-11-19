@@ -35,7 +35,7 @@ Fonte delle posizioni: OpenStreetMap, © OpenStreetMap contributors (id tra pare
 
 | Elemento | Posizione | Dimensioni | Stato |
 |---|---|---|---|
-| Pensilina con panchine (padiglione circolare) | X ≈ 40, Y ≈ 93 | Ø **~3,2 m** (perimetro OSM 10 m); h ~3 m [S] | [V] OSM way 626400743 |
+| Pensilina con panchine (gazebo **esagonale** in ghisa, 6 colonne, **una sola**) | **X 25,5, Y 93** [V-utente 2026-11-19: dopo le prime due palme dal lato del ponte, fra F1_02 (X 21) e F1_03 (X 30)]. OSM (way 626400743) la mette a X ≈ 40: **prevale la posizione data dall'utente** | Ø **~3,2 m** alle colonne (perimetro OSM 10 m), gronda Ø ~4 m, tetto a piramide esagonale con falde a ~30°, lanternino e pinnacolo, h ~5,1 m al pinnacolo [S dalle foto] | Posizione e forma del tetto [V-utente] (`gazzebo*.png`); misure [S]. Dalla v3 la palma F1_04 (X 39) è di nuovo al suo posto (54 palme) |
 | Chiosco-bar sotto le palme (nome da inventare) | X ≈ 100, Y ≈ 106 | ~4 × 4 m, h ~3 m, più dehors | posizione [V] OSM 4512137289; dimensioni [S] |
 | Bagni pubblici | X ≈ 1, Y ≈ 88 (radice del molo) | in un edificio basso | [V] OSM 2337633428 |
 | Tettoia grande (building=roof, layer 1) | X -46 … -28, Y 103 … 121 | ~18 × 17 m, h ~4 m [S] | [V] OSM 183535281 |
@@ -74,3 +74,11 @@ Fonte delle posizioni: OpenStreetMap, © OpenStreetMap contributors (id tra pare
 5. Statua della Sirena: altezza e posa, per la stilizzazione. Foto con una persona accanto.
 6. Ancore e cannoni: dimensioni e basamenti. Una foto.
 7. Altezza degli edifici bassi sul molo e del chiosco. Foto d'insieme dalla passeggiata verso il ponte.
+
+## 6. Arredi della fascia palme confermati dall'utente (2026-11-19) [V-utente]
+Vedi `sezione.md` §6. Modelli: `SM_Morin_Panchina` (v2), `SM_Morin_Lampione`, `SM_Morin_Tombino`, `SM_Morin_Gazebo`;
+posizioni in `exports/pavimentazione/pav_posizioni_v3.csv` (dal 2026-11-19; la v2 resta per l'import in corso).
+- Panchine: 13 nel Blocco 1 (X 16,5 + 18k m, Y 92,1). OSM mappa solo quelle attorno alla pensilina OSM (X 32-64): il passo "una ogni due palme" è dell'utente.
+- Lampioni: 7 (X 16,8 + 36k m, Y 92,85). OSM non li mappa.
+- Tombini: 8 coppie nel corridoio (Y 95-97,2), posizioni pseudo-casuali con seme fisso.
+- Pensilina: vedi §3.

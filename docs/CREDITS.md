@@ -38,3 +38,14 @@ sintesi tileable). Nei ritagli non ci sono persone, targhe, loghi o scritte (la 
 
 `palme/palma_1.png`, `banchina/Immagine 2026-11-19 055927.png` e `passegiata_2.png` sono state usate anche come riferimento
 visivo per forma della chioma, quota del ciglio e colori.
+
+## Texture procedurali (2026-11-19, kit pavimentazione v2)
+Generate con `blender/scripts/morin_pav_kit.py` (numpy), nessun asset di terzi e nessun pixel delle foto: le foto
+`ref/foto/pavimentazione/tombini.png` e `ref/foto/arredi/gazzebo*.png` sono state usate solo come riferimento visivo.
+
+| Texture | Contenuto |
+|---|---|
+| `T_Morin_Tombino_D/N/ORM` (1024) | chiusino in ghisa con telaio e bugne rettangolari alternate, usura e ruggine procedurali |
+| `T_Morin_Gazebo_Fregio_D/N/ORM` (2048 × 512, alfa) | fregio della pensilina: traversi, tre anelli raggiati per lato, riccioli e gocce pendenti |
+
+`M_Morin_Ghisa` (lampione, pensilina) riusa `T_Banchina_Ghisa_*` (Poly Haven Rusty Painted Metal, CC0) con una tinta.

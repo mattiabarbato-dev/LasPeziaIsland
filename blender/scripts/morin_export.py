@@ -69,6 +69,9 @@ BUDGETS = (
     ("Banchina", 2000),    # modulo banchina
     ("Aiuola", 4000),      # prop (2026-11-19, kit pavimentazione)
     ("Panchina", 4000),    # prop
+    ("Lampione", 4000),    # prop (2026-11-19, arredi v2)
+    ("Tombino", 4000),     # prop
+    ("Gazebo", 10000),     # pezzo unico vicino alla corsia (deroga possibile fino a ~10k, docs/decisioni.md)
     ("Pav", 2000),         # moduli di pavimentazione (come modulo banchina)
 )
 

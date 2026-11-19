@@ -83,3 +83,20 @@ La corsia libera di gara (fascia 4, ~9 m) rispetta il minimo di 8 m di CLAUDE.md
 4. Cosa separa il camminamento dalla fascia delle palme oltre al cordolo da 20 cm (aiuole, griglie, sedute): foto in pianta.
 5. Tipo, altezza e passo dei lampioni: foto di un lampione.
 6. Formato e colore della pavimentazione: foto in pianta.
+
+## 6. Dati confermati dall'utente (2026-11-19) [V-utente]
+Legenda: **[V-utente]** confermato dall'utente con foto (`ref/foto/pavimentazione/pav_palme.png`, `tombini.png`,
+`ref/foto/arredi/lampione.png`, `gazzebo*.png`, `ref/foto/banchina/Immagine 2026-11-19 113356.png`, `113500.png`).
+Applicato nel kit pavimentazione v2 (`blender/scripts/morin_pav_kit.py`, `exports/pavimentazione/pav_posizioni_v2.csv`).
+
+| Voce | Dato | Stato |
+|---|---|---|
+| Disposizione dei filari | **allineati**: le palme dei due filari sono una di fronte all'altra (non sfalsate) | [V-utente] |
+| Passo delle palme | 9 m (invariato) | [S] (coerente con le foto: ~150 px/m in `pav_palme.png`) |
+| Cordolo Y 89 | **gradino di 15 cm**: lastre a Z 0, cordolo e fascia palme a Z +0,15 | [V-utente] (OSM diceva 0,20 m) |
+| Disegno della fascia palme | cubetti a coda di pavone; **due strisce chiare longitudinali** ai lati del corridoio fra i filari, sul bordo delle aiuole lato corridoio; **una striscia trasversale** nel corridoio **a metà fra due palme** | [V-utente]; larghezza strisce 0,30 m [S] |
+| Fascia esterna (lato cordolo e lato giardini) | solo cubetti fra un'aiuola e l'altra, nessuna striscia continua | [S] dalle foto 113356/113500 e `pav_palme.png` |
+| Aiuole | rettangolari con bordo chiaro; **3,6 × 3,0 m** (X × Y), bordo 0,30 m | forma [V-utente]; misure [S] (stima utente 2,5-3 m, dalle foto 3,5-4,4 m) |
+| Panchine | lastra di pietra chiara senza schienale su **3 piedi**, ~2,8 m; **una ogni due palme** sul filare lato mare, fra due palme, **0,5 m verso il mare** | disposizione [V-utente]; misure e spostamento [S] |
+| Lampioni | ghisa grigio-blu scura, ~4,8 m, base svasata, 2 bracci a ricciolo con 2 globi bianchi; **uno ogni 4 palme**, subito dietro una panchina (lato città) | [V-utente]; distanza dalla panchina 0,75 m [S]. Supera la proposta "ogni 20-25 m" del §5: passo reale 36 m |
+| Tombini | coppie di chiusini rettangolari in ghisa a raso nel corridoio, circa 1 coppia ogni 3-4 palme | [V-utente]; misure 0,84 × 0,58 m [S] |
