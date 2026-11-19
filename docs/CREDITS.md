@@ -68,3 +68,11 @@ Generate con `blender/scripts/morin_pav_kit.py` (numpy), nessun asset di terzi e
   Monitoring Service information"), rumore, terrazze e case dipinte procedurali. Nessuna foto e nessun dato Google.
 - Edifici `SM_Fondale_Citta_*`: footprint © OpenStreetMap contributors (ODbL), Overpass API 19.11.2026, entro 1,5 km dalla partenza;
   altezze da `building:levels`/`height` OSM o dal DSM Copernicus. `T_Fondale_Facciata_D` e `T_Fondale_Tenda_D`: procedurali.
+
+## Catture Street View [SV] (deroga dell'utente 2026-11-19, CLAUDE.md §5)
+Fonti per la radice del molo (scheda `ref/radice_molo.md` §8, porzioni consigliate): `ref/foto/vista/inizio_passegiata_ristoranti_che_vanno_verso_il_ponte.png`,
+`ref/foto/vista/ristoranti_visti_da_di_fronte.png`, `ref/foto/vista/strada_cheProsegue_verso_il_ponte.png`,
+`ref/foto/pavimentazione/pavimento verso il ponte.png`. Al 2026-11-19 nessuna texture è ancora stata ricavata da queste foto.
+Ogni texture che ne deriva va elencata qui con la marca **[SV]** (foto e porzione usata), senza UI di Street View, filigrane, persone,
+targhe, loghi o insegne, e l'utente la ricontrolla prima di qualsiasi pubblicazione.
+Dati: verifica live Overpass API (© OpenStreetMap contributors, ODbL) del 19.11.2026 per alberi, lampioni e recinzioni della radice del molo.

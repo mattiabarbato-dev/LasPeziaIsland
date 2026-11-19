@@ -39,7 +39,7 @@ Fonte delle posizioni: OpenStreetMap, © OpenStreetMap contributors (id tra pare
 | Chiosco-bar sotto le palme (nome da inventare) | X ≈ 100, Y ≈ 106 | ~4 × 4 m, h ~3 m, più dehors | posizione [V] OSM 4512137289; dimensioni [S] |
 | Bagni pubblici | X ≈ 1, Y ≈ 88 (radice del molo) | in un edificio basso | [V] OSM 2337633428 |
 | Tettoia grande (building=roof, layer 1) | X -46 … -28, Y 103 … 121 | ~18 × 17 m, h ~4 m [S] | [V] OSM 183535281 |
-| Edifici bassi sul molo (ristorante, pescheria, gastronomia) | X -6 … -21, Y 1 … 107 | 1-2 piani, h 4-7 m [S]; edificio di fondale <= 2k tris | pianta [V] OSM (Regione Liguria); altezze [S] |
+| Edifici bassi sul molo (ristorante, pescheria, gastronomia) | X -6 … -21, Y 1 … 107 | **aggiornato 2026-11-19: un piano, 3,3-4 m (blocco sud ~5 m con terrazza)**, dettagli e sezioni in `radice_molo.md` §3 | pianta [V] OSM (Regione Liguria); altezze [S] da foto |
 | Edificio produttivo nell'area militare | X -72 … -30, Y 5 … 32 | 1 piano, h ~6 m [S] | [V] pianta OSM 205836147 |
 | Parcheggio multipiano di Mirabello (fondale d'arrivo) | X -153 … 31, Y -208 … -303 | 2 livelli, tetto a parcheggio con muretto da 1 m | [V] OSM 175935357 (building:levels=2), 379778073 (height=1) |
 

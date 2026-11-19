@@ -238,3 +238,38 @@ riferimento di direzione (es. il ponte nell'inquadratura).
 - Gli edifici OSM a 15 e 18 piani (§6) e l'assenza di piani sulla cortina di Viale Italia.
 - Limiti di distanza di rendering e dimensione del mondo in UEFN (§7.5).
 - Colori: proposti da CORINE e dalle foto a occhio; da tarare con foto dell'utente con luce del tardo pomeriggio.
+
+---
+
+## 10. Colle cittadino v2 (blender-artist, 2026-11-19)
+
+Script `blender/scripts/morin_fondale_colle.py` (usa `morin_fondale.py`), sorgente `blender/arte_fondale.blend` (copia della v1 in
+`blender/arte_fondale_v1.blend`), collezione `FONDALE_Colle`. Posizioni in `exports/fondale/fondale_posizioni_v2.csv` (righe v1 +
+colonna `stato_v2`).
+
+**Perché il colle v1 era piatto.** La sagoma in angolo era già quasi quella del DSM (gli edifici senza piani prendevano il residuo
+DSM − suolo), ma il suolo dell'anello A era il **minimo 5×5 del DSM** (finestra 150 m): sul colle (~350 m di diametro) prendeva il
+piede del versante e la cima scendeva da ~77 a ~64 m s.l.m.; gli edifici diventavano un muro uniforme di scatole a tetto piano e
+chiare, senza pendio visibile né gradoni.
+
+**Cosa cambia [V DEM, S per i dettagli].**
+- Suolo nel settore 295°-358° dalla partenza, 280-1500 m (rampe di 8° e 100/250 m): max(suolo v1, **minimo 3×3 + 2 passate di
+  binomiale 3×3**, solo celle di terra). Cima del suolo ~77 m s.l.m. (DSM 92 m con edifici e alberi), rialzo massimo 17 m.
+- Edifici (tutti quelli dei settori NO e N, 1318) poggiati su questo suolo: base al punto più basso della pianta − 1 m (gradoni a
+  valle), altezza piani × 3,2 + 1,3 m da OSM o residuo DSM. **Tetti a padiglione** in coppi (piramide sul baricentro, falda
+  0,22 × √area, 1,2-4 m) sulle piante convesse ≤ 10 lati e < 1500 m² (1046 edifici); tetti piani grigi/coppo sugli altri.
+- Tinte più scure della v1 (§5): facciate crema/ocra/rosa/bianco sporco 0,74-0,88, coppi (0,46-0,60; 0,27-0,36; 0,21-0,26).
+- Macchie d'albero (320 chiome opache 8-14 m) fra le case, più fitte in alto (parco del castello [S]); deroga in `docs/decisioni.md`.
+- Texture planare 1024 del suolo `T_Fondale_Colle_Suolo_D` (1,1 m/px): giardini, alberi, strade, case dipinte fra le mesh.
+
+**Sagoma confrontata col profilo DSM "tutto"** (elevazione massima per azimut, vertici delle mesh):
+dalla partenza 318-336°: DSM 6,8-8,4°, v1 7,2-7,7°, **v2 7,4-8,8°**; dall'imbocco del ponte 336-348°: DSM 5,2-6,5°, v1 5,4-6,3°,
+**v2 5,6-6,7°**. Il colle v2 è al più 0,6° sopra il DSM: non è stato esagerato oltre il dato. Se in sessione risulta ancora basso
+rispetto alla foto dal ponte, la leva è un fattore di esagerazione del rialzo (da decidere con l'utente, sarebbe una deroga).
+
+**Linea di vista:** nessun vertice degli asset nuovi nel cono partenza/imbocco → antenne (antenne a 180-187° dalla partenza, asset
+nuovi a 221 m minimi e fuori azimut).
+
+**In UEFN:** importare da zero i 9 asset nuovi (×3 LOD, colore vertice con `FbxFactory` come §8.1 di `docs/uefn_fondale.md`),
+materiale facciate per città e alberi, nuova MI per il suolo; nascondere `SM_Fondale_Citta_NO_01..03` e `N_01..02` (cancellarli solo con
+conferma dell'utente). Render: `docs/qa/arte_fondale_v2_colle_*.png`.

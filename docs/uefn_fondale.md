@@ -269,3 +269,163 @@ dell'acqua. Distanza dalla passeggiata, dal ponte e da Mirabello > 90 m. Da conf
    delle colline (es. 0,8) o l'albedo in Blender. Facciate molto chiare: i colori vertice vanno dal crema all'ocra chiaro.
 4. (blender-artist, minore) CSV della tenda: bbox calcolata su tutti i vertici, non sui triangoli; 2 triangoli degeneri.
 5. Blockout fondale (scatole bianche vicino al ponte e all'area militare) ancora visibile davanti alla città nuova: serve un task dedicato.
+
+## 9. Tinta v2 (uefn-builder, 2026-11-19)
+
+Correzione del problema §8.8 punto 3 solo tramite il parametro vettoriale `Tinta` delle MI esistenti (master
+`M_Morin_Master_Fondale`: `Tinta` è già un **LinearColor**, nessuna modifica al master). Nessun import, nessun nuovo asset,
+nulla cancellato, nebbia e luce non toccate.
+
+### 9.1 Valori
+| MI | `Tinta` prima | `Tinta` dopo |
+|---|---|---|
+| `MI_Fondale_Colline_<N, NE, E, SE, S, SO, O, NO>` (8) | (1; 1; 1), ereditato dal master, nessun override | **(0,34; 0,52; 0,38)** |
+| `MI_Fondale_Tenda` | (1; 1; 1), ereditato | **(0,34; 0,52; 0,38)** |
+| `MI_Fondale_Facciate` | (1; 1; 1), ereditato | **(0,40; 0,40; 0,40)** (neutro: tonalità dai colori vertice) |
+
+Il valore suggerito (0,72; 0,80; 0,74) e Facciate 0,72 sono stati provati per primi: differenza quasi invisibile nei render
+(cresta della Castellana da (176; 189; 197) a (172; 186; 195) sRGB). Tappe: (0,72; 0,80; 0,74) → (0,30; 0,36; 0,30)
+(colline grigio-beige, verde perso) → (0,42; 0,60; 0,46) → **(0,34; 0,52; 0,38)**: rapporto verde/rosso 1,5 per compensare il
+grigio della nebbia. Facciate: 0,72 → 0,30 (ocra/rosa leggibili ma sporche) → 0,50 (ancora chiare) → **0,40**.
+
+### 9.2 Render (1024 px, ombre, FOV 60, pitch −2)
+Punto di vista: **partenza (24000, −8450, 180)**, la stessa di §8.6 (non l'origine: dall'origine la vista a 189° guarda dentro
+il ponte). Yaw = azimut − 41,3°. Nomi `docs/qa/uefn_fondale_v2_prima_<vista>.png` e `docs/qa/uefn_fondale_v2_tinta_<vista>.png`,
+con `<vista>` = `SO_221`, `Castellana_189`, `O_265`, `NO_citta_320`, `NE_40`. I "prima" sono nuovi (pitch e inquadratura diversi da v1).
+
+Medie sRGB delle zone (stesse finestre di pixel prima/dopo):
+| Zona | Prima | Dopo | Foto `ponte_verso_passegiata.png` |
+|---|---|---|---|
+| Cresta Castellana (189°, ~4 km) | (176; 189; 197) | (165; 180; 193) | collina lontana (94; 118; 146) |
+| Colline vicine SO (221°, 1-2 km) | (166; 180; 188) | (155; 171; 185) | |
+| Colline NE (40°) | (170; 185; 198) | (163; 179; 196) | |
+| Facciate NE (40°, ~0,5-1 km) | (232; 221; 218) | (217; 197; 188) | case al sole (125; 111; 103) |
+| Facciate NO (320°, tra le palme) | (201; 200; 204) | (161; 158; 165) | |
+| Cielo (riferimento) | (186; 204; 221) | invariato | (93; 135; 193) |
+
+### 9.3 Esito
+- **Facciate: corrette in buona parte.** Da bianco-crema abbagliante a crema/ocra/rosa distinguibili, non grigie.
+- **Colline: miglioramento piccolo.** Meno giallo, un po' più scure e più verde-grigie, ma restano molto più chiare delle foto.
+  **Causa: la nebbia, non l'albedo.** Con `Tinta` 0,30 la cresta a 4 km cambia solo da 176 a 163 di rosso: oltre ~1 km quasi
+  tutto il colore viene dall'inscattering di `ExponentialHeightFog` (densità 0,004, diminuzione 0,02, §8.4), non dalla superficie.
+  A 265° (controluce, sole delle 18) le colline restano beige-rosate per l'inscattering direzionale.
+- Per avvicinarsi alle foto serve un task sulla nebbia (non fatto qui, fuori mandato): densità più bassa (0,002-0,003) o
+  diminuzione più alta (0,03), colore più blu e scuro, eventualmente inscattering direzionale ridotto. Le tinte di §9.1 restano
+  valide anche dopo: con meno nebbia diventeranno più visibili, quindi vanno ricontrollate (rischio colline troppo scure vicino).
+- Validazione delle 10 MI: 10 valide, 0 errori, 0 avvisi. Salvate (0 pacchetti sporchi dopo il salvataggio).
+- **PushChanges non eseguito: nessuna sessione aperta** (`GetSessionStatus` = Disconnected). Le modifiche arriveranno al
+  prossimo avvio di sessione.
+
+## 10. Colle cittadino v2 in UEFN (uefn-builder, 2026-11-19, ~15:05-15:25 UTC)
+
+Sorgenti: `exports/fondale/` (9 asset × LOD0/1/2), posizioni `exports/fondale/fondale_posizioni_v2.csv` (righe `nuovo_v2`),
+texture `blender/textures/fondale/T_Fondale_Colle_Suolo_D.png`. Scheda: `ref/fondale.md` §10.
+Nessun asset, attore o cartella cancellato; nessuna finestra modale; solo import da zero (nessun reimport/sostituzione).
+Blockout del fondale, nebbia, luce e `PLAN.md` non toccati.
+
+### 10.1 Metodo di import
+- **Città e alberi (8 asset)**: `AssetImportTask` + `FbxFactory` esplicita (`automated`, `replace_existing=False`, `FbxImportUI`
+  static mesh, `combine_meshes`, `vertex_color_import_option = REPLACE`, niente materiali/texture, `auto_generate_collision=False`).
+  LOD0 importato direttamente col nome finale in `LaSpezia/Arte/Fondale` (nome nuovo, quindi nessuna sostituzione);
+  `_LOD1`/`_LOD2` in `_Temp` come `TMPVC2_<asset>_LOD1/2`.
+- **Suolo**: `StaticMeshToolset.ImportFile` (LOD0 col nome finale, LOD1/2 in `_Temp` come `TMP2_SM_Fondale_Colle_Suolo_01_LOD1/2`).
+- Entrambi gli import creano **3 LOD automatici** (riduzione dell'importatore): rimossi con `remove_lods`, poi
+  `set_lod_from_static_mesh(dest, 1|2, tmp, 0, True)` (§12 di `docs/uefn_arte.md`).
+- Poi: MI sugli slot con `SetMaterial` (il `set_editor_property('static_materials')` fatto prima di `remove_lods` non resta),
+  `SetNaniteEnabled` false, `SetLodThresholds` 1,0 / 0,2 / 0,08, `RemoveCollisions` + `CTF_UseSimpleAsComplex` (nessuna forma:
+  nemmeno collisione complessa), `SetQualityLevelMinLod` Low/Medium = 2 (come i blocchi città v1; default 0).
+- Nota strumenti: `IsNaniteMesh` e `has_valid_nanite_data()` rispondono *vero* per **tutte** le mesh del fondale, anche le v1 con
+  Nanite off (UEFN costruisce comunque i dati Nanite); l'impostazione `nanite_settings.enabled` è **False** su tutte.
+
+### 10.2 Asset (`LaSpezia/Arte/Fondale`, verificati in editor per LOD con GeometryScript sul source model)
+| Asset | Tri LOD0 / 1 / 2 (= CSV) | Bbox LOD0 (uu) = CSV | Colore vertice medio | Slot → MI |
+|---|---|---|---|---|
+| `SM_Fondale_Citta_Colle_01` | 4784 / 2031 / 682 | X −37605..37515 · Y −26217..26078 · Z −22..9163 | (0,76; 0,62; 0,51) | `M_Fondale_Facciate` → `MI_Fondale_Facciate` |
+| `SM_Fondale_Citta_Colle_02` | 292 / 122 / 57 | X −15162..14684 · Y −10795..10586 · Z −79..2087 | (0,76; 0,62; 0,48) | idem |
+| `SM_Fondale_Citta_Colle_03` | 4761 / 2455 / 800 | X −46060..46351 · Y −20929..21225 · Z 459..9254 | (0,76; 0,62; 0,51) | idem |
+| `SM_Fondale_Citta_Colle_04` | 1509 / 727 / 267 | X −21611..22577 · Y −27232..27054 · Z −22..3468 | (0,75; 0,61; 0,50) | idem |
+| `SM_Fondale_Citta_Colle_05` | 4785 / 2355 / 801 | X −40660..40078 · Y −28062..27634 · Z 518..10186 | (0,76; 0,62; 0,51) | idem |
+| `SM_Fondale_Citta_Colle_06` | 4773 / 2120 / 658 | X −51508..50769 · Y −43581..44566 · Z 406..12142 | (0,76; 0,62; 0,50) | idem |
+| `SM_Fondale_Citta_Colle_07` | 420 / 175 / 56 | X −17109..16575 · Y −18680..19590 · Z 113..3603 | (0,75; 0,61; 0,50) | idem |
+| `SM_Fondale_Colle_Alberi_01` | 4800 / 1920 / 720 | X −57287..56981 · Y −54260..55180 · Z 749..10761 | (0,21; 0,30; 0,18) | idem (UV tutte in un punto: colore solo dal vertice) |
+| `SM_Fondale_Colle_Suolo_01` | 3668 / 1862 / 600 | X −58250..58750 · Y −58750..58250 · Z 104..9499 | bianco (non usato) | `M_Fondale_Colle_Suolo` → `MI_Fondale_Colle_Suolo` |
+
+Totale nuovo: LOD0 **29 792 tri**, LOD1 13 767, LOD2 4 641. I 5 blocchi v1 nascosti valgono 19 720 tri LOD0: a schermo +10 072 tri.
+Bbox di LOD1/LOD2 contenute in quella del LOD0 (nessuna rotazione), **tranne il suolo**: LOD1 X/Y fino a ±59 195, LOD2 fino a
+±61 850 (fino a 31 m oltre il LOD0, sui bordi del quadrato; Z 78..9717). Effetto della decimazione in Blender, a 260+ m e coperto
+da case e colline v1: segnalato a blender-artist come minore.
+
+### 10.3 Texture e materiale
+- `Arte/Fondale/Texture/T_Fondale_Colle_Suolo_D`: 1024 × 1024, sRGB, gruppo World, compressione Default. UV del suolo planari
+  0,02..0,97 (LOD2 −0,01..1,01) → **Clamp** su X e Y, come le colline (niente ripetizione ai bordi).
+- **`MI_Fondale_Colle_Suolo`** (nuova, master `M_Morin_Master_Fondale`): `Albedo` = `T_Fondale_Colle_Suolo_D`, `UsaVertexColor` 0,
+  `Roughness` 0,92 e `Specular` 0,3 ereditati, **`Tinta` (0,40; 0,50; 0,40)**. Prove: (0,5; 0,5; 0,5) neutra e (0,62; 0,66; 0,60)
+  chiara contro (0,40; 0,50; 0,40): differenza piccola (oltre 300 m domina la nebbia, §9.3). Scelta (0,40; 0,50; 0,40): meno scura
+  in rosso delle colline (0,34) perché la texture contiene già case e strade, appena più verde per avvicinarsi alla foto dal ponte.
+- Città e alberi: `MI_Fondale_Facciate` esistente (UsaVertexColor 1, Tinta 0,40), non modificata.
+
+### 10.4 Attori (Outliner `Arte/Fondale`, `FortStaticMeshActor`, duplicati da `Arte_Fondale_Citta_NO_01`)
+| Attore | Posizione (yaw 0, scala 1) | Cast Shadow |
+|---|---|---|
+| `Arte_Fondale_Citta_Colle_01` | (43000, −48000, 0) | sì |
+| `Arte_Fondale_Citta_Colle_02` | (68000, −31000, 0) | sì |
+| `Arte_Fondale_Citta_Colle_03` | (40000, −89000, 0) | sì |
+| `Arte_Fondale_Citta_Colle_04` | (93000, −58000, 0) | sì |
+| `Arte_Fondale_Citta_Colle_05` | (17000, −131000, 0) | sì |
+| `Arte_Fondale_Citta_Colle_06` | (100000, −110000, 0) | sì |
+| `Arte_Fondale_Citta_Colle_07` | (136000, −58000, 0) | sì |
+| `Arte_Fondale_Colle_Alberi_01` | (55000, −96000, 0) | **no** (chiome a 360-1400 m, oltre le ombre dinamiche) |
+| `Arte_Fondale_Colle_Suolo_01` | (53000, −89000, 0) | **no** (come colline e tenda) |
+
+Su tutti (riletti): mobilità Static, `NoCollision`, `CanCharacterStepUpOn` No, `LDMaxDrawDistance` 0, **Is Spatially Loaded NO**,
+**Include Actor in HLODs NO**. `EditorValidatorSubsystem`: VALID.
+
+**Nascosti (non cancellati)**: `Arte_Fondale_Citta_NO_01`, `_NO_02`, `_NO_03`, `_N_01`, `_N_02`:
+- *Actor Hidden In Game* = sì;
+- componente mesh **`Visible` = falso** (persistente: nascosto in editor e in gioco). `bHiddenEd` non è esposto a Python; in più
+  è attivo l'occhio dell'Outliner (temporaneo, si perde alla riapertura: resta comunque invisibile per `Visible` = falso).
+- Per ripristinarli: `Visible` = vero sul componente e *Actor Hidden In Game* = no. Le mesh v1 restano referenziate dagli attori
+  nascosti, quindi **restano nella cottura e nella memoria** finché l'utente non conferma la cancellazione.
+
+### 10.5 Render (1024 px, ombre, `docs/qa/`)
+| File | Camera (UE) | Note |
+|---|---|---|
+| `uefn_fondale_v2_colle_partenza_320.png` | (24000, −8450, 180), yaw 278,7, pitch −2, FOV 60 | stesso punto di §9.2 |
+| `uefn_fondale_v2_colle_partenza_zoom_320.png` | idem, pitch 3, FOV 25 | |
+| `uefn_fondale_v2_colle_ponte_313.png` | (−460, 16500, 430) sull'impalcato lato Mirabello (Z impalcato 263), yaw 271,7, pitch −2, FOV 60 | confronto con `ref/foto/ponte/ponte_verso_passegiata.png` e `arte_fondale_v2_colle_ponte_313.png` |
+| `uefn_fondale_v2_colle_ponte_zoom_330.png` | idem, yaw 288,7, pitch 1, FOV 25 | confronto con `arte_fondale_v2_colle_ponte_zoom_325.png` |
+| `uefn_fondale_v2_colle_obliqua_alto.png` | (50000, −15000, 4000), yaw 270, pitch −6, FOV 50 | vista di controllo del suolo fra le case |
+
+Esito:
+- **Dal ponte**: il colle sale a destra dell'antenna con case a gradoni e tetti in coppo, come nella foto (fascia 307°-345°, quota a
+  schermo simile). Coerente con il render Blender. Il suolo si vede fra le case come terreno grigio-verde; nessun bordo del quadrato visibile.
+- **Dalla partenza**: il colle è quasi tutto coperto dalle scatole bianche del blockout del fondale (come nel render Blender
+  `arte_fondale_v2_colle_partenza_320.png`); si vedono solo le case più alte fra le scatole. Atteso: task blockout separato.
+- **Differenze dalla foto**: nella foto il colle è punteggiato di alberi verde scuro; in UEFN le chiome sono poche e **grigio-salvia
+  chiare** (colore vertice (0,21; 0,30; 0,18) × `Tinta` 0,40 di `MI_Fondale_Facciate` × texel della facciata, più la nebbia), molto
+  più chiare che nel render Blender. Le facciate restano più chiare e rosate della foto (stessa causa nebbia di §9.3).
+
+### 10.6 Validazione, salvataggio, sessione
+- `ValidateAssets` su `Arte/Fondale` (ricorsivo, con texture) + `Arte/Materiali`: **57 controllati, 57 validi, 0 errori**, 8 avvisi
+  (solo i settori di collina con un solo LOD, già accettati in §8.1).
+- `save_dirty_packages` alle **15:18:57 UTC**, 0 pacchetti sporchi dopo. Su disco: 9 mesh, MI nuova, texture, 19 temporanei e
+  **14 file OFPA** (9 attori nuovi + 5 nascosti) con data di questo salvataggio. `MI_Fondale_Facciate` risalvata senza modifiche ai parametri.
+- **PushChanges non eseguito: nessuna sessione aperta** (`GetSessionStatus` = Disconnected). Project Size e memoria da
+  rileggere al prossimo avvio di sessione.
+- Log: nessun errore dell'import. Avviso già presente prima di questo task (15:03, `MI_Fondale_Facciate` e `MI_Fondale_Tenda`) e ora
+  anche su `MI_Fondale_Colle_Suolo`: *"missing usage flag Nanite! Default Material will be used in game"*: vedi problemi.
+
+### 10.7 Temporanei nuovi in `LaSpezia/_Temp` (non cancellati, nessun referencer)
+`TMPTEST_SM_Fondale_Citta_Colle_02` (prova dell'import con colore vertice), `TMPVC2_SM_Fondale_Citta_Colle_0<1..7>_LOD1/_LOD2` (14),
+`TMPVC2_SM_Fondale_Colle_Alberi_01_LOD1/_LOD2` (2), `TMP2_SM_Fondale_Colle_Suolo_01_LOD1/_LOD2` (2). Totale **19**; in `_Temp` ora 112 asset.
+
+### 10.8 Problemi aperti
+1. **(qa-tester / uefn-builder)** Avviso *missing usage flag Nanite* sul master `M_Morin_Master_Fondale` (tocca tutte le MI del
+   fondale, anche v1). Le mesh hanno Nanite off, quindi in gioco non dovrebbe scattare; se in sessione il fondale appare col
+   materiale grigio di default, attivare *Used with Nanite* sul master (come `M_Morin_Master_Emissivo`).
+2. **(utente / blender-artist)** Alberi del colle troppo chiari e radi rispetto alla foto: proposta una MI dedicata
+   `MI_Fondale_Colle_Alberi` (Tinta ~1,0 o più scura in R) oppure colore vertice più scuro in Blender. Non fatto: fuori mandato.
+3. **(utente)** Cancellazione dei 5 attori v1 nascosti e delle loro mesh (risparmio di memoria e cottura): serve conferma.
+4. **(blender-artist, minore)** Bbox di LOD1/LOD2 del suolo più larghe del LOD0 (fino a 31 m).
+5. **(task separato)** Scatole bianche del blockout davanti al colle dalla partenza.
+6. **(qa-tester)** Sessione: colle visibile senza pop-in (LOD 1,0/0,2/0,08, MinLOD 2 su Low/Medium), attori nascosti assenti nel client.

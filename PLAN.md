@@ -25,7 +25,22 @@ Import in UEFN: SOLO il metodo di `docs/uefn_arte.md` §12 (ImportFile da zero i
 mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotano gli asset).
 
 **Prossimi step proposti**
-1. Tinta del fondale: colline meno chiare/gialle, facciate città più scure (MI); colle cittadino a NO più alto/mosso come in foto.
+0. (in corso, sessione 3) Radice del molo/incrocio verso il ponte come nella foto `ref/foto/vista/inizio_passegiata_ristoranti_che_vanno_verso_il_ponte.png`
+   (Street View, usabile anche per texture per deroga dell'utente, CLAUDE.md §5): strada di servizio, pavé, edifici bassi dei ristoranti con alberi dietro.
+   - [x] (geo-scout) Scheda `ref/radice_molo.md` (2026-11-19): punto di presa, planimetria dell'incrocio e del molo, edifici A/B/C
+     (un piano, 3,3-4 m), alberi 15-20 m, lampione a 2 globi (asset nuovo), confronto col progetto, texture [SV], proposta asset.
+   - [x] (utente) Risposte D1, D2, D4, D8 in `ref/radice_molo.md` §7.1: Sirena c'è; nessuna segnaletica a terra; filari da X 20,4 con
+     gazebo fra 2ª e 3ª palma (X ≈ 33,9); dehors completi; auto ignorate. D3, D5-D7 (foto) aperte: si procede con le stime.
+   - [~] (blender-artist) Tranche 1: pavimenti (asfalto, masselli, angolo cubetti), edifici A1A2/A3/A4A5/C, tendone, lampione 2 globi,
+     latifoglie A/B, pino domestico → `blender/arte_molo.blend`, `exports/molo/`.
+   - [ ] (blender-artist) Tranche 2: dehors (tavolini, sedie, ombrelloni, tettoie a righe), fioriere, Sirena stilizzata, lampioni alti, piccoli prop.
+   - [ ] (blender-artist → uefn-builder) Layout fascia palme **v4**: filari da X 20,4 (via le palme a X 12), tutto il resto −0,6 m,
+     gazebo a X ≈ 33,9; in UEFN solo spostamenti di attori (niente reimport).
+   - [ ] (uefn-builder) Import e posa del molo; nascondere le scatole del blockout della zona.
+1. [~] Fondale: tinta MI fatta (facciate ok, colline poco cambiate: colpa della nebbia, `docs/uefn_fondale.md` §9); colle cittadino v2
+   importato in UEFN (`docs/uefn_fondale.md` §10), **da verificare in sessione (utente)**; poi alberi del colle troppo chiari (MI dedicata).
+   **TO DO (rimandato dall'utente): task nebbia** su `Luce_OraDelGiorno` — densità 0,002-0,003 o diminuzione 0,03, colore più blu/scuro,
+   inscattering direzionale ridotto; poi ritarare la Tinta delle colline.
 2. Blockout del fondale (scatole bianche vicino al ponte/area militare) da sostituire con edifici bassi come in foto.
 3. Ponte Thaon di Revel realistico (foto in `ref/foto/ponte/`: legno a doghe con borchie, ringhiera bianca a montanti piegati e cavi).
 4. Dettagli Blocco 1: ancora monumentale vicino al ponte, ciglio a grandi blocchi bianchi, fascia longitudinale nelle lastre [S],

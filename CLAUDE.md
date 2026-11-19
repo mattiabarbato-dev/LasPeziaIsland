@@ -159,6 +159,13 @@ Si costruisce un blocco alla volta; un blocco si chiude solo quando è giocabile
 - Poly Haven (CC0): ok. Poly Pizza: verifica la licenza di ogni modello; se CC-BY, cita l'autore.
 - Google Maps / Earth / Street View / 3D Tiles: **solo riferimento visivo**. Mai geometrie o texture
   Google in `blender/` o `exports/`.
+  **Deroga dell'utente (2026-11-19, sessione 3):** le catture Street View che l'utente ha messo in `ref/foto/`
+  (es. `vista/inizio_passegiata_*`, `vista/ristoranti_visti_da_di_fronte.png`, `vista/strada_cheProsegue_*`,
+  `pavimentazione/pavimento verso il ponte.png`) si usano **anche per le texture**: l'utente dichiara di avere le
+  autorizzazioni e se ne assume la responsabilità. Nelle texture niente elementi dell'interfaccia (frecce, etichette
+  delle vie, filigrane), niente persone né targhe. Ogni texture così derivata va elencata in `docs/CREDITS.md`
+  con la marca **[SV]**; **prima di qualsiasi pubblicazione** l'utente ricontrolla queste texture (le geometrie
+  Google restano vietate).
 - Foto in `ref/foto/` (fornite dall'utente, pubbliche, autorizzazione del Comune della Spezia dichiarata
   dall'utente il 2026-11-19): utilizzabili come riferimento **e per le texture**, tutte. Nelle texture niente persone
   riconoscibili né targhe. Annotare in `docs/CREDITS.md` quali texture derivano da quali foto.
