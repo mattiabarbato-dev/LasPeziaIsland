@@ -1334,3 +1334,74 @@ vuole la circolazione a destra (vedi `decisioni.md`).
 1. **(qa-tester/utente)** In sessione: la sequenza parte da sola, in loop, per tutti i giocatori; movimento fluido; salti non visibili.
 2. **(utente)** File audio esterni (traffico lontano, clacson): vedi PLAN.md.
 3. **(blender-artist)** Stalli di sosta ancora disegnati sulle strisce laterali del viale: ridisegnare la segnaletica a 4 corsie.
+
+## 26. Viale a 4 corsie, incrocio senza marciapiede, asfalto parcheggio v4, audio del viale (2026-11-20, ~11:00-11:20 ora locale)
+
+Sorgenti: `exports/viale/SM_Viale_Italia_Strada_v2{,_Varco}{,_LOD1,_LOD2}.fbx`, `exports/incrocio/SM_Viale_Italia_Incrocio_v3{,_LOD1,_LOD2}.fbx`,
+`exports/incrocio/SM_Viale_Incrocio_Asfalto.fbx`, `exports/molo/SM_Molo_Pav_Strada_v2.fbx`, `exports/parcheggio/SM_Parcheggio_Asfalto_v4.fbx`,
+`exports/audio/*.wav`. Metodo del §23/§24 (LOD0 col nome finale via `ImportFile`, materiali off; LOD1/2 come `_Temp/TMPX_<asset>_LOD1/2`,
+`remove_lods` + `set_lod_from_static_mesh`, sezioni dei LOD1/2 rimappate sugli slot 0/1/2, Nanite off, Use Simple Collision As Complex,
+soglie 1,0 / 0,2 / 0,08, MinLOD Low/Medium 2 sulle mesh a 3 LOD, 0 sulle altre e sui temporanei). Convesso automatico tolto dai moduli del viale
+(come v1/v2). Materiali riassegnati alle MI esistenti, nessuna MI nuova.
+
+| Asset | Tri LOD0/1/2 | Bbox (uu) | Convessi | Slot → MI |
+|---|---|---|---|---|
+| `Arte/Viale/SM_Viale_Italia_Strada_v2` | 80 / 80 / 32 | X 0..1900 · Y −2415..0 · Z −5..15,5 | 0 | `MI_Molo_Asfalto`, `MI_Pav_Fascia`, `MI_Viale_Segnaletica` |
+| `Arte/Viale/SM_Viale_Italia_Strada_v2_Varco` | 132 / 132 / 46 | idem | 0 | idem |
+| `Arte/Incrocio/SM_Viale_Italia_Incrocio_v3` | 244 / 244 / 130 | idem | 0 | idem |
+| `Arte/Incrocio/SM_Viale_Incrocio_Asfalto` | 100 | X 660..2000 · Y −12085..−11375 · Z −15..15 | 2 | idem |
+| `Arte/Molo/SM_Molo_Pav_Strada_v2` | 22 | X 650..2400 · Y −12100..−8600 · Z −15..1 | 3 | `MI_Molo_Asfalto` (unico slot: il `M_Pav_Fascia` della v1 era il cordolo tolto) |
+| `Arte/Parcheggio/SM_Parcheggio_Asfalto_v4` | 173 | come v3 | 4 | come v3 |
+
+### Posa
+- `Arte_Viale_Strada` (HISM): mesh → `SM_Viale_Italia_Strada_v2` (pose invariate); **istanza X 2200 (`Viale_Strada_SO_01`) tolta** (era (2200, −12085, 0),
+  yaw 0, scala 1) e ricreata come attore singolo `Arte_Viale_Strada_SO_01_Varco` (Arte/Viale, stessa posa, mesh `_Varco`, No Collision come l'HISM).
+  Istanze HISM: 16.
+- `Arte_Viale_Incrocio` (HISM, 1 istanza SO_00 a (300, −12085, 0)): mesh → `SM_Viale_Italia_Incrocio_v3`.
+- Nuovi a (0,0,0), duplicati del vecchio attore (FortStaticMesh, Query Only): `Arte_Incrocio_Asfalto` (Arte/Incrocio), `Arte_Molo_Pav_Strada_v2` (Arte/Molo),
+  `Arte_Parcheggio_Asfalto_v4` (Arte/Parcheggio).
+- **Nascosti, non cancellati** (metodo §14): `Arte_Incrocio_Marciapiede_v2`, `Arte_Molo_Pav_Strada`, `Arte_Parcheggio_Asfalto_v3`
+  (`Arte_Incrocio_Marciapiede` era già nascosto). `Semaforo_02` (1320, −12045, 15) non toccato: ora poggia sulla base tonda.
+
+### Verifiche (line trace in editor, prop ignorati)
+- **X 950..2600, Y −12100..−10900** (griglia 25 uu, 3.283 punti): **nessun buco**. Asfalto incrocio Z +2 (1.183 punti) + base del semaforo Z 15
+  (6 punti, X 1300-1350 / Y −12075..−12025); strada molo v2 Z +1 (748); asfalto parcheggio v4 Z +2 (1.194) + aiuola Z 14 (6); lastre
+  `Arte_Pav_AngoloMolo` Z 15 solo sulla fila Y −10900/−10925 (bordo della passeggiata, come prima); `Blockout_Fondale_v4` Z 0 solo sulla fila
+  Y −12100 (oltre il bordo dell'asfalto −12085, sotto il viale: zona non giocabile). **Nessun cordolo residuo**, nessun gradino tra molo, ramo,
+  parcheggio e incrocio (salti di 1 cm); l'unico salto di 15 cm è la base del semaforo.
+- **Asfalto parcheggio v4:** smusso NE (triangolo visibile (9500, −10225)-(10600, −12085), griglia 20 uu) 2.618/2.618 punti su v4 a Z +2;
+  tacca X 2000-2400 / Y −11400..−10925 (griglia 10 uu) 1.968/1.968 su v4 a Z +2. La v3 lasciava 392 punti sul blockout.
+
+### Audio
+- **Import** (`SoundWaveToolset.ImportFile`) in `LaSpezia/Audio/`: `A_Viale_TrafficoLontano_Loop` (60,0 s, **Looping** sì), `A_Viale_Clacson_01..06`
+  (0,85 / 1,55 / 0,50 / 2,00 / 0,70 / 0,60 s). Nuovo `ATT_Viale_ClacsonLontano` (SoundAttenuation: sfera 15 m, falloff 120 m lineare,
+  spazializzato), assegnato ai 6 clacson.
+- **Brusio:** `Audio_Viale_BrusioTraffico` (AmbientSound, (16000, −13800, 300)) suono = loop, Auto Activate sì, volume 0,3, override attenuazione:
+  box 180 × 9 × 6 m (estensioni 18000 × 900 × 600) + falloff **80 m lineare** (prima 40 m log): sulla passeggiata (Y ≈ −8500..−9000, ~40 m
+  dal box) arriva a circa metà del volume 0,3.
+- **Clacson:** l'Audio Player (`Device_Audio_TrafficoViale_SO`) accetta il SoundWave del progetto (impostato con `ObjectToolset.SetProperties`
+  su `audio`; non compare nella lista di `SetClassicDeviceOption`), ma riproduce un solo suono, senza casualità né pause tra le ripetizioni
+  (il loop di un clacson da 1 s suonerebbe di continuo). Soluzione senza Verse: **tracce Audio sui binding delle auto nella sequenza
+  `LS_Viale_Traffico`** (60 s, già in loop per tutti con `Device_Cinematica_TrafficoViale`); il suono segue l'auto:
+  | t (s) | Clacson | Auto (X al momento) |
+  |---|---|---|
+  | 3,00 | 03 | `Arte_Viale_Traffico_12` (~45 m, carreggiata città) |
+  | 3,65 | 06 | idem (doppio colpo) |
+  | 19,00 | 01 | `Arte_Viale_Traffico_00` (~71 m, carreggiata mare) |
+  | 41,00 | 04 | `Arte_Viale_Traffico_08` (~74 m, carreggiata città) |
+  Intervalli 16 / 22 / 22 s; volume sezione 0,45, pitch 1. Clacson_02 e _05 importati ma non usati. Lo schema si ripete identico ogni 60 s
+  (niente casualità). `Device_Audio_TrafficoViale_SO`: audio = Clacson_01, nessuna riproduzione automatica, quindi **inerte**.
+- **Traffico riallineato** ai centri corsia v2 (canale Y di ogni binding): −12515 → −12380, −12890 → −12860, −13335 → −13375, −13645 → −13685.
+
+### Salvataggio, validazione, log, render
+`save_dirty_packages` 11:14 e dopo la correzione dei temporanei: nessun pacchetto sporco. Validazione `LaSpezia/` + mappa: **492/492 validi,
+0 errori**, avvisi = i 20 noti ("un solo LOD"); i 12 avvisi "MinLOD 2 fuori intervallo" sui 6 nuovi `TMPX_*` risolti (MinLOD 0). Log: nessun
+errore dopo l'import (nessun "riferimento illegale" sui SoundWave, sulla sequenza o sui device). Attori nel livello: 196 (+4).
+Render `docs/qa/uefn_incrocio_v3.png`: punto della foto dell'utente, Blender (15,6; 100,5; 2,1) → UE (1560, −10050, 210), yaw −90 (verso il viale),
+pitch −10, FOV 90, 1024 px, ombre: asfalto continuo dall'imbocco del molo al viale, nessun cordolo.
+
+### Temporanei e problemi aperti
+- 6 nuovi `LaSpezia/_Temp/TMPX_SM_Viale_Italia_{Strada_v2,Strada_v2_Varco,Incrocio_v3}_LOD1/_LOD2`; eliminabili con conferma dell'utente.
+- **(utente/qa-tester)** In sessione: brusio udibile ma di sottofondo; clacson lontani; le tracce Audio delle cinematiche suonano davvero in UEFN
+  (non verificato in gioco). Piano B: Timer device + Audio Player, oppure Verse per la casualità vera.
+- Asset ora inutilizzati (nessuna istanza visibile): `SM_Viale_Italia_Strada`, `SM_Viale_Italia_Incrocio` (restano finché l'utente non conferma).
