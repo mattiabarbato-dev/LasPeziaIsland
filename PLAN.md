@@ -406,7 +406,17 @@ Ordine per impatto visivo:
             Sorgente `blender/arte_banchina_palme.blend`; render `docs/qa/arte_banchina_v1.png`, `arte_contesto_v1.png`
       - [x] v2 2026-11-19: texture del ciglio e del colore del paramento dalle foto dell'utente, stessi FBX ri-esportati
             (geometria invariata). Render `docs/qa/arte_banchina_v2.png`, `arte_contesto_v2.png`. Copia v1: `blender/arte_banchina_palme_v1.blend`
-      - [ ] testata/angolo e raccordo col molo; modulo con nicchia per la scaletta (oggi sporge 0,13 m dal ciglio)
+      - [x] (blender-artist) testata/angolo e raccordo col molo; modulo con nicchia per la scaletta — banchina v2 del 2026-11-20 (vedi sotto)
+      - [x] (blender-artist) **Banchina v2, 2026-11-20** (in Blender ed esportata, DA IMPORTARE): `blender/arte_banchina_v2.blend`,
+            script `blender/scripts/morin_banchina_v2.py`, FBX in `exports/banchina_v2/` (LOD in file `_LOD1/_LOD2` con rotazione nei vertici),
+            posizioni UE `exports/banchina_v2/banchina_posizioni_v2.csv` (83 righe, formato a 6 colonne). Tri LOD0/1/2:
+            `SM_Banchina_Mod4m_v2` 164/92/12 (ciglio a 3 grandi blocchi bianchi, toro r 0,15) · `SM_Banchina_Mod4m_Nicchia` 234/146/58 ·
+            `SM_Banchina_Scaletta_v2` 448/202/82 (a filo nella nicchia, UV puliti) · `SM_Banchina_Bitta_v2` 970/484/144 (UV degeneri corretti) ·
+            `SM_Banchina_Testata` 845/473/39 (smusso 45° + ciglio est del molo fino a Y 62) · `SM_Banchina_Testata_Fine` 67/39/19 ·
+            `SM_Morin_AncoraMonumento` 1506/662/258 (2,70 × 3,16 × 2,72 m, X 226 Y 83). Texture `blender/textures/banchina_v2/T_Banchina_Blocchi_*`.
+            Confronti `docs/qa/arte_banchina_v3_confronto_ciglio.png`, `_ancora.png`. Scelte e [S] in `docs/decisioni.md` (2026-11-20).
+      - [ ] (uefn-builder) import della banchina v2 con nomi nuovi; sostituire negli HISM: Mod4m → Mod4m_v2 (54) + Nicchia (4: Mod_06/18/30/42),
+            Scaletta → Scaletta_v2 (Z 0 invece di −1,3), Bitta → Bitta_v2 (stesse posizioni); posare Testata, Testata_Fine e l'ancora
       - [x] (orchestratore + utente) quota dell'acqua: DECISO 2026-11-19, acqua a −1,0 m. Applicato da uefn-builder: device
             Acqua V2 da Z −534 a −484, superficie Z −100, fondo −484, barriere (base −700) invariate, nessun buco sotto il ponte né a Mirabello
       - [x] (uefn-builder) import, materiali con ORM, LOD — 2026-11-19, dettagli in `docs/uefn_arte.md`.
@@ -416,8 +426,8 @@ Ordine per impatto visivo:
             Posa HISM: `Arte_Banchina_Moduli` 58 moduli X 1920..25120 sulla retta del ciglio del blockout (+8 cm verso il mare, Z +2,5),
             `Arte_Banchina_Bitte` 18 (ogni 12 m, X 26-230 m), `Arte_Banchina_Scalette` 4 (X 44/92/140/188 m).
             Nota: `import_lod` ignora la rotazione −90° del nodo → LOD importati con un giro (vedi doc). Render `docs/qa/uefn_arte_v2_*.png`
-      - [ ] (blender-artist) pulire normali/tangenti degeneri di Bitta e Scaletta (avvisi all'import); LOD esportati con la rotazione
-            applicata ai vertici; pezzo testata/angolo (estremità a vista a X 19,2 m e 251 m)
+      - [x] (blender-artist) pulire normali/tangenti degeneri di Bitta e Scaletta (avvisi all'import); LOD esportati con la rotazione
+            applicata ai vertici; pezzo testata/angolo (estremità a vista a X 19,2 m e 251 m) — fatto nella banchina v2 (2026-11-20)
       - [ ] (qa-tester) verifica in sessione: bitte e moduli solidi, risalita dalle scalette, nuoto con l'acqua a −1 m
 - [ ] (blender-artist) Palma A + 2 varianti: schede `ref/palme.md` e `ref/asset_fonti.md`
       Dalle foto dell'utente: PalmaA = **P. canariensis**; le varianti B/C = dactylifera slanciate
@@ -565,8 +575,8 @@ Ordine per impatto visivo:
       Elementi confermati dall'utente il 2026-11-19 (foto in `ref/foto/arredi/` e `ref/foto/pavimentazione/`):
       cannone antico su affusto e scultura "REDAMARE" (lettere in corten) sul ciglio **a metà dell'intera passeggiata (~275 m dal ponte)**;
       scritta "PASSEGGIATA MORIN" in pietre bianche nei cubetti all'inizio lato città (~550 m)
-- [ ] Blocco 1, dettagli da fare: ancora monumentale nera inclinata **vicino al ponte** (foto `ref/foto/vista/banchina_vista_montagne_verso_ponte.jpg`);
-      ciglio a grandi blocchi bianchi arrotondati; fascia longitudinale di lastre a ~1/3 del camminamento dal mare [S];
+- [ ] Blocco 1, dettagli da fare: ~~ancora monumentale~~ e ~~ciglio a grandi blocchi bianchi~~ fatti in Blender il 2026-11-20 (banchina v2,
+      da importare; l'ancora è all'OSM X 226, non all'imbocco del ponte); fascia longitudinale di lastre a ~1/3 del camminamento dal mare [S];
       Giardini a Mare (prato, aiuole di rose bordate in metallo, agavi, panchine bianche a schienale curvo); ponte con le foto in `ref/foto/ponte/`.
       Aiuole delle palme: terra (confermato dall'utente)
 - [ ] Blocco 3: Molo Italia e faro rosso come finale esteso

@@ -150,3 +150,11 @@ Pianta del parcheggio e della corsia da OSM (© OpenStreetMap contributors, ODbL
   `ref/foto/vista/parcheggio_iniziale.png` solo la scelta dei colori (bianco, grigi, nero, argento, rosso, blu) e le proporzioni.
   Nessun marchio, logo, scritta o targa: la targa è un rettangolo bianco vuoto.
 - Il confronto `docs/qa/arte_auto_v2_confronto.png` contiene la cattura con UI e targhe sfocate: file di QA, non va pubblicato.
+
+### Banchina v2: ciglio a blocchi, nicchia, testate, ancora (blender-artist, 2026-11-20) — `blender/textures/banchina_v2/`, `blender/scripts/morin_banchina_v2.py`
+- `T_Banchina_Blocchi_D` (2048): derivata da `T_Banchina_Ciglio_D` (foto utente `banchina/passegiata_1.png` + grana Poly Haven
+  concrete_floor_worn_001, CC0), ritarata sul colore dei blocchi campionato in `ref/foto/vista/banchina_vista_montagne_verso_ponte.jpg`
+  (faccia al sole ~206,208,205 sRGB → albedo 200,199,193), più contrasto e macchie procedurali. Dalla foto **solo il colore** (nessun pixel copiato).
+- `T_Banchina_Blocchi_N/ORM`: copie di `T_Banchina_Ciglio_N/ORM` (Poly Haven CC0, vedi sopra).
+- Ancora, scaletta v2, testate: nessuna texture nuova (riusano `T_Banchina_Ghisa_*`, `T_Banchina_Paramento_*`, `T_Banchina_Blocchi_*`).
+- `docs/qa/arte_banchina_v3_confronto_*.png` contengono la foto di riferimento accanto al render: file di QA, non vanno pubblicati.
