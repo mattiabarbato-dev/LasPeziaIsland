@@ -1819,3 +1819,135 @@ Render 1024 px, ombre, mip forzati (`docs/qa/`): `uefn_blocco2_redamare.png` (25
 - **(qa-tester)** In sessione: traffico a 90 s con 21 auto (loop, salto a X 573 m dal piazzale), barriere B2 (non visibili ai trace in modalità Crea),
   bordo acqua tra i due device Acqua V2 a X 341 m, piazzale finale sull'acqua oltre Y −47 m.
 - Memoria: +3 texture 1024 (~2,7 MiB a runtime), mesh trascurabili; rileggere "Budget memoria mappa" dopo la prossima sessione (§30).
+
+## 33. Blocco 2 v2 e Molo Italia v1 (2026-11-20, ~14:00-15:25 ora locale)
+
+Sorgenti: `exports/blocco2/` (CSV `blocco2_nuovi_v2.csv`), `exports/molo_italia/` (65 FBX, CSV `molo_italia_posizioni_v1.csv`, 315 righe),
+texture `blender/textures/blocco2/T_Morin_Bandiere_*` e `blender/textures/molo_italia/`. Metodo del §32 (LOD0 col nome finale via `ImportFile`,
+materiali/texture off; LOD1/2 come `_Temp/TMPB2V2_*` e `_Temp/TMPB3_*`; `remove_lods` + `set_lod_from_static_mesh(..., True)`; sezioni rimappate
+per nome di slot; Nanite off; Use Simple Collision As Complex; soglie 1,0/0,2/0,08). Nessun attore né asset cancellato.
+**Insidia nuova:** modificare `sm.static_materials[i].material_interface` e riscrivere l'array non assegna nulla (le voci sono copie):
+usare `StaticMesh.set_material(i, mi)`. Prima della correzione le mesh nuove risultavano con `WorldGridMaterial`.
+
+### A. Blocco 2 v2 (`LaSpezia/Arte/Blocco2`)
+| Asset | Tri LOD0/1/2 | Bbox locale (uu) | Convessi | Slot → MI |
+|---|---|---|---|---|
+| `SM_Morin_ScrittaLaSpezia` | 420 / 364 / 296 | X ±400 · Y ±30 · Z 0..135 | 2 | `MI_Morin_Corten` |
+| `SM_Morin_ChioscoOttagonale_v2` | 138 / 138 / 106 | X ±370 · Y ±370 · Z 0..312 | 2 | `MI_Morin_Chiosco`, `MI_Morin_Dehors` |
+| `SM_Pav_Piazzale_Fine_B2_v2` | 10 | X 54927..56600 · Y −12100..−4709 · Z −300..0 | 3 | `MI_Pav_Cubetti` |
+| `SM_Morin_Bandiera_Italia/_Comune/_Aquile` | 96 / 24 / 4 | X 6..240 · Y −16..11 · Z 955..1125 | 0 | `MI_Morin_Bandiere` |
+- Texture `T_Morin_Bandiere_D/N/ORM` 2048 (D con alfa), N Normalmap, ORM Masks sRGB off, LODBias 0, regola §29 (una alla volta, `GetSize` 2048).
+- `MI_Morin_Bandiere` su `M_Morin_Master_PBR_Masked` (two-sided, il master delle chiome).
+- **Sostituzioni (cambio di mesh sull'attore, stesse trasformazioni):** `Arte_B2_Redamare` → mesh `SM_Morin_ScrittaLaSpezia`, rinominato
+  **`Arte_B2_ScrittaLaSpezia`** (25420, −8255, 0; yaw 0,1241): REDAMARE non è più in scena; `Arte_B2_ChioscoOttagonale` → `_v2` (55206, −10872, 15);
+  `Arte_B2_Pav_Piazzale_Fine_B2` → `_v2`. Le mesh v1 restano nel Content Browser, non più referenziate dagli attori.
+- **Bandiere:** 3 attori `Arte_B2_Bandiera_{Italia,Comune,Aquile}` (Outliner `Arte/Blocco2/nuovi`) alle posizioni delle 3 aste del CSV, yaw −70, No Collision.
+- Avvisi di tangenti degeneri: **nessuno** sul chiosco v2 (log controllato dopo l'import).
+
+### B. Molo Italia v1 (`LaSpezia/Arte/MoloItalia`)
+| Asset | Tri LOD0/1/2 | Bbox (uu) | Convessi | MinLOD L/M |
+|---|---|---|---|---|
+| `SM_MoloItalia_Suolo` | 66 | X 55510..68870 · Y −4162..33260 · Z −300..12 | 4 | 0 |
+| `SM_MoloItalia_Suolo_Radice` | 104 | X 55500..64000 · Y −12085..−130 · Z −300..0 | 4 | 0 |
+| `SM_Molo_Scogliera_A/B/C` | 1362/342/182 · 1282/322/182 · 1442/362/182 | ~X −87..864 · Y −84..664 · Z −326..48 | 1 | 2 |
+| `SM_MoloItalia_Dito` | 142 / 142 / 14 | X 0..4950 · Y ±300 · Z −350..1 | 1 | 0 |
+| `SM_MoloItalia_Faro` | 2144 / 1316 / 432 | X ±205 · Y ±205 · Z 0..840 | 4 | 0 |
+| `SM_MoloItalia_RistorantePiccioni` | 1748 / 1508 / 208 | X −1280..975 · Y −585..516 · Z −200..600 | 11 | 0 |
+| `SM_MoloItalia_Capitaneria` | 998 / 766 / 98 | X 58630..61755 · Y −8075..−4395 · Z 0..1515 | 3 | 0 |
+| `SM_MoloItalia_Edificio4P` | 266 / 266 / 34 | X 57895..59385 · Y −4085..−1905 · Z 0..2315 | 1 | 0 |
+| `SM_MoloItalia_EdificioEst` | 50 / 50 / 34 | X 61514..63086 · Y −4136..−1935 · Z 0..1120 | 1 | 0 |
+| `SM_MoloItalia_InfoPoint_Blu/_Rosso` | 38 | X ±185 · Y ±185 · Z 0..300 | 1 | 2 |
+| `SM_Morin_LampionePastorale` | 768 / 508 / 160 | X −20..113 · Y ±23 · Z 0..505 | 2 | 2 |
+| `SM_MoloItalia_RinghieraModulo` | 132 / 100 / 56 | X −3..203 · Y ±8 · Z 0..102 | 1 | 2 |
+| `SM_MoloItalia_Monumento` | 465 / 423 / 333 | X 54835..55500 · Y −4705..−3855 · Z −120..285 | 13 | 0 |
+| `SM_MoloItalia_MonumentoAlpini` | 72 | X ±110 · Y ±80 · Z 0..255 | 2 | 2 |
+| `SM_MoloItalia_Rimorchiatore_Tiramolla/_Spingitutto/_Ostinato` | 2032/1488/124 · 2112/1568/124 · 1896/1352/124 | X ±1500 · Y ±540 · Z −360..1250 | 2 | 2 |
+| `SM_MoloItalia_Motovedetta` | 1388 / 1340 / 72 | X ±800 · Y ±233 · Z −130..600 | 2 | 2 |
+| `SM_MoloItalia_NaveCrociera` | 1126 / 1062 / 130 | X ±12500 · Y ±1615 · Z −800..5200 | 0 | 2 |
+| `SM_MoloItalia_GruPortuale` | 92 | X −900..900 · Y −4000..1300 · Z 0..5910 | 0 | 2 |
+- Slot → MI: `M_MoloItalia_Tinte/_Cemento/_Facciata` → `MI_MoloItalia_*`, `M_Molo_Scogliera` → `MI_Molo_Scogliera` (nuove, `M_Morin_Master_PBR`);
+  `M_MoloItalia_FaroLuce` → `MI_MoloItalia_FaroLuce`; riusate `MI_Molo_Asfalto`, `MI_Morin_Ghisa`, `MI_Morin_Globo`, `MI_Pav_Fascia`, `MI_Pav_Cubetti`,
+  `MI_Banchina_Paramento`. Nessuno slot senza MI.
+- Texture (12, `Arte/MoloItalia`): `T_MoloItalia_Tinte_*`, `T_MoloItalia_Facciata_*`, `T_Molo_Scogliera_*` 1024, `T_MoloItalia_Cemento_*` 2048;
+  LODBias 0, regola §29 rispettata, tutte con dimensione valida. Texture del progetto: 156 (+15).
+- LOD2 sensibilmente più bassi del LOD0 (non è una rotazione): `Edificio4P` Z max 1480 contro 2315, `Capitaneria` 1000 contro 1515,
+  rimorchiatori 800 contro 1250, motovedetta 330 contro 600: a distanza la sagoma si abbassa di colpo.
+
+### Faro lampeggiante Fl R 4 s (senza Verse)
+- Master nuovo **`Arte/Materiali/M_Morin_Master_Lampeggio`** (opaco, usage ISM e Nanite): Emissive = `Colore × Emissivo × If(fmod(Time + Fase, Periodo) < Acceso, 1, Spento_Residuo)`;
+  BaseColor = `Colore × BaseColor_Mult`. Parametri: `Periodo` 4, `Acceso` 1, `Fase` 0, `Spento_Residuo` 0, `Emissivo`, `Colore`, `Roughness`, `BaseColor_Mult` 0,6.
+- `MI_MoloItalia_FaroLuce`: Colore (1; 0,02; 0,01), Emissivo 3, Periodo 4, Acceso 1 → **1 s acceso, 3 s spento**. Verificato con 11 render a 0,7-0,8 s
+  di distanza: lanterna accesa solo quando `fmod(t, 4) < 1`. Libreria shader +1 master.
+- Facoltativo fatto: **`Luce_Faro_MoloItalia`** (Point Light, Outliner `Luci`) a (67860, 32710, 732) dentro la lanterna, rossa, 300 cd, raggio 2500,
+  senza ombre, Movable, con light function **`Arte/MoloItalia/M_MoloItalia_FaroLampo_LF`** (stessa formula, 1 s su 4). Costo: una luce dinamica senza ombre.
+- Insidia: i pin del nodo If si chiamano `A > B`, `A == B`, `A < B` (con spazi). Con `A>B` la connessione fallisce in silenzio e la validazione segnala
+  "Missing If AGreaterThanB input".
+
+### Posa (Outliner `Arte/MoloItalia/<gruppo>`)
+HISM duplicati da `Arte_B2_Banchina_Mod4m_v2` (Query Only `FortStaticMesh`, Static) o da `Arte_B2_Fondale_Morin_PalmaA` (No Collision) + `clear_instances`;
+pezzi unici duplicati da `Arte_B2_ChioscoOttagonale`; override di materiale azzerati. **315 istanze**, tutte le righe del CSV (yaw, scala uniforme).
+
+| Gruppo | Attori (istanze) |
+|---|---|
+| suolo | `Arte_B3_Suolo`, `_Suolo_Radice`, `_Monumento`, `_Capitaneria`, `_Edificio4P`, `_EdificioEst` |
+| banchina | `Arte_B3_banchina_Mod4m_v2` (107), `_Bitta_v2` (25) |
+| scogliera | `Arte_B3_scogliera_Scogliera_A/B/C` (18/19/18) |
+| dita | `Arte_B3_dita_Dito` (2), `_Bitta_v2` (16) |
+| landmark | `Arte_B3_Faro`, `Arte_B3_RistorantePiccioni`, `Arte_B3_MonumentoAlpini` |
+| arredi | `Arte_B3_arredi_{LampionePastorale 19, RinghieraModulo 14, Panchina 8, NewJersey 5}` |
+| radice | `Arte_B3_radice_{InfoPoint_Blu 2, PalmaA 5, PinoDomestico 4}`, `Arte_B3_InfoPoint_Rosso` |
+| auto | 9 HISM `Arte_B3_auto_Auto_*_Col_v2_*` (30) |
+| barche | `Arte_B3_barche_Battello` (2), `_Motovedetta` (2), `Arte_B3_Rimorchiatore_{Tiramolla,Spingitutto,Ostinato}` |
+| fondale | `Arte_B3_NaveCrociera`, `Arte_B3_fondale_GruPortuale` (5): No Collision |
+
+Attori nel livello: 291 → **344** (+3 bandiere, +40 molo, +5 barriere nuove, +2 device Acqua V2 con i loro 2 `BP_FortWaterBodyCubeVolume_C`, +1 luce; `Arte_B2_Redamare` rinominato).
+
+### Barriere (`Device/Barriere`, copie di `Barriera_LatoCitta_B2` con le stesse opzioni) e acqua
+`BarrierWidth/Depth` accettano solo 0,01 · 0,05 · 0,5 · 1…20 · 30 … 100 (unità da 512 uu): servono 6 pezzi.
+
+| Label | Centro | L × P | Ingombro |
+|---|---|---|---|
+| `Barriera_FineBlocco` (**spostata** da X 56700) | (64128, −7093, −700) | 0,5 × **20** | X 64000..64256 · Y −12213..−1973 |
+| `Barriera_LatoCitta_B3` | (60416, −11957, −700) | 15 × 0,5 | X 56576..64256 · Y −12085..−11829 |
+| `Barriera_Acqua_RadiceEst_B3` | (67968, −1026, −700) | 16 × 4 | X 63872..72064 · Y −2050..−2 |
+| `Barriera_Acqua_LatoPiuX_B3` | (72128, 18430, −700) | 0,5 × 80 | X 72000..72256 · Y −2050..38910 |
+| `Barriera_Acqua_LatoMare_B3` | (64576, 35128, −700) | 30 × 0,5 | X 56896..72256 · Y 35000..35256 |
+| `Barriera_Acqua_Raccordo_B3` | (57932, 33004, −700) | 0,5 × 9 | X 57804..58060 · Y 30700..35308 |
+
+- `Barriera_FineBlocco` non può arrivare a Y −130 (24 unità non esistono): il tratto Y −1973..−130 è chiuso da `RadiceEst_B3`, che occupa una striscia di
+  1,28 m (X 63872..64000) all'angolo est della radice sul mare. Lato città a Y −12085 come richiesto (faccia esterna sul bordo della radice).
+- Nessuna barriera sul ciglio del molo. `Barriera_Acqua_LatoMare_B2` (Y 30928, fino a X 58060) resta com'era; il raccordo la collega alla nuova linea Y 35000.
+- **Continuità:** percorso lungo il perimetro (città B2 → città B3 → fine radice → costa est → lato +X → lato mare B3 → raccordo → mare B2) campionato
+  ogni **4 uu**: 23.899 punti, **0 scoperti**; flood fill a 64 uu da (60000, 10000) nel riquadro X 50000..76000 · Y −14000..40000: **nessuna fuga**
+  a est, a nord o verso la città.
+- **Acqua V2** (copie di `Acqua_Golfo_Device_B2`, stesse opzioni, Z −484, altezza 1): **`Acqua_Golfo_Device_B3`** larghezza 29 × profondità 69 →
+  X 57652..72500 · Y −130..35198; **`Acqua_Golfo_Device_B3_Nord`** 7,5 × 8,09375 → X 53812..57652 · Y 31054..35198. Bordi comuni con B2 a X 57652 e
+  Y 31054 senza fessure né sovrapposizioni. Insieme a B2 coprono il box X 54000..72000 · Y −130..35000.
+
+### Verifiche (line trace in editor)
+- **Suolo continuo** (griglia 100 × 100 uu su X 54800..69200 · Y −12100..33500, 66.265 trace): ricerca in ampiezza dal piazzale B2 (56000, −9000)
+  con gradino ≤ 40 cm: **raggiunte tutte** le celle di `Suolo`/`Suolo_Radice` (16.176 celle in tutto), 62 celle entro 5 m dal faro, Y max 33400.
+- **Gradini** sul percorso (suolo, radice, piazzale B2, dita): massimo **15,3 cm** (scritta Morin, piazzetta); marciapiede del molo **12 cm**;
+  B2 → radice 0 cm. Salti > 40 cm solo dentro la scogliera (pendenza 50-55 cm/m), sul monumento (gradoni 70 cm) e sullo zoccolo del faro.
+- **Ristorante:** passerelle (Z −30..0) e coperta (Z −20) raggiungibili dal molo; **terrazza (Z 300) calpestabile ma NON raggiungibile**: la scala
+  (cuneo X −915..−255 locale, Y 305..465) passa sotto la soletta della terrazza (convesso unico X ±955 · Y ±495 · Z 275..300). Sweep di capsula
+  r 34 / hh 88 lungo la scala: blocco contro la soletta a Z 275 dopo ~2,4 m. Da correggere in Blender (vano scala aperto nella soletta e nel suo UCX).
+- **Collisioni:** faro 1/1, ristorante 1/1, Capitaneria 16/16 trace orizzontali, Edificio4P 15/16 (il 16° colpisce un'auto parcheggiata a 40 cm dal muro),
+  EdificioEst 16/16, monumento 8/8 sotto i 2,85 m, Monumento Alpini 1/1, lampioni 19/19, ringhiere 14/14, New Jersey 5/5, panchine 8/8, auto 30/30,
+  info point 3/3, palme 5/5, pini 4/4, battelli 2/2, motovedette 2/2, rimorchiatori 3/3. **Senza collisione:** nave da crociera (0 impatti su 33 trace
+  verticali) e gru (0/5).
+
+### Salvataggio, validazione, log, render
+`save_dirty_packages`: **0 pacchetti sporchi**. Validazione `LaSpezia/`: **671/671 validi, 0 errori, 56 avvisi** (`ValkyrieValidator_StaticMesh`:
+i noti + "un solo LOD" sui temporanei `TMPB3_*`/`TMPB2V2_*`; MinLOD dei temporanei portato a 0). Log: nessun errore sul progetto dopo la correzione del nodo If.
+Render 1024 px con ombre (`docs/qa/`): `uefn_blocco2_v2_laspezia.png` (camera di `uefn_blocco2_redamare.png`), `uefn_moloitalia_faro.png`
+(64300, 29300, 300; yaw 45; pitch 4; FOV 55), `uefn_moloitalia_ristorante.png` (56300, 2600, 320; yaw 50; pitch −6; FOV 70),
+`uefn_moloitalia_infilata.png` (56450, −3000, 180; yaw 90; pitch −2; FOV 75), `uefn_moloitalia_alto.png` (49000, −9000, 9000; yaw 58; pitch −28; FOV 80).
+
+### Temporanei e problemi aperti
+- 52 nuovi temporanei in `LaSpezia/_Temp` (`TMPB2V2_*` 10, `TMPB3_*` 42), nessun referencer; eliminabili con conferma dell'utente.
+- **(blender-artist)** Scala del ristorante bloccata dalla soletta della terrazza (vedi sopra). LOD2 di Edificio4P, Capitaneria, rimorchiatori e motovedetta più bassi.
+- **(qa-tester)** In sessione: lampo del faro (`Time` del materiale in gioco) e luce rossa; bordo dell'acqua oltre le barriere (l'acqua finisce a
+  Y 352 m e X 725 m, cioè ~20-25 m oltre il faro: si vede il vuoto?); sfumature verdi sotto l'acqua del bacino interno lungo la costa X 640-720
+  (probabile terreno di `Arte_Fondale_Citta_NE_01`, senza collisione); barriere B3 dall'acqua.
+- Memoria: +15 texture (≈ 30 MiB a runtime, stima informativa), mesh trascurabili; rileggere "Budget memoria mappa" dopo la prossima sessione (§30).

@@ -825,8 +825,11 @@ Ordine per impatto visivo:
             7,39 × 7,39 × 3,12 m, tettoia bianca a padiglione con mantovana, **0 triangoli a UV nulla** (la v1 ne aveva 118: avviso tangenti)
             · `SM_Pav_Piazzale_Fine_B2_v2` 10 tri, 3 UCX (la v1 ha 3 triangoli rovesciati sopra il camminamento).
             CSV `exports/blocco2/blocco2_nuovi_v2.csv` (18 righe; v1 intatta). Catture `docs/qa/arte_blocco2_v2_{laspezia,bandiere,chiosco}.png`.
-      - [ ] (uefn-builder) Blocco 2 v2 in UEFN: importare i 6 asset nuovi; sostituire `SM_Morin_Redamare` → `SM_Morin_ScrittaLaSpezia`,
-            `SM_Morin_ChioscoOttagonale` → `_v2`, `SM_Pav_Piazzale_Fine_B2` → `_v2` (stesse posizioni); posare le 3 bandiere; MI two-sided masked.
+      - [x] (uefn-builder, 2026-11-20 ~14:00-14:20, `docs/uefn_arte.md` §33 A) **Blocco 2 v2 in UEFN**: 6 mesh in `Arte/Blocco2` (tri e UCX come in Blender),
+            `T_Morin_Bandiere_D/N/ORM` 2048 (LODBias 0), `MI_Morin_Bandiere` (master masked two-sided delle chiome). Sostituzioni per cambio di mesh, nessuna
+            cancellazione: `Arte_B2_Redamare` → `SM_Morin_ScrittaLaSpezia` (attore rinominato `Arte_B2_ScrittaLaSpezia`, REDAMARE non più in scena),
+            `Arte_B2_ChioscoOttagonale` → `_v2` (nessun avviso di tangenti), `Arte_B2_Pav_Piazzale_Fine_B2` → `_v2`. 3 bandiere `Arte_B2_Bandiera_*`
+            sulle aste, yaw −70, No Collision. Cattura `docs/qa/uefn_blocco2_v2_laspezia.png`.
       - [x] (blender-artist, 2026-11-20) Raccordo B2/B3 fatto nel Blocco 3 v1 (lunetta, scogliera, Largo Fiorillo, bandiere). Restano: fioriere nere,
             cartello ZTL, botti-tavolo del dehors, strisce pedonali su Viale Italia (X 300,7 / 506,4 / 520).
 - [ ] Blocco 1, dettagli da fare: ~~ancora monumentale~~ e ~~ciglio a grandi blocchi bianchi~~ fatti in Blender il 2026-11-20 (banchina v2,
@@ -861,12 +864,20 @@ Ordine per impatto visivo:
             Texture nuove (`blender/textures/molo_italia/`): `T_MoloItalia_Tinte` 1024, `T_MoloItalia_Facciata` 1024, `T_Molo_Scogliera` 1024,
             `T_MoloItalia_Cemento` 2048. CSV UE `exports/molo_italia/molo_italia_posizioni_v1.csv` (315 righe, colonna `gruppo`).
             Catture `docs/qa/arte_moloitalia_v1_{faro,ristorante,infilata_ramo1,infilata_ramo2,radice,raccordo_b2,alto}.png`.
-      - [ ] (uefn-builder) Import Molo Italia v1: Acqua V2 estesa fino a X ~720 (UE 72000), Y −350 (UE +35000); MI `M_MoloItalia_FaroLuce`
-            con lampo Fl R 4 s (1 s acceso, 3 s spento); barriere (vedi sotto); controllo memoria.
-            Barriere: (1) `Barriera_FineBlocco` (oggi a X 56700) da spostare a **X 64000** su Y 1,3…120,85 (UE Y −130…−12085), cioè il limite est
-            della radice; (2) lato città della radice a **Y 120,85** fra X 566 e 640 (UE Y −12085), in continuità con `Barriera_LatoCitta_B2`;
-            (3) mare: perimetro dell'acqua oltre la scogliera e attorno al bacino, box X 540…720, Y −350…1,3 (UE X 54000…72000, Y −130…35000);
-            nessuna barriera sul ciglio del molo (chi cade rientra).
+      - [x] (uefn-builder, 2026-11-20 ~14:05-15:25, `docs/uefn_arte.md` §33 B) **Import Molo Italia v1**: 23 mesh in `Arte/MoloItalia` (tri e UCX come
+            in Blender, Nanite off, LOD 3 tranne i due suoli), 12 texture (LODBias 0, regola §29), MI `MI_MoloItalia_{Tinte,Cemento,Facciata}`, `MI_Molo_Scogliera`;
+            **315 istanze** in 40 attori (`Arte/MoloItalia/<gruppo>`, HISM per i ripetuti; nave e gru No Collision).
+            **Faro Fl R 4 s senza Verse:** master nuovo `M_Morin_Master_Lampeggio` (Time, fmod, If) e `MI_MoloItalia_FaroLuce` (1 s acceso, 3 s spento,
+            verificato con render in sequenza) + Point Light rossa `Luce_Faro_MoloItalia` con light function `M_MoloItalia_FaroLampo_LF` (stesso ritmo).
+            **Barriere:** `Barriera_FineBlocco` spostata a X 64000..64256 (profondità 20: Y −12213..−1973), nuove `Barriera_LatoCitta_B3` (Y −12085),
+            `Barriera_Acqua_{RadiceEst,LatoPiuX,LatoMare,Raccordo}_B3`; perimetro continuo (passo 4 uu, 0 punti scoperti; flood fill senza fughe).
+            **Acqua:** `Acqua_Golfo_Device_B3` (X 57652..72500, Y −130..35198) e `_B3_Nord` (X 53812..57652, Y 31054..35198), bordi senza fessure.
+            Verifiche: suolo continuo dal piazzale B2 al faro, gradini ≤ 15,3 cm (marciapiede 12 cm), collisioni su faro, edifici, lampioni, monumenti
+            e auto, navi da fondale senza collisione; 0 pacchetti sporchi; validazione 671/671, 0 errori. Catture `docs/qa/uefn_moloitalia_{faro,ristorante,infilata,alto}.png`.
+            Aperti: **terrazza del ristorante non raggiungibile** (la scala sbatte contro la soletta, Z 275: blender-artist); LOD2 bassi di Edificio4P,
+            Capitaneria, rimorchiatori, motovedetta (blender-artist); in sessione lampo e luce del faro, bordo dell'acqua a ~20-25 m oltre il faro,
+            macchie verdi sotto l'acqua del bacino (fondale NE?) (qa-tester); 52 temporanei `_Temp/TMPB3_*`, `TMPB2V2_*` da eliminare con conferma.
+      - [ ] (blender-artist → uefn-builder) Ristorante v2: vano scala aperto nella soletta della terrazza (geometria e UCX), poi sostituzione della mesh.
       - [ ] (blender-artist) B3.6 Mancano: fontana del Palio, terminal crociere con scultura, circoli nautici, pilotine, casetta a lamelle e pontile di D1,
             bidoni della differenziata, cartelli; texture [SV] ritagliate dalle foto (mattoni, giallo della chiatta) se le tinte non bastano.
       - [ ] (utente) Memoria: con B2 + B3 la stima sale a 242-244 MiB su 245. Decidere se usare le alternative a 0 MiB (agave, ristorante)
@@ -889,3 +900,4 @@ Ordine per impatto visivo:
 | 2026-11-19 | Pavimentazione v3: gazebo con tetto a piramide (h 5,12 m), uno solo a X 25,5 fra la 2ª e la 3ª palma; torna la palma F1_04 (54 palme) | Correzioni dell'utente; dettagli in `docs/decisioni.md` |
 | 2026-11-19 | v2/v3 in UEFN: asset aggiornati copiando LOD e collisione da temporanei importati da zero (mai reimport); master emissivo per i globi; tinta cubetti (0,62; 0,58; 0,52) | Evita la finestra modale e la rotazione di Interchange; dettagli in `docs/uefn_arte.md` §12 e `docs/decisioni.md` |
 | 2026-11-20 | Blocco 2 in UEFN: barriere B2 larghe 50 e 60 unità (non 51/56), secondo device Acqua V2, traffico finto a 90 s con 21 auto fino a X 573 m | Il device Barriera accetta solo larghezze fisse; Acqua V2 max 512 m; 723 m di corsa non stanno in 60 s; dettagli in `docs/uefn_arte.md` §32 |
+| 2026-11-20 | Molo Italia in UEFN: 6 barriere (FineBlocco spostata a X 64000 con profondità 20 + striscia RadiceEst che occupa 1,28 m dell'angolo est della radice), 2 device Acqua V2 nuovi, faro lampeggiante con materiale a tempo (niente Verse) e Point Light con light function | Il device Barriera non accetta 24 unità; Acqua V2 max 512 m e nessuna sovrapposizione; Fl R 4 s richiesto senza Verse; dettagli in `docs/uefn_arte.md` §33 |
