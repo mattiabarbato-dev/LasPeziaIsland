@@ -3198,3 +3198,87 @@ Opzioni classiche (13): `SpawnCount` 1-200, `SpawnThroughWalls`, `AllowInfiniteS
 ### G. Salvataggio e validazione
 - `save_dirty_packages` 00:28 (2 OFPA degli attori + 1 oggetto esterno). **0 pacchetti sporchi.**
 - `ValidateAssets` su `LaSpezia/` + mappa: **622/622 validi, 0 errori, 43 avvisi** (gli stessi del §45). `EditorValidatorSubsystem` sui 2 device: VALID.
+
+## 47. Prova di combattimento (2026-11-21, TEST reversibile)
+
+Richiesta dell'utente: "Devo prima provare per capire, aggiungi un forziere con delle armi e se possibile NPC che vogliono uccidermi".
+È una **prova**: la modalità di gioco resta rimandata (CLAUDE.md §1). Niente sessioni di gioco, niente Blender, niente Verse, nessun commit.
+Tutti gli attori nuovi sono nella cartella Outliner **`Test_Combattimento`**, con etichetta `Test_*`. Attori nel livello 381 → **389**.
+
+### A. Zona: primo braccio del Molo Italia, vicino alla radice
+- Spawn del giocatore (invariato): `Player 1/2 Spawn Pad` a (24000, −8250/−8650, 0), PlayerStart yaw 180.
+- **Zona scelta:** strada del primo braccio del Molo Italia, X 55800..57100 · Y 500..10000 (UE), suolo **`Arte_B3_Suolo`** (`SM_MoloItalia_Suolo`,
+  attore singolo `FortStaticMeshComponent`, Query Only `FortStaticMesh`, **`CanEverAffectNavigation = true`**), quota Z 0 (marciapiede ovest Z 12).
+  Corridoio sgombro largo ~13 m e lungo ~95 m: ai lati solo lampioni e panchine (X ~55600) e bitte (X 57142); prima dei "diti" (Y 11143) e del battello.
+  Un'auto con collisione a (56094, 437), all'imbocco.
+- **Scartate:** Mirabello (piazzale 30 × 50 m già occupato da pianerottolo, 25 auto con collisione, lampioni e panchine; ~500 m dallo spawn passando
+  dal ponte) e la testata del Molo Italia (~740 m dallo spawn).
+- **Distanza a piedi** dallo spawn: ~340 m (camminamento verso +X fino a X ~56000, poi a destra, verso il mare, sul molo). Probabilmente oltre il minuto:
+  per questo c'è un **teletrasporto** a 14 m dallo spawn (sotto).
+- Navigazione: in editor non c'è navmesh (si genera in gioco), quindi non è verificabile da qui; il suolo della zona è un attore singolo con il flag
+  attivo, a differenza dei 133 HISM del §46.E (non toccati).
+
+### B. Attori (`Test_Combattimento`)
+| Etichetta | Dispositivo / classe | Posizione UE | Yaw |
+|---|---|---|---|
+| `Test_Teletrasporto_Spawn` | Teletrasporto (`PID_Device_Teleporter`), gruppo **T** → destinazione **U**, collegato al bersaglio SÌ, orienta il giocatore SÌ, posizione relativa NO | (24040, −9610, 15), fascia palme fra le palme X 23640/24440 | 180 |
+| `Test_Teletrasporto_Molo` | Teletrasporto, gruppo **U** → **T** (andata e ritorno), stesse opzioni | (56450, 500, 0) | 90 (verso il molo) |
+| `Test_Forziere` | `Tiered_Chest_Athena_C` (forziere classico, bottino casuale delle tabelle di Fortnite) | (56250, 1850, 0) | 90 |
+| `Test_Arma_FucileAssalto` | Generatore oggetti (`PID_Device_ItemSpawner` creato da `PlaceDevice` con `WID_Assault_Auto_Athena_R_Ore_T03`, raro) | (56450, 1550, 0) | 90 |
+| `Test_Arma_FucilePompa` | Generatore oggetti, `WID_Shotgun_Standard_Athena_UC_Ore_T03` (pompa, non comune) | (56450, 1850, 0) | 90 |
+| `Test_Arma_Pistola` | Generatore oggetti, `WID_Pistol_SemiAuto_Athena_R_Ore_T03` (rara) | (56450, 2150, 0) | 90 |
+| `Test_Cura_Medikit` | Generatore oggetti, `Athena_Medkit` | (56450, 2450, 0) | 90 |
+| `Test_Nemici_Guardie` | Generatore di guardie (`PID_Device_GuardSpawner_V2`) | (56450, 8000, 0), 61 m dal forziere | −90 |
+
+- Generatori di armi: prima comparsa **0 s**, rigenerazione 15 s dopo la raccolta, munizioni di riserva **240** (fucile d'assalto),
+  **60** (pompa), **120** (pistola); base visibile. Il medikit ha prima comparsa 0 s.
+- Il **forziere non permette di scegliere le armi** (bottino casuale): per questo ci sono accanto i 4 generatori con le armi scelte.
+- **Guardie:** tipo **OMBRE** (Shadow), 4 attive alla volta, **generazioni infinite** (una guardia nuova ogni 5 s finché ce ne sono meno di 4: è il
+  riposizionamento dopo la morte), abilitato all'avvio della partita, raggio di generazione 6 m (non nel punto del device), non attraverso i muri,
+  pattuglia entro 8 m, squadra **"Animali selvatici e creature"** (ostile ai giocatori), salute 100, scudo 0, precisione MODERATA,
+  raggio visivo 40 m (solo se ignare), barra della salute visibile, lasciano l'inventario all'eliminazione.
+  **L'arma delle guardie non è un'opzione**: dipende dal tipo (Ombre); da verificare in sessione che sparino.
+- `PlaceDevice` e lo yaw (§46): rispettato dai generatori di oggetti (90); **non rispettato** dal generatore di guardie (chiesto −90, arrivato 180) né dai
+  teletrasporti (chiesti 0 e 90, arrivati 90 e −180). Corretti con `set_actor_rotation` in transazione e riletti.
+
+### C. Catalogo consultato
+- Contenitori: `PID_CP_Devices_ItemContainer_V2` ("Posizionatore oggetti": un solo oggetto, nessuna opzione per scegliere armi), `PID_Device_ItemSpawner`
+  (la lista degli oggetti non è un'opzione classica: si riempie passando a `PlaceDevice` la definizione dell'oggetto, un generatore per arma),
+  `PID_CP_Devices_ItemGranter`. Nessun device "Chest"/"Forziere"/"Treasure"; il forziere vero arriva solo dal playset **`PID_019_PG_Props_S_Loot`
+  ("Galleria forziere e munizioni")**, che piazza **17 contenitori** (forzieri normale, Oak, militare, Hero, ghiacciaia, munizioni, rifornimenti,
+  cassa del cibo, Loot Cannon…) e un `FortPlaysetRoot`. Tenuto solo `Tiered_Chest_Athena_C` (staccato dalla radice); **rimossi gli altri 16, la radice
+  del playset, il Posizionatore oggetti e un generatore oggetti vuoto**, tutti creati da questo task pochi minuti prima e mai salvati.
+  Nessun attore preesistente toccato.
+- Nemici: `PID_Device_GuardSpawner_V2` (scelto, **senza Verse**), `Creative_Device_SentryProp(_V2)` (torretta), `PID_Device_AISpawner_Character`
+  (Generatore di PNG: serve una Character Definition, §46.E), `PID_Device_WildlifeSpawner(V2)`.
+
+### D. Impostazioni dell'isola (`IslandSettings0`)
+| Opzione | Prima | Dopo |
+|---|---|---|
+| `DropAllItemsOverride` (Oggetti giocatori eliminati) | **ForceDrop** (RILASCIA) | **ForceKeep** (TIENI): alla morte si tengono le armi |
+
+Già adatte, **non modificate**: `bInvincibility` NO (danno ai giocatori attivo), `RespawnTime` 1 s, `SpawnLimit` senza override (rinascite infinite),
+`SpawnLocation` pedane di generazione (si rinasce allo spawn), `bIsPlayerTriggeredRespawnAllowed` SÌ, `Teams` tutti contro tutti,
+`AllowHealthRecharge` NO, `StartingShieldPercentage` 0, `Enabled` (inizia con il piccone) NO, `PickaxeDamagePreset` giocatori e guardie,
+**`AllowBuilding` NESSUNO (costruzione disattivata, non toccata)**.
+Per tornare indietro: `SetClassicDeviceOption(IslandSettings_0, "DropAllItemsOverride", "ForceDrop")`.
+
+### E. Come disattivare tutto
+- Più rapido (senza cancellare): `Test_Nemici_Guardie` → `EnabledAtGameStart` DISATTIVATO; 4 generatori → `Enabled At Game Start` NO;
+  2 teletrasporti → `EnabledDuringPhase` NESSUNA; forziere: nasconderlo in gioco o spostarlo sotto il suolo (non ha un'opzione di abilitazione).
+- Oppure, con conferma dell'utente, cancellare la cartella `Test_Combattimento` (8 attori) e riportare `DropAllItemsOverride` a ForceDrop.
+
+### F. Salvataggio, validazione, cattura
+- `save_dirty_packages`: 10 pacchetti (8 attori nuovi, `IslandSettings0`, 1 oggetto esterno), poi **0 pacchetti sporchi**.
+- `ValidateAssets` sulla mappa: 1/1 valido, 0 errori, 0 avvisi. `EditorValidatorSubsystem` (MANUAL) sugli 8 attori e su `IslandSettings0`: VALID.
+- Cattura `docs/qa/test_combattimento.png` (camera (56450, −1400, 700), yaw 90, pitch −14, FOV 70): imbocco del molo con l'auto, teletrasporto,
+  generatori e forziere; il generatore di guardie è in fondo (Y 8000), poco visibile.
+
+### G. Da provare in sessione (utente)
+1. Allo spawn, girarsi verso la fascia palme (lato città, ~14 m a destra guardando il ponte): entrare nel teletrasporto → si arriva sul Molo Italia
+   guardando lungo il molo. In alternativa a piedi: camminamento in direzione opposta al ponte per ~320 m, poi a destra (verso il mare) sul molo.
+2. Raccogliere fucile d'assalto, pompa, pistola, medikit (subito disponibili) e aprire il forziere.
+3. Avanzare sul molo: 4 guardie Ombre intorno a Y ~80 m (a ~60 m dalle armi). Controllare: ti vedono (≤ 40 m) e ti attaccano? Hanno un'arma e sparano?
+   Si muovono (navmesh sul suolo del molo)? Dopo un'eliminazione ne compare un'altra entro ~5 s?
+4. Morire apposta: si rinasce allo spawn in ~1 s **con le armi**; il teletrasporto riporta sul molo.
+5. Segnalare: guardie troppo forti/deboli (precisione, salute), se finiscono in acqua, cali di prestazioni.

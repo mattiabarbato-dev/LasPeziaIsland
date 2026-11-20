@@ -1096,6 +1096,14 @@ Ordine per impatto visivo:
 - [ ] (qa-tester) In sessione: accendere `NPC_Prova_00` (`VisibleDuringGame` SÌ), verificare che Standing_A si muova, provare 2-3 idle
       (StandingLeaning, SeatedCounterDrinking su una sedia del dehors), memoria del costume. Verificare se c'è navmesh sul camminamento:
       i 133 HISM hanno `CanEverAffectNavigation = false` (§46.E), rischio per i passanti.
+- [x] (uefn-builder, 2026-11-21) **Prova di combattimento, TEST reversibile** (`docs/uefn_arte.md` §47; la modalità resta rimandata).
+      Outliner `Test_Combattimento`, 8 attori `Test_*`, sul primo braccio del **Molo Italia** (suolo `Arte_B3_Suolo`, attore singolo con navigazione):
+      forziere classico (bottino casuale) + 4 generatori (fucile d'assalto raro, pompa non comune, pistola rara con munizioni di riserva, medikit),
+      Generatore di guardie (4 Ombre, infinite, ogni 5 s, squadra Animali selvatici e creature, senza Verse) a 61 m dalle armi, coppia di teletrasporti
+      spawn ↔ molo (lo spawn dista ~340 m a piedi). Isola: `DropAllItemsOverride` ForceDrop → **ForceKeep** (unico cambio). Costruzione non toccata.
+      Rimossi solo attori creati dallo stesso task (galleria di 17 forzieri del playset). 0 sporchi, validazione ok, attori 389.
+- [ ] (utente) Provare in sessione la zona di combattimento (§47.G): guardie che vedono, inseguono e sparano? navmesh sul molo? rinascita con le armi?
+      Poi decidere se tenere, regolare o spegnere/cancellare `Test_Combattimento` (§47.E) e riportare `DropAllItemsOverride` a ForceDrop.
 
 ## Fase 4 — Ottimizzazione
 - [ ] (blender-artist) Collisioni UCX_ su tutti gli asset; verifica budget triangoli
@@ -1342,3 +1350,4 @@ Ordine per impatto visivo:
 | 2026-11-20 | Molo Italia in UEFN: 6 barriere (FineBlocco spostata a X 64000 con profondità 20 + striscia RadiceEst che occupa 1,28 m dell'angolo est della radice), 2 device Acqua V2 nuovi, faro lampeggiante con materiale a tempo (niente Verse) e Point Light con light function | Il device Barriera non accetta 24 unità; Acqua V2 max 512 m e nessuna sovrapposizione; Fl R 4 s richiesto senza Verse; dettagli in `docs/uefn_arte.md` §33 |
 | 2026-11-20 | Acqua scenografica oltre il faro: 3 device Acqua V2 fuori dalle barriere (fino a X 971 m, Y 557 m); `_B3_Est` da Y 60 m, non da −1,3 m | Niente vuoto dalla testata, perimetro giocabile invariato; più a sud l'acqua allagava le basi dei blocchi del fondale del porto (Z −1,3..−2,9 m); dettagli in `docs/uefn_arte.md` §34 |
 | 2026-11-20 | Layout palme v5: passo 8 m, prima coppia a X 20,4, 136 palme; testa della fascia senza palme; gazebo a X 40,4 (OSM) | Tre fonti concordi (OSM, conteggio dell'utente, panchine OSM); decisione dell'utente sul gazebo; dettagli in `docs/decisioni.md` |
+| 2026-11-21 | Prova di combattimento (TEST) sul Molo Italia: forziere + generatori di armi, Generatore di guardie senza Verse, teletrasporti spawn ↔ molo, `DropAllItemsOverride` ForceKeep | Richiesta dell'utente per capire il combattimento; reversibile (cartella `Test_Combattimento`), la modalità resta rimandata; dettagli in `docs/uefn_arte.md` §47 |
