@@ -144,3 +144,9 @@ Pianta del parcheggio e della corsia da OSM (© OpenStreetMap contributors, ODbL
   `T_Morin_NewJersey_*` (1024, cemento con sporco al piede): procedurali, nessun ritaglio di foto.
 - Riusi: `T_Viale_Segnaletica_*` (strisce), `T_Pav_Fascia_*` (cordoli), `T_Pav_Terra_*` (aiuola), mesh e `T_Morin_Auto_*` delle auto.
 - Il confronto `docs/qa/arte_parcheggio_v1_confronto.png` contiene la cattura con UI e targhe sfocate: file di QA, non va pubblicato.
+
+### Auto generiche v2 (blender-artist, 2026-11-20) — `blender/textures/auto/`, `blender/scripts/morin_auto_v2.py`
+- `T_Morin_Auto_v2_D/N/ORM` (2048, atlante 3 × 3: modello × colore): **procedurali**, nessun pixel da foto. Dalla cattura
+  `ref/foto/vista/parcheggio_iniziale.png` solo la scelta dei colori (bianco, grigi, nero, argento, rosso, blu) e le proporzioni.
+  Nessun marchio, logo, scritta o targa: la targa è un rettangolo bianco vuoto.
+- Il confronto `docs/qa/arte_auto_v2_confronto.png` contiene la cattura con UI e targhe sfocate: file di QA, non va pubblicato.

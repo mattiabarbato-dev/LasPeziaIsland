@@ -18,8 +18,9 @@ Coordinate di progetto: X lungo la passeggiata verso NE, Y verso la città. [V] 
    - Strada di servizio in asfalto scuro e consumato, con crepe e rattoppi [F]: continua il "ramo verso il parcheggio"
      di `ref/radice_molo.md` (Y ≈ 109). Strisce pedonali bianche all'imbocco [F].
    - Auto parcheggiate in linea ai due lati [F]. Nel gioco basta qualche auto generica, senza marchi né targhe.
-   - Lato città: filare di **grandi latifoglie**, come quelle dietro i ristoranti [V-utente 2026-11-19]. Si usano
-     `SM_Albero_LatifogliaA/B`, già importati, non i pini. Lo strato OSM "Pinus pinea Y 113, X 18-85" non va seguito per la specie.
+   - Lato città: filare di **pini domestici** (Pinus pinea), chioma a ombrello e tronco inclinato, come in foto e in OSM
+     (Y 113, X 18-85). Deciso dall'utente il 2026-11-20, che corregge l'indicazione "latifoglie" del 2026-11-19.
+     Si usa `SM_Morin_PinoDomestico`, già importato.
    - Lato mare: cordolo in pietra chiara, poi la passeggiata [F].
    - Arredi: cartelli blu "P" e divieto di sosta su palo [F], new jersey in cemento sulla banchina [F],
      lampione con **due globi affiancati su bracci ricurvi** [F]. È un modello diverso da `SM_Molo_Lampione2Globi`,

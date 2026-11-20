@@ -135,7 +135,18 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      Trace X 20-95 m / Y 100-118 m: asfalto +2, aiuola alberi +14, nessun buco, nessun blockout sopra, salti max 16 cm. Validazione 310/310,
      0 errori, 12 avvisi (11 noti + "un solo LOD" sul Fondale_v4). Render `docs/qa/uefn_parcheggio_v1.png` (camera `CAM_Park_F1`).
    - [ ] (orchestratore/utente) Problemi del parcheggio v1 (§19): fila a pettine (Y ~119) dentro `Barriera_LatoCitta` (Y 118,0-120,6);
-     `NewJersey_00` (6200, −8060) sopra la bitta 3 (6200, −8052,7).
+     `NewJersey_00` (6200, −8060) sopra la bitta 3 (6200, −8052,7) — **corretto nel CSV v2** (X 6070), resta la fila a pettine.
+   - [x] (blender-artist, 2026-11-20) **Auto v2 + parcheggio CSV v2 + viale CSV v3**: script `blender/scripts/morin_auto_v2.py`
+     (in `blender/arte_parcheggio.blend`, collezione `AUTO_v2_Kit`; backup `arte_parcheggio_pre_auto_v2.blend`), texture
+     `blender/textures/auto/T_Morin_Auto_v2_D/N/ORM` (2048, atlante 3 × 3 modello × colore), materiale `M_Morin_Auto_v2`.
+     54 FBX in `exports/auto/`: `SM_Morin_Auto_{A,B,C}_v2_<Colore>` e `SM_Morin_Auto_{A,B,C}_Col_v2_<Colore>` (+ `_LOD1/_LOD2`; i `_Col`
+     LOD0 con 2 UCX box scocca + abitacolo). Colori: A Bianco/Rosso/Azzurro, B GrigioScuro/Argento/Arancio, C Nero/BluScuro/BiancoPerla.
+     Tri LOD0/1/2: A 1.804/812/260 (3,95 × 1,74 × 1,50 m, 2,12 con specchietti), B 1.844/840/260 (4,35 × 1,82 × 1,64),
+     C 1.844/840/276 (4,45 × 1,78 × 1,47). CSV: `exports/parcheggio/parcheggio_posizioni_v2.csv` (colonne in più `pitch,roll`;
+     auto v2 `_Col`, 7 pini domestici al posto delle 6 latifoglie, `NewJersey_00` a X 6070) e `exports/viale/viale_posizioni_v3.csv`
+     (posizioni della v2, auto v2). Confronto `docs/qa/arte_auto_v2_confronto.png`. Decisioni in `docs/decisioni.md` (2026-11-20).
+   - [ ] (uefn-builder) Import `exports/auto/` (18 mesh × 3 LOD, 1 texture set) e ripopolamento da `parcheggio_posizioni_v2.csv`
+     (pitch dei pini!) e `viale_posizioni_v3.csv`; nascondere (non cancellare) HISM auto v1 e latifoglie del parcheggio.
    - [ ] (utente/geo-scout) Verificare [S] del parcheggio: larghezza corsia (6,25), seconda fila a pettine dietro gli alberi, senso unico,
      posizione dei cartelli e dei new jersey, lampione a due globi affiancati (non modellato).
    - [ ] (utente/geo-scout) Verificare [S]: sezione del viale (sosta lato giardini, spartitraffico, sosta lato città, strisce bianche o blu),
