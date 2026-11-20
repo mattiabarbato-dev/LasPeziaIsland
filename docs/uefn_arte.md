@@ -2992,3 +2992,54 @@ Slot `M_Morin_Imbarco_Legno` (passerella v2, pontiletti) → MI esistente `Arte/
 - **(blender-artist / utente)** Lavagna e cavalletto della pescheria dentro la corsia (X 5,1 e 5,7 m): spostarli a X ≤ 4,2 m nel CSV o confermarli.
 - **(qa-tester)** In sessione: salita sul traghetto (fessura 50 cm + gradino 39 cm), cancello della biglietteria, pontiletti (gradino 35 cm),
   insegne a distanza (z-fighting), barche senza collisione.
+
+## 44. Portale della marina v2, fioriera v2, lavagna e cavalletto fuori corsia (2026-11-20, ~22:40-22:52 ora locale)
+
+Sorgenti: `exports/marina/SM_Morin_Marina_Portale_v2{,_LOD1,_LOD2}.fbx`, `exports/dettagli/SM_Molo_FiorieraAntracite_v2{,_LOD1,_LOD2}.fbx`,
+`exports/dettagli/dettagli_posizioni_v2.csv`. Nessuna sessione di gioco, nessuna cancellazione, nessun commit. Le v1 restano nel content browser.
+
+### A. Import (metodo §13/§43)
+- LOD0 col nome finale (`StaticMeshToolset.ImportFile` chiamato **direttamente dal server MCP**, materiali/texture off, combine on); LOD1/2 come
+  `_Temp/TMPV2_SM_Morin_Marina_Portale_v2_LOD1/2` e `_Temp/TMPV2_SM_Molo_FiorieraAntracite_v2_LOD1/2`.
+  **Insidia:** `ImportFile` lanciato da `execute_python` via `toolset_registry` ha fatto cadere la connessione (ECONNRESET) senza importare nulla;
+  chiamato come tool MCP diretto funziona.
+- `remove_lods` + `set_lod_from_static_mesh(dest, i, tmp, 0, True)`; dopo, le sezioni dei LOD1/2 puntavano tutte allo slot 0: **rimappate per nome di
+  slot** con `set_lod_material_slot` (sezioni con `StaticMesh.get_num_sections(lod)`). Nanite off, Use Simple Collision As Complex,
+  soglie 1,0/0,2/0,08, MinLOD Low/Medium 2 (temporanei: 1 LOD, MinLOD 0, nessuna MI). Materiali con `StaticMesh.set_material(indice, MI)`.
+
+| Asset | Tri LOD0/1/2 | Bbox locale (uu) | Convessi | Slot → MI |
+|---|---|---|---|---|
+| `SM_Morin_Marina_Portale_v2` (Arte/Marina) | 1.542 / 671 / 230 | X −175..155 · Y −20..162 · Z 0..300 (= v1) | 9 | `MI_Morin_Marina_Ingresso`, `MI_Morin_Marina_LamieraBlu` |
+| `SM_Molo_FiorieraAntracite_v2` (Arte/Dettagli) | 936 / 430 / 174 | X ±62 · Y ±38,5 · Z 0..142 (LOD2 0..141) | 2 | `MI_Molo_Dettagli`, `MI_Molo_Arbusto`, `MI_Molo_Arbusto_Card` (masked, two-sided: verificato sul master) |
+
+### B. Posa (nessun override di materiale)
+- `Arte_Marina_Portale`: mesh → v2, posa invariata (15100, −8120, 0), yaw 0.
+- `Arte_Dettagli_Fioriere` (HISM): mesh → v2; 16 istanze confrontate con le 16 righe del CSV v2: scarto 0 cm / 0°.
+- `Arte_Dettagli_Lavagna_00` (570, −9280, yaw −55) → **(375, −9070, 1), yaw 0**: bounds X 352..398 · Y −9098..−9042.
+- `Arte_Dettagli_Cavalletto_RistoLischeria` (510, −10040, yaw −45) → **(330, −9860, 1), yaw 0**: bounds X 307..353 · Y −9891..−9829.
+  Box trace sulle impronte (da 4 cm sopra il suolo): nessuna sovrapposizione con fioriere o altro.
+
+### C. Verifiche (canale Visibility, in editor)
+- **Portale:** capsula r 34 / hh 88 lungo Y −8300 → −7950, X 14950-15250 ogni 1 cm, a Z 93/95/120: centri liberi **X 15049-15151**, contigui
+  → **luce 1,70 m** (come il test di Blender). Fuori da quella fascia la capsula tocca le ante aperte (Y ≈ −8142..−8169).
+- Percorso a X 15060/15100/15140 da Y −8400 a −7480: camminamento Z 0 → banchina −0,5 → passerella Spina +2 → pontile −45, **gradino max 2,5 cm**,
+  capsula a Z 95 continua da −8300 a −7700 libera; architrave del portale sopra Z 300 (nessun ostacolo per la testa).
+- **Corsia X 4,2-9,55 m, Y 62-108 m:** 2.310 line trace (Y ogni 20 cm, Z 15/60/100/150/190, nei due versi X 420↔955): colpiti solo
+  `Arte_Molo_PalmaVaso` (X 746-854, Y −6740..−6660, nota §42) e `Arte_Pav_AngoloMolo` esattamente a X 955 a Z 15 (cordolo al bordo della corsia).
+  Capsule lungo Y a X 455/500/600/700/800/900/920 (Z 95): libere tranne X 800 (palma in vaso). Suolo Z 1 (strada v2, masselli). **Nient'altro.**
+
+### D. Catture (`docs/qa/`, 1024 px, ombre, `r.Streaming.FullyLoadUsedTextures 1`, doppio render con 8 s di attesa)
+- `uefn_marina_portale_v2.png`: M2 (15100, −8400, 200), yaw 90, FOV 85: entrambe le ante aperte, passerella e pontile visibili nel varco.
+- `uefn_dehors_v2.png`: stessa camera di `uefn_dehors.png` (950, −10500, 250; pitch −4,7; yaw 143,9; FOV 90): fioriere a siepe, lavagna in fila con le fioriere.
+
+### E. Salvataggio, validazione, log
+- `save_dirty_packages` 22:51:10: 6 mesh (2 finali + 4 temporanei) e 4 OFPA (portale, fioriere, lavagna, cavalletto); date su disco 22:51:10.
+  **0 pacchetti sporchi.**
+- Validazione `LaSpezia/`: **618/618 validi, 0 errori, 43 avvisi** = 40 di prima + 3 "un solo LOD" sui temporanei (il LOD2 della fioriera, 174 tri,
+  non è segnalato).
+- Log 22:40-22:52: nessun errore, nessun `no miplevels`, nessun `LogMaterial`, nessun ensure; solo avvisi `LogEOSSDK`/`LogHttp` di rete.
+- Attori nel livello: 375 (invariati). Memoria: nessun cook (nessuna sessione): rileggere dopo la prossima sessione.
+
+### F. Temporanei e problemi aperti
+- 4 temporanei nuovi `LaSpezia/_Temp/TMPV2_*` (nessun referencer), eliminabili con conferma dell'utente (si aggiungono ai 52 del §43).
+- **(qa-tester)** In sessione: passaggio dal portale (1,70 m), dehors con lavagna e cavalletto spostati, aspetto delle card della fioriera a distanza (LOD1/2).
