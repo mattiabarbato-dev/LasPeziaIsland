@@ -273,3 +273,14 @@ scaricate in `blender/textures/src/<asset>/`:
   `T_Morin_Auto_v3`, `T_Morin_MacroVar`.
 - Foto dell'utente (`ref/foto/pavimentazione/*`, `ref/foto/ponte/*`, `ref/foto/arredi/giardini.webp`) usate **solo per tarare colore e scala**:
   nessun pixel copiato, nessuna texture [SV].
+
+## Marina del Blocco 1 (2026-11-20)
+- `T_Morin_Marina_D/N/ORM` (2048), `blender/textures/marina/` (`blender/scripts/morin_marina.py`): **interamente procedurale** (tinte con
+  rumore, doghe, teak, cuscini, finestre). Nessuna foto copiata; le foto `ref/foto/vista/*` e `ref/foto/ponte/*` solo come riferimento di colori
+  e proporzioni. Testi rasterizzati col font incorporato in Blender. Nomi inventati (nessun marchio, nessuna barca reale): circolo
+  "CIRCOLO NAUTICO VENTO CONTRARIO" (sostituisce il nome reale dell'impianto), barche "SGABEO", "BOLLICINA", "MUGUGNO", "MESCIUA",
+  "ZIA PINA", "MUSCOLO FELICE", "FOCACCINA", "NON CI PENSO", "ACCIUGA RAZZO", "CALMA PIATTA", "SCIROCCO PIGRO", "PESTO E VELA";
+  striscione generico "SCUOLA VELA".
+- Geometria dei pontili e posizioni: OSM (© OpenStreetMap contributors, ODbL), ways in `ref/marina_blocco1.md` §2.
+- `SM_Morin_Marina_Pontile12`, `_PontileLargo`, `_Passerella`, `SM_Mirabello_Pontile_Col`: riusano le texture già elencate di
+  `M_Morin_Imbarco` / `M_Morin_Imbarco_Legno` (procedurali).

@@ -750,14 +750,28 @@ Ordine per impatto visivo:
             CSV `exports/marina/marina_pontili_v1.csv` (73 righe: 22 `SM_Mirabello_Pontile`, 46 `SM_Morin_Marina_Pontile12`,
             3 passerelle, pontile largo, circolo) e `exports/marina/marina_barche_v1.csv` (475 barche: 159 motoscafi, 103 gozzi,
             70 gommoni, 70 vele 9 m, 40 `YachtB_v2`, 33 `YachtA`). Generatore `exports/marina/gen_marina_v1.py`.
-      - [ ] (utente) Collisione dei pontili della marina: a Mirabello niente collisione, qui i pontili partono dal ciglio e si raggiungono
-            a piedi. Dare UCX ai moduli o lasciarli senza (si cade in acqua)?
-      - [ ] (blender-artist) Asset nuovi (§6 della scheda): `SM_Morin_Barca_Gommone`, `_Gozzo`, `_Motoscafo`, `_Vela9` con varianti di colore;
-            `SM_Morin_Marina_Pontile12`, `_PontileLargo`, `_Passerella`, `_Circolo` (+ `_Colonnina` opzionale). 2 LOD, origine al
-            galleggiamento, +X prua.
-      - [ ] (uefn-builder) Posa da CSV: un HISM per asset e variante, barche e pontili No Collision salvo decisione dell'utente;
-            nel frattempo si può posare la parte con asset esistenti (`SM_Mirabello_Pontile`, anche in scala X 0,25 al posto di
-            `Pontile12`; `YachtA`, `YachtB_v2`). Controllare z delle barche (−103) e memoria dopo l'import.
+      - [x] (utente, 2026-11-20) Pontili e passerelle calpestabili con UCX semplici; barche senza collisione (scenografia).
+      - [x] (blender-artist, 2026-11-20) **Asset della marina v1** (`blender/arte_marina.blend`, `blender/scripts/morin_marina.py`,
+            atlante unico `blender/textures/marina/T_Morin_Marina_D/N/ORM` 2048, materiale `M_Morin_Marina`). 68 FBX in `exports/marina/`:
+            barche (LOD0/1/2, nessun UCX, origine al galleggiamento, +X prua, 3 varianti = stessa geometria con UV spostate nell'atlante,
+            nomi scherzosi sullo specchio/murata): `SM_Morin_Barca_Gommone_{Grigio,Nero,Rosso}[_Prua]` 980/488/222 tri, 5,86 × 2,20 × 1,62 m;
+            `_Gozzo_{FasciaAzzurra,FasciaVerde,Legno}[_Prua]` 718/454/200, 6,44 × 2,29 × 2,22; `_Motoscafo_{TelaBlu,TelaBeige,Blu}`
+            1134/660/272, 8,31 × 2,70 × 2,59; `_Vela9_{CoprirandaBlu,CoprirandaGrigio,Blu}` 974/488/192, 9,43 × 3,00 × 13,40 (misure con
+            le cime d'ormeggio). `_Prua` = cime verso prua (ormeggio di prua). Pontili (con UCX): `SM_Morin_Marina_Pontile12` 246/98/58
+            (12 × 3,01 × 0,67, 1 UCX), `_Passerella` 204/188/92 (4,3 × 2,8 × 1,62, rampa nella mesh, 3 UCX: rampa + 2 corrimano),
+            `_Colonnina` 66/58/46 (0,32 × 0,29 × 1,16, 1 UCX), `SM_Mirabello_Pontile_Col` 248/248/48 (48 × 2,96 × 1,55, UCX calpestio +
+            5 colonnine), `_PontileLargo` 998 (34,7 × 5 × 2,58, 1 UCX), `_Circolo` 862 (17 × 14,5 × 9,2, "CIRCOLO NAUTICO VENTO
+            CONTRARIO", 5 UCX). Bbox LOD1/2 entro l'1 % del LOD0; ray test normali dall'esterno ok (solo colpi radenti isolati).
+            CSV v2: `exports/marina/marina_pontili_v2.csv` (101 righe: 22 `Pontile_Col`, 46 `Pontile12`, 28 colonnine, 3 passerelle
+            pitch 0, largo, circolo) e `marina_barche_v2.csv` (544 barche: 194 motoscafi, 111 gozzi, 82 gommoni, 74 Vela9, 45 `YachtB_v2`,
+            38 `YachtA`; 57 di prua). Verifiche: distanza minima barca-pontile 0,40 m, barca-barca 0,32 m, verso +X corretto 544/544,
+            0 barche nelle zone libere (battello, scalette, circolo, rotte). Catture `docs/qa/arte_marina_v1_*.png`.
+      - [ ] (uefn-builder) **Import e posa della marina v1**: importare i 68 FBX di `exports/marina/` (LOD0 con UCX, LOD1/LOD2 con `import_lod`;
+            i FBX incorporano l'atlante: importare `T_Morin_Marina_*` una volta sola e ricollegare `M_Morin_Marina`, D sRGB, N Normalmap,
+            ORM Masks). Barche: **Collision = No Collision** (nessuna collisione automatica). Pontili, passerelle, colonnine, largo, circolo:
+            collisione dagli UCX. Posa da `marina_pontili_v2.csv` e `marina_barche_v2.csv` (un HISM per asset; yacht di Mirabello riusati);
+            se le barche sembrano troppo basse alzare tutto da −103 a −100. Controllare memoria dopo l'import e percorrenza a piedi
+            dal ciglio fino in fondo ai fingers.
       - [ ] (geo-scout) Dati [S] da confermare con foto (§7 della scheda): larghezze, galleggianti/fissi, verso delle barche, circolo.
 
 **Cancello 3:** nessun volume grigio visibile nel Blocco 1; il ponte è riconoscibile dalla partenza.
@@ -770,10 +784,16 @@ Ordine per impatto visivo:
       acciaio del ponte; 2048: fascia (`Tile_m` 2), blocchi, paramento, prato, scogliera, corten, New Jersey, palma, pino, chioma latifoglie, auto.
       Bianchi ≤ 0,75 sRGB, pietre grigio-calde, roughness variata e tarata (acciaio 0,32, vernice auto 0,13). Render prima/dopo dei 6 materiali
       più visibili: `docs/qa/arte_texture_v2_confronto.png` (`blender/arte_texture_v2.blend`). Nessun import in UEFN, nessun commit.
-- [ ] (uefn-builder) **Import texture v2**: PNG in `Arte/Texture_v2` (impostazioni in `docs/texture_v2.md`), ricollegare le 17 MI della tabella
-      (+ `MI_Morin_Auto_v2_Luci`), `Tile_m` 4,8 / 2,8 / 2,0 per lastre / cubetti / fascia, `Roughness_Mult` (acciaio 0,9); aggiungere `Macro_Int`
-      e `T_Morin_MacroVar` (coordinate mondo, 32 m) a `M_Morin_Master_PBR` e `M_Morin_Master_Pav` con le intensità consigliate;
-      controllare la memoria del progetto; catture agli stessi 10 punti del §35.D. Nessun reimport sulle texture v1.
+- [x] (uefn-builder, 2026-11-20) **Import texture v2**: 54 texture in `Arte/Texture_v2` (una alla volta, GetSize > 32; D sRGB senza alfa salvo
+      chioma, N Normalmap, ORM/MacroVar Masks; LODBias 0), 20 MI ricollegate (valori vecchi in `docs/uefn_arte.md` §38.A), `Tile_m` 4,8/2,8/2,0,
+      acciaio `Roughness_Mult` 0,9, `Tinta` di lastre/cubetti a bianco. `Macro_Int` (default 0) + `T_Morin_MacroVar` (mondo, 32 m) nei master PBR e
+      Pav: 213 → 225 istruzioni pixel, +1 campione. Catture `docs/qa/realismo_tex_00..09.png` (+ 3 extra) e `realismo_tex_confronto.png`.
+      0 sporchi, validazione 784/784 (57 avvisi mesh noti), stima runtime +~416 MiB di texture se tutte residenti (informativa). §38.
+      Giudizio: cubetti, fascia, cemento, scogliera, corten, asfalto migliorano; lastre ancora a scacchiera leggera e ora fredde/chiare;
+      macchie d'olio non lucide; prato meno lime ma uniforme da lontano; cubetti lilla in ombra; legno del ponte quasi invariato.
+      Ritocco `Tinta`: lastre (0,95; 0,92; 0,86), cubetti (0,97; 0,94; 0,90), catture `realismo_tex_01b/_03b`: lastre appena più calde,
+      il freddo in ombra e il lilla dei cubetti vengono dalla luce cielo (§36), non dall'albedo. §38.G.
+      Luce cielo: colore (1,0; 0,92; 0,84), intensità 0,8 → 1,0 (`realismo_tex_01c/_03c/_05c`): ombre neutro-calde, niente lilla. §36.C, §38.H.
 - [ ] (utente) Dopo l'import: giudizio sulle catture (variazione per lastra, tinta dei cubetti, verde del prato).
 
 ## Fase 4 — Ottimizzazione
