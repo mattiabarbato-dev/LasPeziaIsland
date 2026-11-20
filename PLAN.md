@@ -348,16 +348,18 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      misure [V]/[S], nomi parodia (§9), porzioni di foto per texture [SV] (§10), domande D1-D6 (§12).
    - [ ] (utente) Rispondere a D1 (traghetto a est come in foto o a ovest come ora), D2 (cartelli e numero di new jersey), D3 (righe delle
      casette 17-20 cm o 25 cm), D6 (verso dove guarda la Sirena); D4-D5 foto facoltative. Approvare i nomi parodia (§9).
-   - [ ] (blender-artist) **Dehors della fila A** (§2): 8 ombrelloni quadrati bianchi (1 da 4 × 4, 7 da 3 × 3, base 0,8 m), ~18 tavoli neri
+   - [x] (blender-artist, 2026-11-20) Dehors, cestino v2, cartelli e new jersey, Sirena, pescherecci, pontiletto: fatti in Blender e
+     esportati (`exports/dettagli/`, vedi Fase 3 "Dettagli della radice"); da importare (uefn-builder).
+   - [x] (blender-artist) **Dehors della fila A** (§2): 8 ombrelloni quadrati bianchi (1 da 4 × 4, 7 da 3 × 3, base 0,8 m), ~18 tavoli neri
      0,7 m con ~55 sedie nere, 16 fioriere antracite 1,0 × 0,45 × 0,45 m con arbusto, lavagna e cavalletto (riuso `SM_Molo_CavallettoMenu`
      con texture "RISTO LISCHERIA"); fascia X facciata → 4,2, corsia X 4,2 → 9,55 libera. Insegne parodia "DAI PESCATORI PIGRI" e
      "CONSORZIO RETI BUCATE" sugli edifici A1/A2.
-   - [ ] (blender-artist) `SM_Morin_Cestino_v2` a capsula grigio grafite 0,50 × 0,38 × 0,95 m (§3), ≤ 600 tri; stesse 9 posizioni
+   - [x] (blender-artist) `SM_Morin_Cestino_v2` a capsula grigio grafite 0,50 × 0,38 × 0,95 m (§3), ≤ 600 tri; stesse 9 posizioni
      (eventualmente `Cestino_01` a X ≈ 41,9 col layout v4).
-   - [ ] (blender-artist) Palo con cartelli pubblici (§4.2, testo vettoriale) a (19,2; 81,1) e 4 new jersey in plastica blu/bianchi
+   - [x] (blender-artist) Palo con cartelli pubblici (§4.2, testo vettoriale) a (19,2; 81,1) e 4 new jersey in plastica blu/bianchi
      1,2 × 0,45 × 0,75 m (`SM_Morin_NJPlastica`), dopo D2.
-   - [ ] (blender-artist) `SM_Molo_Sirena` stilizzata su basamento 1,40 × 1,00 × 0,75 m a (13,8; 91,9) [V OSM], h totale ~2,2 m (§5).
-   - [ ] (blender-artist) 3 pescherecci (14 m, 11 m, gozzo con tuga 8,5 m) lungo il ciglio est del molo davanti al ristorante C,
+   - [x] (blender-artist) `SM_Molo_Sirena` stilizzata su basamento 1,40 × 1,00 × 0,75 m a (13,8; 91,9) [V OSM], h totale ~2,2 m (§5).
+   - [x] (blender-artist) 3 pescherecci (14 m, 11 m, gozzo con tuga 8,5 m) lungo il ciglio est del molo davanti al ristorante C,
      X 12-14, Y 11-47 (§6.3); nomi inventati.
    - [ ] (blender-artist) **Kit imbarco v2** uguale alle foto (§7): 2 casette a capanna a righe bianco-blu, portale con insegna e schermo,
      cancello bianco con l'onda, tettoia a righe, rete; pontile ristretto a ~3 m con copertoni e bitte; battello con zattere rosse,
@@ -776,6 +778,49 @@ Ordine per impatto visivo:
             testa del pontile (Y 52-54); passerella Spina oltre l'anta aperta del portale; memoria dopo l'import.
       - [ ] (utente) confermare: righe da 18 cm (13 per facciata); anta del cancello della biglietteria aperta (passaggio 1,1 m) e anta del
             portale della marina aperta; retro dell'ufficio (finestre e porta inventate, D4).
+- [~] (blender-artist) **Dettagli della radice dalle foto nuove** 2026-11-20 (in Blender, **da importare**): dehors fila A, cestino v2, cartelli
+      d'inizio passeggiata e new jersey in plastica, Sirena, 3 pescherecci, pontiletto OSM. Scheda `ref/foto_nuove_2026-11-20.md` §2-§6.
+      Script `blender/scripts/morin_dettagli_radice.py`; .blend `blender/arte_dettagli_radice.blend` (copia di `arte_molo.blend` con le
+      collezioni `DETT_Kit` e `DETT_Contesto`). FBX in `exports/dettagli/` (19 asset × LOD0/1/2). Posa `exports/dettagli/dettagli_posizioni_v1.csv`
+      (119 righe, coordinate UE), sostituzione cestini `exports/dettagli/dettagli_cestini_sostituzione_v1.csv` (9 righe).
+      Confronti `docs/qa/arte_dettagli_{dehors,cestino,cartelli,pescherecci,sirena}.png` (render Cycles CPU: **la vista OpenGL di Blender su
+      questa macchina disegna solo strisce**, anche su file riaperto; i render Cycles sono corretti). LOD con bbox entro il 2 % (max 1,97 %),
+      ray test dall'esterno: 0 facce rovesciate sugli asset chiusi; impatti residui solo radenti (telo doppio degli ombrelloni 0,5 %, sotto la
+      chioma delle fioriere 1 %, labbro della bocca del cestino 1,2 %).
+      | Asset | Tri LOD0/1/2 | Dimensioni (m) | UCX |
+      |---|---|---|---|
+      | `SM_Molo_Ombrellone3x3` | 362 / 202 / 134 | 3,01 × 3,01 × 3,00 | 2 |
+      | `SM_Molo_Ombrellone4x4` | 362 / 202 / 134 | 4,01 × 4,01 × 3,15 | 2 |
+      | `SM_Molo_TavoloNero` | 70 / 62 / 44 | 0,70 × 0,70 × 0,75 | 3 |
+      | `SM_Molo_SediaNera` | 128 / 72 / 56 | 0,55 × 0,44 × 0,86 | 2 |
+      | `SM_Molo_FiorieraAntracite` | 280 / 156 / 72 | 1,24 × 0,77 × 1,45 (vaso 1,0 × 0,45 × 0,45) | 2 |
+      | `SM_Molo_Lavagna` | 104 / 104 / 104 | 0,45 × 0,56 × 1,06 | 1 |
+      | `SM_Molo_CavallettoPescheria` | 104 / 104 / 104 | 0,45 × 0,62 × 1,08 | 1 |
+      | `SM_Molo_Insegna_PescatoriPigri` | 100 / 68 / 52 | 1,00 × 0,04 × 1,20 | 1 |
+      | `SM_Molo_Insegna_RetiBucate` | 12 / 12 / 12 | 1,30 × 0,03 × 0,38 | 1 |
+      | `SM_Morin_Cestino_v2` | 534 / 298 / 172 | 0,50 × 0,41 × 0,95 | 2 |
+      | `SM_Morin_PaloCartelli` | 126 / 102 / 66 | 1,23 × 0,08 × 3,23 | 2 |
+      | `SM_Morin_NJPlastica_Blu` / `_Bianca` | 86 / 86 / 54 | 1,20 × 0,45 × 0,75 | 2 |
+      | `SM_Molo_Sirena` | 914 / 612 / 376 | 1,40 × 1,01 × 2,10 (+0,15 di posa) | 3 |
+      | `SM_Molo_Peschereccio14` | 1.665 / 1.115 / 519 | 14,0 × 4,85 × 6,92 | 0 (barca) |
+      | `SM_Molo_Peschereccio11` | 1.561 / 1.035 / 483 | 11,0 × 4,25 × 5,57 | 0 (barca) |
+      | `SM_Molo_GozzoTuga` | 1.319 / 865 / 425 | 8,5 × 3,03 × 3,60 | 0 (barca) |
+      | `SM_Molo_Pontiletto_Nord` | 308 / 212 / 96 | 2,59 × 35,2 × 2,09 (Y 0 → 35) | 1 |
+      | `SM_Molo_Pontiletto_Sud` | 564 / 372 / 152 | 3,56 × 78,0 × 2,09 (Y −77,8 → 0) | 1 |
+      Texture `blender/textures/dettagli/`: atlante `T_Molo_Dettagli` 2048 (pannelli vettoriali + porzioni [SV]), `T_Molo_Arbusto` 1024 (opaca,
+      [SV] da R2), `T_Molo_Arbusto_Card` 512 con alfa; legno del pontiletto = `M_Morin_Imbarco_Legno` esistente.
+      - [ ] (uefn-builder) Import in `LaSpezia/Arte/Dettagli` (LOD0 con UCX, LOD1/2 come LOD, metodo §12 di `docs/uefn_arte.md`); posa da
+            `dettagli_posizioni_v1.csv` (asset ripetuti come HISM: 53 sedie, 18 tavoli, 16 fioriere, 8 ombrelloni, 9 cestini). Materiali:
+            `M_Molo_Arbusto_Card` **masked a doppia faccia** (alfa nella D); `M_Morin_Imbarco_Legno` = MI esistente `MI_Morin_Imbarco_Legno`.
+            Pescherecci **senza collisione** (come le barche della marina). Pontiletto: due pezzi in coordinate mondo, posa (0,0,0); se il pezzo
+            Sud tocca qualcosa del ponte o della rampa, nasconderlo e segnalarlo.
+            **Nascondere, non cancellare:** i 9 cestini `Cestino_00..08` (`SM_Morin_Cestino`, CSV di sostituzione). Controllare che nella fascia
+            X 0-4,2 / Y 62-108 (dehors) e attorno a (13,8; 91,9) (Sirena) e (16-22; 78-81,5) (cartelli e new jersey) non ci siano altri arredi
+            (nei CSV esportati non ne risultano). Le due insegne si sovrappongono alle facciate di `SM_Molo_Edificio_A1A2` (scudo generico e
+            pannello liscio dell'atlante facciate restano sotto, coperti): verificare in gioco che non ci sia z-fighting.
+            Line trace: corsia X 4,2-9,55 libera fra Y 62 e 108; salita sul pontiletto dal molo (gradino 0,35 m); memoria dopo l'import.
+      - [ ] (utente) confermare [S]: orientamento della Sirena (guarda la strada, −X), verso dei cartelli (rivolti al molo, az ≈ 300°),
+            posizione delle 4 new jersey (D2), pontiletto calpestabile a Z −0,35 largo 1,8 m lungo tutto il ciglio OSM.
 - [~] (blender-artist) Pini, oleandri, aiuole della fascia verde (2026-11-19: oleandri ad alberello e panchina lunga fatti, vedi Giardini a Mare v1; pino domestico nel kit molo)
 - [x] (geo-scout) Scheda del fondale `ref/fondale.md` + dati `ref/dem/` (2026-11-19): Copernicus DEM GLO-30 (licenza verificata),
       griglia locale 30 m ±10 km, profili d'orizzonte da 4 punti, cime OSM, copertura CORINE per azimut, edifici OSM entro 1,2 km,

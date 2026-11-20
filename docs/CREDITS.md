@@ -325,3 +325,23 @@ niente UI, filigrane "© Google", persone, targhe, loghi o nomi reali di privati
   **"Porto Turistico Vento Contrario"** al posto dei nomi reali dell'associazione e del porto; "PORTO TURISTICO" e il cartello generico di
   videosorveglianza tenuti. La foto d'epoca del pannello (con persone) è sostituita da un'immagine d'epoca **inventata** (banchina, faro, veliero).
 - Posizioni: OSM (© OpenStreetMap contributors, ODbL) e `ref/foto_nuove_2026-11-20.md`.
+
+## Dettagli della radice dalle foto nuove (2026-11-20) — `blender/scripts/morin_dettagli_radice.py`
+Foto sorgente (deroga CLAUDE.md §5): **R2** `ref/foto/vista/ristoranti_visti_da_di_fronte_2.png` (cattura Street View), **K** `ref/foto/arredi/cestino.png`,
+**G** `ref/foto/arredi/cartelli_inizio_passegiata.png`, **S** `ref/foto/arredi/scultura_donna_con_pinne_su_sedia.png`. Nessuna geometria Google;
+nelle texture niente UI (l'icona arancione di R2 è esclusa), filigrane, persone, targhe, loghi o nomi reali di privati. Marca **[SV]**: l'utente
+le ricontrolla prima della pubblicazione.
+- **[SV]** `blender/textures/dettagli/T_Molo_Dettagli_D/N/ORM` (atlante 2048), porzioni di foto: fascia in rilievo del cestino con lo stemma
+  comunale (K x 62-96, y 52-176, stemma pubblico); fronte e fianco del basamento della Sirena (S, raddrizzati: fronte (182,318)-(363,286)-(363,348)-(182,406),
+  fianco (107,286)-(178,318)-(178,404)-(108,372)); fianco della fioriera (R2 x 578-648, y 318-346, tinta portata ad antracite #222B35);
+  grana della plastica delle new jersey (G x 22-98, y 232-290, solo passa-alto; tinta blu ricostruita).
+- Pannelli dello stesso atlante ridisegnati in vettoriale (font di sistema Arial, Georgia, Segoe Script/Print): cavalletto **"RISTO LISCHERIA"**
+  (parodia), scudo **"dai pescatori PIGRI"** col polpo che dorme sull'amaca (parodia), pannello **"CONSORZIO RETI BUCATE — Sapori di Mare e di
+  Tèra"** (parodia), lavagna con menù inventato, targhe pubbliche "banchina G. Thaon di Revel", "banchina Costantino Morin", avviso
+  "ATTENZIONE — I bambini devono essere accompagnati per mano lungo la banchina" (testi pubblici, ricomposti), targhetta gialla illeggibile,
+  targa "La Sirena del Golfo dei Poeti — Aidyn Zeinalov" (opera pubblica), nomi inventati dei pescherecci "MUGUGNO II", "ACCIUGA FELICE",
+  "NON CE N'È" e sigla finta "SP 0000". Telo degli ombrelloni procedurale (in R2 è bianco saturato).
+- **[SV]** `T_Molo_Arbusto_D/N/ORM` (1024, ripetibile 0,5 m): massa degli arbusti dalle fioriere di R2 (x 500-780, y 222-318), de-light e schiarita;
+  `T_Molo_Arbusto_Card` (512, alfa procedurale a foglie ovali, colori dalla stessa porzione) **[SV]**.
+- "La Sirena del Golfo dei Poeti" di Aidyn Zeinalov (opera pubblica, OSM node 9592234744): forma **ricreata stilizzata** come elemento urbano,
+  nessuna texture presa dalla statua. Posizioni da OSM (© OpenStreetMap contributors, ODbL) e `ref/foto_nuove_2026-11-20.md`.
