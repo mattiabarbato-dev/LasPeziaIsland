@@ -30,6 +30,9 @@ Esegui dentro blender/arte_incrocio.blend:
     mi.write_all_csv(); mi.build_context()
     mi.export_all()
     mi.cameras(); mi.render_confronti()
+Correzioni post-UEFN (2026-11-20): mi.build_fix_v2(); mi.export_fix_v2(); mi.parcheggio_csv_v4()
+  -> SM_Viale_Incrocio_Marciapiede_v2 (UCX convesso fino a Y 120,85), SM_Parcheggio_Asfalto_v3 (UCX fino a Y 120,85),
+     SM_Molo_DehorsVetrato_v2 (slot M_Molo_Vetro), parcheggio_posizioni_v4.csv (Pino_04 meno inclinato, lungo l'aiuola).
 """
 import csv
 import math
@@ -274,7 +277,29 @@ def build_materials():
     pk._pbr_material(MAT_FIORI, t + "T_Viale_Fiori_D.png", t + "T_Viale_Fiori_N.png", t + "T_Viale_Fiori_ORM.png", alpha=True)
     pk._pbr_material(MAT_EDI, t + "T_Fondale_EdificioVetrate_D.png", t + "T_Fondale_EdificioVetrate_N.png",
                      t + "T_Fondale_EdificioVetrate_ORM.png")
+    build_mat_vetro()
     return True
+
+
+MAT_VETRO = "M_Molo_Vetro"
+
+
+def build_mat_vetro():
+    """Vetro del dehors: niente texture, tinta verde-grigia chiara, alpha 0,25. In UEFN va sostituito da un materiale
+    Translucent (o Masked con dithering) a parte; lo slot esiste solo per questo."""
+    m = bpy.data.materials.get(MAT_VETRO) or bpy.data.materials.new(MAT_VETRO)
+    m.use_nodes = True
+    bsdf = next(n for n in m.node_tree.nodes if n.type == "BSDF_PRINCIPLED")
+    bsdf.inputs["Base Color"].default_value = (0.78, 0.84, 0.84, 1.0)
+    bsdf.inputs["Roughness"].default_value = 0.05
+    bsdf.inputs["Metallic"].default_value = 0.0
+    bsdf.inputs["Alpha"].default_value = 0.25
+    try:
+        m.surface_render_method = "BLENDED"
+    except (AttributeError, TypeError):
+        pass
+    m.diffuse_color = (0.78, 0.84, 0.84, 0.25)
+    return m
 
 
 # =============================================================================================================
@@ -748,7 +773,14 @@ def build_marciapiede(coll, name="SM_Viale_Incrocio_Marciapiede"):
         if abs(f.normal.z) > 0.5 and f.normal.z < 0:
             f.normal_flip()
     o = pk._finish(name, B.bm, ["M_Molo_Masselli_Grigio", "M_Pav_Fascia", "M_Viale_Segnaletica"], coll, uv=None)
-    _ucx_boxes(name, [(x0, x1, y0 - 0.2, y1 - R, -0.30, zf), (x0 + R, x1, y1 - R, y1, -0.30, zf)], coll)
+    if name.endswith("_v2"):
+        # v2 (2026-11-20, fix UEFN): un solo convesso sulla pianta pentagonale completa (smusso compreso) fino a
+        # Y 120,85; la v1 (due box) in UEFN copriva solo fino a Y ~119,65
+        _ucx_boxes(name, [], coll)
+        foot = [(x0, y0 - 0.2), (x1, y0 - 0.2), (x1, y1), (x0 + R, y1), (x0, y1 - R)]
+        pk._ucx_hull(name, 0, [(x, y, z) for x, y in foot for z in (-0.30, zf)], coll)
+    else:
+        _ucx_boxes(name, [(x0, x1, y0 - 0.2, y1 - R, -0.30, zf), (x0 + R, x1, y1 - R, y1, -0.30, zf)], coll)
     return o
 
 
@@ -787,6 +819,10 @@ def build_dehors(coll, lod=0, name="SM_Molo_DehorsVetrato"):
     x0, x1, y0, y1 = B_DEHORS
     H = 2.75
     B = Builder()
+    # v2 (2026-11-20): vetro in uno slot separato M_Molo_Vetro (traslucido/masked in UEFN), tavoli interni anche nel
+    # LOD2 e quattro sedie per tavolo interno (dalla foto si vedono i tavoli dentro)
+    v2 = name.endswith("_v2")
+    gmi = 1 if v2 else 0
     s = 0.04
     # montanti
     nx = max(2, int(round((x1 - x0) / 1.45)))
@@ -806,7 +842,9 @@ def build_dehors(coll, lod=0, name="SM_Molo_DehorsVetrato"):
     def glass(p, q):
         for a, b in ((p, q), (q, p)):
             pts = [(a[0], a[1], 0.25), (b[0], b[1], 0.25), (b[0], b[1], H - 0.05), (a[0], a[1], H - 0.05)]
-            B.poly(pts, [cell_uv("vetro", 0, 0), cell_uv("vetro", 1, 0), cell_uv("vetro", 1, 1), cell_uv("vetro", 0, 1)])
+            uvs = ([(0, 0), (1, 0), (1, 1), (0, 1)] if v2 else
+                   [cell_uv("vetro", 0, 0), cell_uv("vetro", 1, 0), cell_uv("vetro", 1, 1), cell_uv("vetro", 0, 1)])
+            B.poly(pts, uvs, mi=gmi)
     glass((x0, y0), (x1, y0)); glass((x1, y0), (x1, y1)); glass((x1, y1), (x0, y1)); glass((x0, y1), (x0, y0))
     # tetto e tettoia sporgente (mantovana)
     ov = 0.6
@@ -826,11 +864,11 @@ def build_dehors(coll, lod=0, name="SM_Molo_DehorsVetrato"):
                 L = math.dist(a, bb)
                 B.poly(pts, [cell_uv("mantovana", 0, 0), cell_uv("mantovana", 1, 0), cell_uv("mantovana", 1, 1), cell_uv("mantovana", 0, 1)])
     # tavoli e sedie
-    for (tx, ty) in DEHORS_TAVOLI_EST + (DEHORS_TAVOLI_INT if lod < 2 else []):
+    for (tx, ty) in DEHORS_TAVOLI_EST + (DEHORS_TAVOLI_INT if (lod < 2 or v2) else []):
         _tavolo(B, tx, ty, lod)
         if lod < 2:
             for k, (dx, dy, yaw) in enumerate(((-0.62, 0, 0), (0.62, 0, 180), (0, -0.62, 90), (0, 0.62, -90))):
-                if (tx, ty) in DEHORS_TAVOLI_INT and k > 1:
+                if (tx, ty) in DEHORS_TAVOLI_INT and k > 1 and not (v2 and lod == 0):
                     continue
                 _sedia(B, tx + dx, ty + dy, yaw, lod)
     # ombrellone chiuso (palo e telo raccolto)
@@ -838,7 +876,7 @@ def build_dehors(coll, lod=0, name="SM_Molo_DehorsVetrato"):
     B.lathe([(0.03, 0.0), (0.03, 2.5), (0.0, 2.55)], (6, 5, 4)[lod], "metallo", mat=Matrix.Translation((ox, oy, 0)), cap_top=False)
     B.lathe([(0.04, 1.0), (0.16, 1.55), (0.12, 2.2), (0.04, 2.5)], (8, 6, 4)[lod], "tessuto", mat=Matrix.Translation((ox, oy, 0)))
     B.box(ox - 0.25, ox + 0.25, oy - 0.25, oy + 0.25, 0.0, 0.08, "cemento")
-    o = B.finish(name + _sfx(lod), coll)
+    o = B.finish(name + _sfx(lod), coll, mats=(MAT_PROPS, MAT_VETRO) if v2 else (MAT_PROPS,))
     if lod == 0:
         boxes = [(x0 - s, x1 + s, y0 - s, y1 + s, 0.0, H + 0.18)]
         for (tx, ty) in DEHORS_TAVOLI_EST:
@@ -931,6 +969,16 @@ def build_asfalto_v2(coll, name="SM_Parcheggio_Asfalto_v2"):
     mp._aiuola(bm, mp.AIU_X[0], mp.AIU_X[1], Y_AIU_V3[0], Y_AIU_V3[1], c=0.15)
     o = pk._finish(name, bm, mats, coll, uv="world")
     N = mp.NOTCH
+    if name.endswith("_v3"):
+        # v3 (2026-11-20, fix UEFN): UCX fino al ciglio del viale (Y 120,85) + convesso triangolare sullo smusso NE
+        _ucx_boxes(name, [(N[1], mp.X1, mp.Y_CORD1, Y_VIALE, -0.30, mp.Z_ASF),
+                          (mp.X0, N[1], mp.Y_CORD1, N[2], -0.30, mp.Z_ASF),
+                          (mp.X0, N[1], N[3], Y_VIALE, -0.30, mp.Z_ASF),
+                          (mp.X0, mp.X1, mp.Y_CORD0, mp.Y_CORD1, -0.30, mp.Z_CORD),
+                          (mp.AIU_X[0], mp.AIU_X[1], Y_AIU_V3[0], Y_AIU_V3[1], -0.30, 0.14)], coll)
+        tri = [(mp.X1, 113.5), (106.0, Y_VIALE), (mp.X1, Y_VIALE)]
+        pk._ucx_hull(name, 5, [(x, y, z) for x, y in tri for z in (-0.30, mp.Z_ASF)], coll)
+        return o
     _ucx_boxes(name, [(N[1], mp.X1, mp.Y_CORD1, 118.0, -0.30, mp.Z_ASF),
                       (mp.X0, N[1], mp.Y_CORD1, N[2], -0.30, mp.Z_ASF),
                       (mp.X0, N[1], N[3], 118.0, -0.30, mp.Z_ASF),
@@ -1117,6 +1165,58 @@ def parcheggio_csv_v3(src="exports/parcheggio/parcheggio_posizioni_v2.csv", dst=
     with open(f"{PROJ}/{dst}", "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(",".join(r) for r in [head] + out) + "\n")
     return removed, k
+
+
+PINO04_V4 = ("Parcheggio_Pino_04", -10.0, -4.0)    # (nome, yaw UE, pitch UE): inclinazione lungo l'aiuola (+X)
+
+
+def parcheggio_csv_v4(src="exports/parcheggio/parcheggio_posizioni_v3.csv", dst="exports/parcheggio/parcheggio_posizioni_v4.csv"):
+    """v3 con: asfalto -> SM_Parcheggio_Asfalto_v3 (UCX fino a Y 120,85); Pino_04 inclinato lungo l'aiuola (prima, con
+    yaw 56,5 e pitch -7, a 1,5 m il fusto sporgeva ~18 cm sullo stallo a pettine)."""
+    with open(f"{PROJ}/{src}", encoding="utf-8") as fh:
+        rows = list(csv.reader(fh))
+    for r in rows[1:]:
+        if r[1] == "Parcheggio_Asfalto":
+            r[0] = "SM_Parcheggio_Asfalto_v3"
+        elif r[1] == PINO04_V4[0]:
+            r[5], r[6] = _ue(PINO04_V4[1]), _ue(PINO04_V4[2])
+    with open(f"{PROJ}/{dst}", "w", encoding="utf-8", newline="\n") as fh:
+        fh.write("\n".join(",".join(r) for r in rows) + "\n")
+    return len(rows) - 1
+
+
+def build_fix_v2():
+    """Correzioni del 2026-11-20 dopo l'import in UEFN: marciapiede v2, asfalto v3, dehors v2 (nomi nuovi, v1 intatte)."""
+    coll = pk._coll(KIT)
+    build_mat_vetro()
+    out = {}
+    o = build_marciapiede(coll, name="SM_Viale_Incrocio_Marciapiede_v2")
+    out[o.name] = [pk.tri_count(o)]
+    o = build_asfalto_v2(coll, name="SM_Parcheggio_Asfalto_v3")
+    out[o.name] = [pk.tri_count(o)]
+    out["SM_Molo_DehorsVetrato_v2"] = []
+    for lod in (0, 1, 2):
+        o = build_dehors(coll, lod, name="SM_Molo_DehorsVetrato_v2")
+        out["SM_Molo_DehorsVetrato_v2"].append(pk.tri_count(o))
+    return out
+
+
+def export_fix_v2(overwrite=False):
+    import importlib
+    import morin_export
+    importlib.reload(morin_export)
+    reps = [morin_export.export_fbx([bpy.data.objects["SM_Viale_Incrocio_Marciapiede_v2"]],
+                                    f"{EXPDIR}/SM_Viale_Incrocio_Marciapiede_v2.fbx", mode="asset", overwrite=overwrite,
+                                    include_ucx=True, verbose=False),
+            morin_export.export_fbx([bpy.data.objects["SM_Parcheggio_Asfalto_v3"]],
+                                    f"{EXPDIR_PARK}/SM_Parcheggio_Asfalto_v3.fbx", mode="asset", overwrite=overwrite,
+                                    include_ucx=True, verbose=False)]
+    for lod in (0, 1, 2):
+        on = "SM_Molo_DehorsVetrato_v2" + _sfx(lod)
+        reps.append(morin_export.export_fbx([bpy.data.objects[on]], f"{EXPDIR}/{on}.fbx", mode="asset",
+                                            overwrite=overwrite, include_ucx=(lod == 0), bake_rotation=(lod > 0),
+                                            verbose=False))
+    return reps
 
 
 def write_all_csv():

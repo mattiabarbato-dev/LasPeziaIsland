@@ -183,9 +183,16 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      9 auto `ParkAuto_010-018` tolte, 18 a pettine aggiunte, pini e `Cartello_P_01` spostati; HISM = CSV v3 (0 mancanti/duplicati).
      **Nascosti, non cancellati:** `Arte_Molo_Tendone`, `Arte_Parcheggio_Asfalto`. Verifiche a trace, salvataggio, validazione 460/460.
      Render `docs/qa/uefn_incrocio_v1.png` (FOV 150), `uefn_parcheggio_v3.png`.
-   - [ ] (blender-artist) UCX da estendere a tutta l'impronta visibile: `SM_Viale_Incrocio_Marciapiede` (top Z 15 fino a Y −12085, collisione
-     solo fino a ~−11965 su X 975..2000) e `SM_Parcheggio_Asfalto_v2` (collisione fino a ~Y −11800 su X ≥ 2000): nella fascia raggiungibile
-     X 1700..2500, Y −11800..−12185 il suolo di collisione è il blockout a Z 0 (piedi 15 cm dentro il marciapiede). §23.
+   - [x] (blender-artist, 2026-11-20) UCX estesi a tutta l'impronta visibile, **asset nuovi** (v1/v2 intatte):
+     `exports/incrocio/SM_Viale_Incrocio_Marciapiede_v2.fbx` (27 tri, 1 UCX convesso pentagonale X 9,55-20, Y 113,75-120,85, Z −0,30..0,15,
+     smusso compreso) e `exports/parcheggio/SM_Parcheggio_Asfalto_v3.fbx` (173 tri, 6 UCX: box fino a Y 120,85 + convesso triangolare sullo
+     smusso NE X 95-106). Posa (0,0,0), geometria visibile identica. Inoltre: `SM_Molo_DehorsVetrato_v2` (+LOD1/LOD2, 3.168/1.579/366 tri,
+     7 UCX): vetro nello slot separato `M_Molo_Vetro` (in UEFN: materiale Translucent o Masked), 6 tavoli interni con 4 sedie al LOD0
+     (anche al LOD2 i tavoli); `exports/parcheggio/parcheggio_posizioni_v4.csv` (asfalto v3, `Pino_04` yaw −10 / pitch −4: fusto dentro
+     l'aiuola Y 115,86-116,57); battello a X 66,56 (`BATT_POS`, `arte_imbarco.blend`, `imbarco_posizioni_v1.csv` = UEFN 6656).
+     Backup: `blender/arte_incrocio_pre_fix_ucx.blend`, `arte_imbarco_pre_fix_battello.blend`, `scripts/*_pre_fix_*.py.bak`.
+   - [ ] (uefn-builder) Import di marciapiede v2, asfalto v3 (sostituiscono le istanze v1/v2, stessa posa) e dehors v2 (sostituisce v1,
+     `M_Molo_Vetro` → materiale traslucido); `Parcheggio_Pino_04` a yaw −10, pitch −4 (CSV v4).
    - [ ] (qa-tester) In sessione: marciapiede dell'incrocio, dehors vetrato (entrata, tetto), corsia del parcheggio, auto a pettine solide.
    - [ ] (utente/geo-scout) Verificare [S] dell'incrocio: posizione del semaforo grande e dei cartelli (spartitraffico di fronte allo sbocco),
      varco dello spartitraffico, dissuasori, angolo dei posti a pettine (60° o 90°), edificio con vetrate (area OSM 205843492).

@@ -63,7 +63,7 @@ def ciglio_y(x):
 
 PONT_X = 72.0
 PONT_ORIG = (PONT_X, ciglio_y(PONT_X), 0.0)
-BATT_POS = (66.7, 62.0, Z_ACQUA)       # centro scafo: murata a 0,3 m dal bordo ovest del pontile (X 70,5)
+BATT_POS = (66.56, 62.0, Z_ACQUA)      # centro scafo; 66,7 -> 66,56 (2026-11-20): in UEFN i parabordi toccavano il pontile, X 6656 uu
 BATT_ROTZ = -90.0                       # prua verso il mare (-Y)
 BIGL_LOCAL = (3.8, -2.6, 0.01)          # nel riferimento del pontile
 
