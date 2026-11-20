@@ -11,6 +11,7 @@ Geo-scout, 2026-11-20. Niente Blender né UEFN.
   Controllo: il faro (node 1327347929) cade a (678,6; −327,1), contro (678; −326) di `area.md`.
 - REDAMARE: Finestre sull'Arte, 27-05-2022 ([link](https://www.finestresullarte.info/arte-contemporanea/la-spezia-inaugurato-monumento-redamare-sabrina-d-alessandro)).
 - Foto dell'utente in `ref/foto/` (§9). Google solo come riferimento visivo: non ho salvato nulla.
+  Il 2026-11-20 l'utente ha aggiunto catture Street View della fine passeggiata e del raccordo col molo: §4.5 e §9 aggiornati (dati marcati [F]).
 - **Da non duplicare:** la sezione generale è in `sezione.md`, la banchina in `banchina.md`, le palme in `palme.md`, i Giardini a Mare
   in `zona_parcheggio_chiosco.md` §4, le colline e la città in `fondale.md`.
 
@@ -120,14 +121,36 @@ già registrata in `docs/decisioni.md`.
 | Cortina edilizia (Viale Mazzini) | fronte a **Y 206-208**: X 260-308, 320-370, 382-446, 469-498; albergo X 528-567 (Y 207-234); **Palazzo Comunale** X 586-625 (Y 204-241) | OSM non dà i piani. Nelle foto: palazzi di 5-7 piani chiari. Il Palazzo Comunale è uno dei pochi edifici riconoscibili da lontano [S] | piante [V] OSM; altezze [S] |
 | Torre chiara | nella foto `giardini_affianco_palme.jpg` spunta una torre squadrata oltre gli alberi del viale | probabilmente un edificio alto del centro [S] | [F] |
 
-### 4.5 Fine della passeggiata (X 540-560)
-| Elemento | Posizione | Dimensioni | Fonte | Stato |
+### 4.5 Fine della passeggiata e raccordo con il Molo Italia (X 540-575) — aggiornato 2026-11-20 con le foto nuove
+Foto: `vista/incrocio_molo_italia_passegiata_morin.png` (I1), `vista/incrocio_molo_italia_passegiata_morin_2_chiosco_info_point.png` (I2),
+`vista/3_aste_bandiere_molo.png` (A3), `vista/monumento_molo.png` (MO), `vista/chiosco_2_fine_passegiata_morin.png` (C2),
+`vista/guardia_costiera_molo_italia_2.png` (G2). Sono tutte **catture Street View** (vedi §9). Le grandi scritte bianche in 3D sull'asfalto
+("Molo Italia", "Largo Michele Fiorillo", "...na Thaon di...") sono **etichette dell'interfaccia di Street View**: non sono dipinte e **non vanno modellate**.
+
+| Elemento | Posizione | Dimensioni / aspetto | Fonte | Stato |
 |---|---|---|---|---|
-| **Scritta "PASSEGGIATA MORIN"** nel pavimento | nel corridoio fra i filari, **X ≈ 552-560, Y ≈ 92-100**, prima della prima palma da NE; si legge guardando verso SO | due righe: "PASSEGGIATA" (~7 m) e "MORIN" (~4 m); lettere **h ~0,6-0,7 m**, tratto ~0,12 m, in pietre bianche annegate nei cubetti | [F] `scritta_pavimento_inizio_passegiata_lato_opposto_al_ponte.jpg` | posizione e misure [S] |
-| Chiosco-bar ottagonale ("Il Piccolo Faro" in OSM) | **X 548,6-555,2, Y 105,5-112,3** | pianta ottagonale Ø **~6,5 m**, h ~3,5 m [S]; dehors all'aperto | OSM way 352041625, node 4512057692 (`outdoor_seating=yes`) | pianta [V]; altezza e aspetto [S] (foto F8) |
+| **Scritta "PASSEGGIATA MORIN"** nel pavimento | nel corridoio fra i filari, **X ≈ 552-560, Y ≈ 92-100**, prima della prima palma da NE; si legge guardando verso SO | due righe: "PASSEGGIATA" (~7 m) e "MORIN" (~4 m); lettere **h ~0,6-0,7 m**, tratto ~0,12 m, in pietre bianche annegate nei cubetti | [F] `scritta_pavimento_inizio_passegiata_lato_opposto_al_ponte.jpg`. Le foto nuove non la inquadrano | posizione e misure [S] |
+| **Piazzale terminale** (fine camminamento → smusso → radice del molo) | X ≈ 545-570, Y ≈ 45-100 | pavimento in **cubetti di porfido grigio-rosato posati ad archi** (coda di pavone), continuo fino al ciglio dello smusso; nessun gradino visibile fra passeggiata, piazzale e radice; nessun parapetto sul ciglio | [F] I1, G2 | [F]; il limite esatto lastre/cubetti è [S] |
+| **Ciglio dello smusso** | da (548,7; 78,3) a (~555; ~45) | **banchina a blocchi**, con coronamento chiaro rettilineo come il resto della passeggiata, salto di ~1 m sull'acqua; **niente bitte e niente barche** nell'ultimo tratto della passeggiata (le barche ormeggiate si vedono solo lontano, verso la marina) | [F] A3, I1; geometria [V] OSM | [F] |
+| **Inizio della scogliera** | dal **monumento** (~Y 45) in poi, lungo tutto il fianco ovest del ramo 1 | dove finisce lo smusso il bordo **non è più banchina**: è una **scogliera di massi** (massi grigio-ocra ~1-2 m) sotto il marciapiede del molo. Vale per tutto il lato esterno del molo (vedi `molo_italia.md` §2) | [F] MO, `molo_italia_1-7` | [F]; il punto esatto di passaggio è [S] ±5 m |
+| **Tre aste portabandiera** | allineate lungo il ciglio dello smusso, verso la sua estremità nord: **~(550-554; 58-68)** | 3 aste **bianche** cilindriche, **h ~11-12 m**, interasse ~3-4 m, basamento piccolo a raso; bandiere: Italia, una bianca (Comune/Regione), Unione Europea (in A3 ne è issata una sola: le bandiere cambiano) | [F] I1, A3 (altezza confrontata con una persona alla base in I1) | posizione [S] ±5 m; h [F] stima ±1,5 m |
+| **Monumento con busto** (lunetta) | angolo fra smusso e ramo 1, **~(553; 46)** ±5 m | **lunetta semicircolare** Ø ~8-9 m che sporge sulla scogliera, chiusa da un **muretto in pietra a vista** h ~0,6-0,8 m; dentro, 4-6 **pilastrini in pietra** h ~0,6 m con **catene** fra l'uno e l'altro; al centro una **stele in pietra chiara** ~1,0 × 0,6 × 2,5 m su un gradino, con targa/emblema in bronzo in cima, e un **busto in bronzo** su un piedistallo basso al fianco; lampione a pastorale accanto | [F] MO, A3 (il muretto in primo piano), I1 | forma [F]; nome e iscrizione illeggibili [S] → integrazione n. 5 |
+| **Lampioni del raccordo** | lungo il ciglio dell'acqua, dal piazzale verso il molo | **a pastorale con un globo** (vedi `molo_italia.md` §2.3), non a due globi come la passeggiata. I lampioni a 2 globi della passeggiata arrivano fino al chiosco | [F] I1, G2, C2 | [F] |
+| **Cartello d'ingresso alla passeggiata** | ~(562; 90), dove il camminamento incontra Largo Fiorillo | palo con cartello "zona pedonale" + limite **10 km/h**, su una base gialla in plastica | [F] I1, G2 | posizione [S] |
+| **Fioriere quadrate nere** | fila fra Largo Fiorillo e il percorso pedonale del molo, ~X 562-570, Y 70-95 | 4-6 fioriere ~0,8 × 0,8 × 0,6 m, nere, con piante basse | [F] G2, I1 | [S] numero e posizione |
+| **Parcheggio alla radice del molo** | lato ovest dell'inizio del ramo 1, accanto al monumento (Y ≈ 0-40) | auto in fila con strisce gialle, fra la carreggiata e i lampioni | [F] MO | [S] estensione → riuso del kit `SM_Morin_Auto_*` |
+| **Chiosco-bar ottagonale** ("chiosco 2"; "Il Piccolo Faro" in OSM) | **X 548,5-555,1, Y 106,1-112,9** (centro 551,9; 109,5) | pianta ottagonale Ø **~6,5 m** [V]; **h ~3,3-3,6 m** al colmo [F stima con le persone al bancone]; **tetto in lamiera grigia** a falde basse con gronda sporgente; **tende a falda color crema** su tutti i lati; bancone in legno; locandine colorate | OSM way 352041625; aspetto [F] C2, I2 | pianta [V]; aspetto [F]; forma ottagonale non leggibile in foto [S] |
+| **Dehors del chiosco** | intorno al chiosco, soprattutto verso SO (X 540-552) e verso il mare (Y 102-106) | 4-5 **ombrelloni quadrati bianco-écru** ~3 × 3 m; **botti** usate come tavoli alti con sgabelli neri; tavolini tondi con piano in vetro; **fioriere rettangolari** in cotto e grigie con arbusti; 2 lampioni a 2 globi dentro il dehors | [F] C2, I2 | [F]; disposizione [S] → kit `SM_Morin_Ombrellone`, `TavoloSet`, `Fioriera` + una botte nuova semplice |
+| **Pavimento della piazzetta del chiosco** | X 545-560, Y 102-116 | cubetti grigi con **fasce di lastre bianche** (~0,4-0,5 m) che incorniciano i riquadri | [F] C2 | [F] → `M_Molo_Masselli` + `M_Pav_Fascia` |
+| Oleandri a fiore bianco e prato | dietro il chiosco (lato viale) e a SO (triangolo verde) | prato con bambini che giocano a sinistra in C2 = triangolo verde X 526-541 | [F] C2; OSM 850396608 | [V]/[F] |
 | Triangolo verde | (526,5; 100,9) – (541,6; 100,5) – (526,5; 114,8) | — | OSM 850396608 | [V] |
-| Stalli per disabili (4) | X 561-566, Y 100-117 | lungo la strada d'accesso al molo | OSM 1089508561-63, 1111180847 | [V]: fuori dal Blocco 2, nel raccordo |
-| Raccordo verso il molo | strada di servizio in cubetti X 560-570, Y 85 (way 238848747); strada "Largo Michele Fiorillo" X 569, Y 85-130, accesso con permesso | — | OSM | [V] → dettagli in `molo_italia.md` |
+| Stalli per disabili (4) | X 561-566, Y 100-117 | lungo la strada d'accesso al molo; in I1 auto parcheggiate sul bordo destro | OSM 1089508561-63, 1111180847; [F] I1 | [V]: fuori dal Blocco 2, nel raccordo |
+| **Largo Michele Fiorillo** | X 565-580, Y 40-130 | **asfalto chiaro**, strisce pedonali a zebra fra la fine della passeggiata e il parcheggio dei taxi; dissuasori bassi in pietra/cemento ("panettoni") ~0,5 m ogni ~1,5 m sul bordo del parcheggio; un **palo alto** di illuminazione stradale (~9-10 m, una testa) | OSM; [F] I2 | [F] |
+| Raccordo verso il molo | percorso pedonale in cubetti lungo l'acqua X 555-570, Y 45-85 (way 238848747 + 132740887); carreggiata in asfalto di Largo Fiorillo a est | — | OSM + [F] G2 | [V] → dettagli in `molo_italia.md` §6 |
+
+**Cosa cambia per `SM_Banchina_Angolo_MoloItalia`:** lo smusso resta banchina a blocchi (kit v2) da (548,7; 78,3) fino a ~Y 47; lì il pezzo
+chiude contro la **lunetta del monumento** (muretto in pietra, non banchina) e da lì in poi il fianco ovest del molo è **scogliera**, non ciglio.
+Sul piazzale nessun parapetto; aste e monumento sono gli unici oggetti alti sul ciglio.
 
 ### 4.6 Cosa OSM non mappa nel tratto
 Lampioni, bitte, tombini, cestini, alberi singoli, aiuole di rose, agavi: **nessuno** [V, assenza nell'estratto del 2026-11-20].
@@ -139,7 +162,7 @@ Gli unici lampioni mappati della zona sono lontani (via della stazione, X > 850)
 |---|---|---|---|
 | Con il Blocco 1 | X 251,4 | **nascondere** `Arte_Banchina_Testata_Fine` (non cancellarlo) e proseguire con `SM_Banchina_Mod4m_v2` dalla stessa retta. Pavimentazione, cordolo e fascia palme ripartono dagli stessi moduli (passo 4 m / 9 m) senza scalini. Il blockout della passeggiata e `Barriera_FineBlocco` (X 251,3) vanno spostati a X ≈ 560 | [V] PLAN.md |
 | Viale | X 326 | i moduli `SM_Viale_Italia_Strada_v2` arrivano già a X 326: proseguire fino a X ~560, più 2 moduli incrocio (X 506 e 520) | [V] PLAN.md |
-| Con il Molo Italia | X 548,7 → 555 | il ciglio fa uno **smusso**: da (548,7; 78,3) a (555,0; 41,9), angolo di ~80° col ciglio della passeggiata. Serve un pezzo di testata nuovo, `SM_Banchina_Angolo_MoloItalia`, con lo stesso materiale della v2 | [V] OSM coastline |
+| Con il Molo Italia | X 548,7 → 555 | il ciglio fa uno **smusso**: da (548,7; 78,3) a (555,0; 41,9), angolo di ~80° col ciglio della passeggiata. Serve un pezzo di testata nuovo, `SM_Banchina_Angolo_MoloItalia`, con lo stesso materiale della v2. **Dalle foto (2026-11-20):** banchina a blocchi solo fino a ~Y 47, poi la lunetta del monumento (muretto in pietra) e la scogliera del molo; piazzale in cubetti fino al ciglio, senza parapetto; 3 aste bianche h ~11-12 m sul ciglio (§4.5) | [V] OSM coastline; [F] |
 
 ## 6. Tabella degli elementi per la produzione
 
@@ -165,7 +188,10 @@ Texture nuove: "0" = nessuna texture nuova.
 | 15 | Panchina a schienale curvo | nei giardini | 1,8 × 0,7 × 0,8 m | [F] | [S] | **nuovo** `SM_Morin_PanchinaCurva` (≤ 1,5k tri), `M_Pav_Fascia` | 0 | C |
 | 16 | Memoriale Aviatori | (397,8; 110,6) | ~2-3 m [S] | OSM | [V] pos. | **nuovo** semplice, pietra `M_Pav_Fascia` / `MI_Banchina_Blocchi` | 0 | C |
 | 17 | Pannelli informativi ×2, fontanella | (300,2; 113,8), (501,1; 109,1), (460,7; 111,6) | — | OSM | [V] | **kit** cartelli (`T_Morin_Cartelli`, riuso con grafica generica) + fontanella **nuova** semplice | 0 | C |
-| 18 | Chiosco-bar ottagonale + dehors | (551,9; 109) | Ø 6,5 m | OSM | [V] pianta | **nuovo** `SM_Morin_ChioscoOttagonale` con atlante `T_Morin_Chiosco` + dehors `SM_Morin_Ombrellone`, `TavoloSet`, `Fioriera` (kit) | 0 | B |
+| 18 | Chiosco-bar ottagonale + dehors | (551,9; 109,5) | Ø 6,5 m, h ~3,5 m | OSM + [F] C2 | [V] pianta, [F] aspetto | **nuovo** `SM_Morin_ChioscoOttagonale` (tetto in lamiera grigia, tende crema, bancone in legno) con atlante `T_Morin_Chiosco` + dehors `SM_Morin_Ombrellone`, `TavoloSet`, `Fioriera` (kit) + botte-tavolo nuova semplice | 0 | B |
+| 22 | Tre aste portabandiera | ~(550-554; 58-68) | h ~11-12 m, Ø ~0,12-0,15 m | [F] I1, A3 | pos. [S] | **nuovo** `SM_Morin_AstaBandiera` (≤ 500 tri, 3 istanze) + bandiere su card con `T_Morin_Cartelli` o tinta | 0 | B |
+| 23 | Monumento con busto + lunetta | ~(553; 46) | lunetta Ø 8-9 m, stele 2,5 m | [F] MO | forma [F], pos. [S] | **nuovo** `SM_Morin_MonumentoRadice` (≤ 4k tri): muretto `MI_Banchina_Blocchi`, stele `M_Pav_Fascia`, busto e targa in bronzo (tinta), catene semplici | 0 | B |
+| 24 | Cartello zona pedonale, fioriere nere | ~(562; 70-95) | — | [F] I1, G2 | [S] | **kit** cartelli + `SM_Morin_Fioriera` ritinta | 0 | C |
 | 19 | Viale Italia X 326-560 | Y 121-139 | ~12 moduli + 2 incroci | OSM | [V] | **kit** `SM_Viale_Italia_Strada_v2`, `SM_Viale_Italia_Incrocio_v3`, `SM_Morin_Semaforo`, `SM_Viale_Spartitraffico_Fiori` (isola X 396-483); traffico finto allungato | 0 | B |
 | 20 | Cortina lato città | Y 206-241, X 357-625 | ~10-12 sagome | OSM | piante [V], h [S] | **kit** `SM_Fondale_Palazzo_A/B/C` | 0 | C |
 | 21 | Battelli / barche al largo | specchio X 296-548 | — | [F] | [S] | **kit** `SM_Morin_Battello`, `SM_Mirabello_YachtA/B_v2` | 0 | C |
@@ -210,9 +236,23 @@ delle mesh, che non è texture ma conta nel limite dell'isola.
 | `arredi/giardini_affianco_palme.jpg` | Giardini a Mare dal bordo del corridoio: prato, siepi, agavi, oleandri lungo il viale, casottino giallo e gommone sotto le palme | agavi, edicola gialla [S] |
 | `arredi/giardini_con panchine_affianco_palme.jpg` | Vialetto in cubetti fra le palme e un'aiuola di rose, panchine bianche a schienale curvo, agavi, auto sul viale | panchina curva, vialetto interno |
 
-Nessuna foto mostra: il chiosco ottagonale, il memoriale, la fine della passeggiata vista dal molo, il passo delle palme.
+**Foto aggiunte il 2026-11-20** (tutte in `ref/foto/vista/`, tutte **catture Street View**: utilizzabili anche per le texture con la marca
+**[SV]** secondo la deroga di CLAUDE.md §5, senza persone, targhe, filigrane "© Google", bussola e etichette 3D delle vie):
+
+| File | Punto di presa (X, Y) e direzione | Cosa si vede | Conferma / corregge |
+|---|---|---|---|
+| `incrocio_molo_italia_passegiata_morin.png` (I1, panorama ~160°, con scritte dell'utente) | ~(565; 90), verso SSO (fra −X e −Y), nell'angolo della baia | piazzale in cubetti ad archi; a destra l'inizio della passeggiata (cartello zona pedonale + 10 km/h, fioriere, palme e lampioni a 2 globi); al centro le 3 aste sul ciglio; a sinistra il monumento, palme in aiuola e lampioni a pastorale verso il molo; sullo sfondo marina e colline | conferma: niente parapetto, niente gradini; **nuovi**: aste, monumento, lampioni a pastorale |
+| `incrocio_molo_italia_passegiata_morin_2_chiosco_info_point.png` (I2) | ~(572; 80) su Largo Fiorillo, verso +Y (città) | a sinistra il chiosco con dehors e palme; strisce pedonali; parcheggio taxi sotto i pini con i chioschetti dell'info point; palo alto; palazzi di Viale Mazzini (uno a torre ~12 piani) | conferma chiosco e posteggio taxi; i chioschetti sono **casette a facce piane**, non tonde (vedi `molo_italia.md` §5) |
+| `chiosco_2_fine_passegiata_morin.png` (C2) | ~(549; 97), corridoio fra i filari, verso +Y | chiosco con tetto in lamiera e tende crema, dehors con ombrelloni, botti, fioriere; cubetti con fasce bianche; oleandri bianchi | **copre la foto F8** (solo il lato verso il mare: la forma ottagonale non si legge) |
+| `3_aste_bandiere_molo.png` (A3) | ~(560; 48), radice del molo accanto al monumento, verso −X (SO, lungo la passeggiata) | le 3 aste in primo piano; il ciglio della passeggiata d'infilata, senza bitte; muretto in pietra del monumento a sinistra | **copre F9** e in parte F4 (ultimo tratto del ciglio: niente bitte) |
+| `monumento_molo.png` (MO) | ~(565; 40), verso O | lunetta del monumento con stele, busto, pilastrini e catene; auto parcheggiate; lampioni a pastorale e scogliera lungo il ramo 1 | **nuovo**: monumento e inizio della scogliera |
+
+Nessuna foto mostra ancora: il memoriale Aviatori, il passo delle palme, il chiosco dal lato del viale.
 
 ## 10. Foto da chiedere all'utente (Blocco 2)
+
+Stato al 2026-11-20: **F8 coperta in parte** da C2 (manca il chiosco visto dal viale), **F9 coperta** da A3, MO e I1, **F4 coperta in parte** da A3
+(ultimo tratto, niente bitte). Restano F1, F2, F3, F5, F6, F7, F10 e la parte mancante di F4/F8. Le richieste prioritarie sono in `molo_italia.md` §10.
 
 1. **F1 — Gruppo REDAMARE di fronte.** Dal camminamento a ~8 m dal ciglio (X ≈ 254, Y ≈ 90), verso il mare: le lettere intere e i due cannoni ai lati, con una persona accanto per la scala.
 2. **F2 — Ancora 2 (X 280).** Di lato, da X ≈ 270 guardando verso NE: ancora e basamento, per capire se è uguale alla prima.
