@@ -740,7 +740,7 @@ Ordine per impatto visivo:
       delle 10:21 UTC = 12,1 MiB in download (era 531 KB col solo blockout); stima texture ≈ 99 MiB a piena risoluzione su 300 MiB
       di limite di pubblicazione (calcolo esatto dal pannello Memoria, utente).
       Per `GetCost` serve il percorso del Mali Offline Compiler (preferenze dell'editor, utente)
-- [ ] (uefn-builder) Luce del tardo pomeriggio, cielo, nebbia leggera sul golfo
+- [~] (uefn-builder) Luce del tardo pomeriggio, cielo, nebbia leggera sul golfo (v1 applicata il 2026-11-20, §36; da confermare in sessione)
 - [ ] (uefn-builder) Audio ambientale: gabbiani, acqua, sartie
 - [ ] (qa-tester) Dopo ogni sostituzione importante: collisioni e percorrenza invariati
 
@@ -913,6 +913,47 @@ Ordine per impatto visivo:
             X 640-720 senza macchie verdi. 0 pacchetti sporchi; validazione 711/711, 0 errori, 57 avvisi noti. Catture
             `docs/qa/uefn_moloitalia_v2_{terrazza,bacino,testata}.png`. Aperti: 26 temporanei `_Temp/TMPB3V2_*` e le 14 mesh v1 non più usate
             (cancellazione con conferma dell'utente); in sessione terrazza, bordo dell'acqua nuova, avviso timeline dei device copiati (qa-tester).
+      - [x] (uefn-builder, 2026-11-20 ~16:00-16:30, `docs/uefn_arte.md` §35) **Diagnosi difetti segnalati + audit realismo** (nessuna modifica).
+            Forme verdi sull'acqua B2 = `Arte_Fondale_Colline_NE` (`SM_Fondale_Colline_NE_v2`) sopra la superficie a X 340-380 m (Y Blender 60-80,
+            ~440 m², Z −0,80) e X 519-580 m (Y Blender −20..80, ~2.830 m², Z −0,55..−1,0). Chiosco ottagonale v2: normali di pareti e bancone
+            verso l'interno e piano del bancone verso il basso in tutti i LOD, materiale non two-sided (v1 non in scena). Nave: 250 × 32 m, 52 m
+            sull'acqua (più piccola del tipico), ma ~180 m dal faro in acqua aperta: è la posizione a farla sembrare enorme. 10 catture
+            `docs/qa/realismo_00..09.png` con materiali peggiori; luce: Day Sequence a orario fisso 18, nebbia 0,004, nessun post-process.
+      - [x] (blender-artist, 2026-11-20 ~17:00) **Chiosco ottagonale v3, nave da crociera v2, colline NE v3** (Blender, nessun import).
+            **Chiosco** (`blender/scripts/morin_chiosco_ott_v3.py`, `arte_blocco2.blend`): causa del difetto v1/v2 = corpo a guscio aperto di quad
+            singoli + `recalc_face_normals` globale → pareti, fondi e bancone orientati verso l'interno (ray test: 8/8 lati IN, FBX reimportato
+            identico) e 5 lati senza vetro. v3 a solidi chiusi con avvolgimento per costruzione: 8 lati (3 banconi vetrati verso il mare con
+            montanti, porta di servizio verso il viale, 2 lati con locandina/menu, 2 pannellati), interni (piano di lavoro, scaffali, frigo, macchina
+            del caffè), tettoia bianca a padiglione con mantovana col nome, insegna bifacciale "IL GABBIANO INGORDO" sul colmo. Tri 428/376/218,
+            bbox 7,11 × 7,11 × 3,84 m (LOD1/2 0 %), 4 UCX (corpo, tettoia, bancone, insegna). QA LOD0/1/2 e FBX reimportati: 0 facce rovesce
+            (ray test 16 direzioni × 8 quote + dall'alto), 0 coincidenti, 0 aree o UV degeneri, slot `M_Morin_ChioscoOtt_v3` +
+            `M_Morin_ChioscoOtt_v3_Vetro`. Texture 2048 + vetro 512 in `blender/textures/blocco2/`. Cattura `docs/qa/arte_chiosco_ottagonale_v3.png`.
+            **Nave** (`morin_nave_v2.py`, `arte_molo_italia.blend`): v1 250 × 32,3 m, 52 m sull'acqua, a (900; −260) yaw 74 → v2 300 × 39,2 m
+            (scafo 38 + alette), 61 m sull'acqua, ormeggiata sul fianco ovest del Molo Garibaldi (OSM coastline 137121074 + nodo 3701128402) a
+            (1094,7; −353,2), rotZ −137,3 (prua verso la testata come in `faro_2`). Tri 2170/1350/1281, 2 UCX, atlante 2048 (oblò, balconi, piscine,
+            scialuppe, livrea inventata, nome PICCIONISSIMA). Confronto con `faro_2`: `docs/qa/arte_nave_crociera_v2.png`.
+            **Colline** (`morin_fondale_colline_v3.py`, `arte_fondale.blend`): tagli lungo la costa dei volumi Acqua V2 (banchina, smusso, X 555,
+            Y 1,3, X 725, Y −60,1, X 971) + secondo taglio 0,5 m dentro terra; lato mare a min(z, −5). Griglia 2 m sul lato mare (110.785 punti):
+            superficie max −5,00 m in LOD0/1/2; vertici a terra invariati (scarto 0,1 mm). Tri 7652/4082/1457 (v2 7005/3571/1084).
+      - [ ] (uefn-builder) **Import chiosco v3, nave v2, colline NE v3** (LOD0 + `_LOD1` + `_LOD2`, metodo §32/§33, nuovi nomi, le vecchie mesh restano):
+            1. `exports/blocco2/SM_Morin_ChioscoOttagonale_v3{,_LOD1,_LOD2}.fbx` (4 UCX nel LOD0): cambio di mesh su `Arte_B2_ChioscoOttagonale`
+               (stessa trasformazione, `exports/blocco2/blocco2_chiosco_ott_v3.csv`: 55206, −10872, 15, yaw 0). Slot 0 atlante opaco, slot 1 **vetro
+               traslucido** (MI traslucida, opacità dalla alpha di `T_Morin_ChioscoOtt_v3_Vetro_D`, ~0,2-0,35); **non** two-sided. Verificare da fuori
+               che tutte le 8 pareti si vedano e che dietro i vetri si vedano gli interni.
+            2. `exports/molo_italia/SM_MoloItalia_NaveCrociera_v2{,_LOD1,_LOD2}.fbx` (2 UCX, si può importare senza collisione: è fondale):
+               attore `MI_NaveCrociera` → mesh v2 e trasformazione da `exports/molo_italia/molo_italia_posizioni_v2.csv`
+               (109466,41; 35323,52; −103; yaw 137,3163). **Acqua:** la nave occupa X 984..1205 m, Y Blender −455..−251 (UE X 98400..120500,
+               Y 25150..45490), tutta **oltre il bordo est attuale dei volumi (X 971 m)**: aggiungere un device Acqua V2 (copia di `_B3_Est`,
+               stesse opzioni) circa X 97076..124000 · Y 6014..55678, senza fessure con `_B3_Est`/`_B3_Mare`; controllare che le barriere restino
+               chiuse. Il Molo Garibaldi non è modellato: la nave resta su acqua aperta alla posizione reale (vedi log decisioni).
+            3. `exports/fondale/SM_Fondale_Colline_NE_v3{,_LOD1,_LOD2}.fbx` (no collisione, come la v2): cambio di mesh su `Arte_Fondale_Colline_NE`,
+               stessa trasformazione (518000, 48000, 0). Verificare dalla scritta LA SPEZIA e dal bacino X 640-720 che le macchie verdi siano sparite.
+      - [x] (geo-scout → uefn-builder) Posizione reale di ormeggio della nave da crociera: fatta da blender-artist (vedi sopra), resta l'import.
+      - [x] (uefn-builder, 2026-11-20 ~16:40, `docs/uefn_arte.md` §36) **Luce e atmosfera v1** su `Luce_OraDelGiorno` (valori prima/dopo nel §36):
+            ore 18,5, sole override 8 (1; 0,86; 0,70) da ~241° a 23° (deroga: con 250°/15-20° le palme oscuravano tutto il camminamento),
+            luce cielo 0,8, nebbia 0,007 (0,45; 0,52; 0,62) diminuzione 0,04 opacità 0,9, nuvole 0,3. Esposizione/colore non esposti dal device.
+            Catture `docs/qa/realismo_luce_00..09.png` + `realismo_luce_confronto.png`. Salvato, 0 pacchetti sporchi, validazione ok.
+      - [ ] (utente) In sessione: controllare la luce v1 (esposizione automatica, ombre del camminamento, viste in ombra 05/08 scure, antenne del ponte dalla partenza).
       - [ ] (blender-artist) B3.6 Mancano: fontana del Palio, terminal crociere con scultura, circoli nautici, pilotine, casetta a lamelle e pontile di D1,
             bidoni della differenziata, cartelli; texture [SV] ritagliate dalle foto (mattoni, giallo della chiatta) se le tinte non bastano.
       - [ ] (utente) Memoria: con B2 + B3 la stima sale a 242-244 MiB su 245. Decidere se usare le alternative a 0 MiB (agave, ristorante)

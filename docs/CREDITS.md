@@ -249,3 +249,13 @@ al campione esatto con il modulo `wave` (il mixdown arrotonda al blocco). Picco 
   (non deriva dallo stemma dello Spezia Calcio). Testi col font incorporato in Blender.
 - Scritte 3D col font incorporato in Blender: "LA SPEZIA" (nome della città), "GUARDIA COSTIERA" (ente pubblico, decisione dell'utente),
   "RISTORANTE", "I PICCIONI", "TIRAMOLLA", "SPINGITUTTO", "OSTINATO", "PICCIONISSIMA" (nomi parodia, nessun marchio reale).
+
+## Chiosco ottagonale v3, nave da crociera v2, colline NE v3 (2026-11-20)
+- **[SV]** `T_Morin_ChioscoOtt_v3_D/N/ORM` (2048) e `T_Morin_ChioscoOtt_v3_Vetro_D/N/ORM` (512), `blender/textures/blocco2/`
+  (`blender/scripts/morin_chiosco_ott_v3.py`): **procedurali**; dalla cattura Street View `ref/foto/vista/chiosco_2_fine_passegiata_morin.png`
+  solo i colori campionati (legno del bancone, crema dei pannelli, bianco). Nessun ritaglio di foto, niente persone, targhe o insegne reali.
+  Nome inventato "IL GABBIANO INGORDO", locandine e menu inventati; testo col font incorporato in Blender.
+- `T_MoloItalia_NaveCrociera_v2_D/N/ORM` (2048), `blender/textures/molo_italia/` (`morin_nave_v2.py`): procedurali; livrea, gabbiano del fumaiolo
+  e nome "PICCIONISSIMA" inventati, nessuna compagnia reale. Forma e posizione da OSM (© OpenStreetMap contributors, ODbL): coastline 137121074
+  e nodo 3701128402 "Molo Garibaldi" (estratto dall'API OSM il 2026-11-20); proporzioni confrontate con `ref/foto/vista/faro_2.png` (solo riferimento).
+- `SM_Fondale_Colline_NE_v3`: stessa origine della v2 (DEM e texture già elencati), solo geometria modificata.
