@@ -231,3 +231,21 @@ al campione esatto con il modulo `wave` (il mixdown arrotonda al blocco). Picco 
 - `SM_Pav_Scritta_Morin`: testo "PASSEGGIATA / MORIN" (nome del luogo, non un marchio) col font incorporato in Blender.
 - Nessuna texture nuova derivata da foto o da Street View nel Blocco 2: il chiosco ottagonale usa gli atlanti esistenti
   `T_Morin_Chiosco` e `T_Morin_Dehors`; l'affusto dei cannoni usa `T_Morin_Imbarco_Legno` (tinta scura nel materiale).
+
+## Blocco 2 v2 e Blocco 3 — Molo Italia v1 (2026-11-20)
+- OSM `ref/osm/morin_blocchi23.osm` (© OpenStreetMap contributors, ODbL): coastline 137121074 (bordi del molo, dita, calata), ways 851135245
+  (ristorante), 205843153 / 205839145 / 205839033 (edifici della radice), 352041386/87/88 (info point), node 1327347929 (faro).
+- Faro: dati della luce da "Lighthouses of Italy: Liguria" (R. Rowlett, ibiblio.org) e tag `seamark` di OSM (solo dati, nessun testo copiato).
+- Foto dell'utente usate come **riferimento di forma, proporzioni e colori** (nessuna texture ritagliata dalle foto): `ref/foto/vista/molo_italia_1..7`,
+  `faro_2`, `faro_3`, `ristorante_giallo_blu_gallegiante`, `guardia_costiera_molo_italia(_2)`, `info_point_e_parcheggio_guardia_costiera`,
+  `3_aste_bandiere_molo`, `monumento_molo`, `incrocio_molo_italia_passegiata_morin*` (catture Street View **[SV]**) e
+  `Molo_Italia_dall_alto.png` (**vista satellitare Google Maps**, ammessa dall'utente il 2026-11-20: usata per pianta dei moli a dito,
+  posizione dei battelli e del monumento sul ramo 2; nessuna geometria ricalcata, la pianta viene da OSM).
+- Texture nuove, tutte **procedurali** (nessun pixel da foto): `T_MoloItalia_Tinte` (atlante di tinte, colori campionati a occhio dalle foto [SV]),
+  `T_MoloItalia_Facciata` (mattoni, marcapiano, finestre verde acqua; colori dalle foto [SV] della Capitaneria), `T_Molo_Scogliera` (massi),
+  `T_MoloItalia_Cemento` (base Poly Haven **concrete_floor_worn_001**, CC0, ritarata; normal dal set originale). Tutte in `blender/textures/molo_italia/`.
+- `T_Morin_Bandiere` (bandiere delle 3 aste, procedurale): tricolore; stemma del Comune della Spezia **semplificato** dalla blasonatura pubblica
+  (stemma civico, R.D. 4/12/1923; fonte: voce "La Spezia" di it.wikipedia.org); aquila "FORZA AQUILE" **disegnata ex novo** per il progetto
+  (non deriva dallo stemma dello Spezia Calcio). Testi col font incorporato in Blender.
+- Scritte 3D col font incorporato in Blender: "LA SPEZIA" (nome della città), "GUARDIA COSTIERA" (ente pubblico, decisione dell'utente),
+  "RISTORANTE", "I PICCIONI", "TIRAMOLLA", "SPINGITUTTO", "OSTINATO", "PICCIONISSIMA" (nomi parodia, nessun marchio reale).

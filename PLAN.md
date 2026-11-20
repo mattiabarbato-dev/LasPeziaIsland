@@ -807,14 +807,28 @@ Ordine per impatto visivo:
             blockout in `exports/blockout/`: `SM_Blockout_Passeggiata_B2` 19 (X 250-559, Z −0,15), `SM_Blockout_Fondale_B2_Terreno` 10 (X 330-580, Y 120,85-300).
             CSV UE in `exports/blocco2/blocco2_{banchina,pav,palme,arredi,giardini,viale,fondale,chiosco,nuovi}_v1.csv` (654 righe, colonna `scala`).
             Catture `docs/qa/arte_blocco2_v1_{redamare,infilata,fine,chiosco}.png`. Decisioni in `docs/decisioni.md` (2026-11-20, 8 voci).
-      - [ ] (uefn-builder) Import Blocco 2 (metodo §12 di `docs/uefn_arte.md`): 12 mesh nuove + 2 blockout, MI `MI_Morin_Corten` (texture nuove) e
-            `MI_Morin_Cannone_Legno` (= `T_Morin_Imbarco_Legno` tinta scura 0,30/0,22/0,16); kit esistenti come istanze HISM dai CSV.
-            **Nascondere** `Arte_Banchina_Testata_Fine`. **Barriere:** `Barriera_FineBlocco` da X 25130 a **X 56700** (stessa Y e profondità);
-            nuova `Barriera_LatoCitta_B2` (dup. di `Barriera_LatoCitta`) centro (43872, −11930, −700), 51 × 0,5 unità (X 30816..56928);
-            nuova `Barriera_Acqua_LatoMare_B2` centro (42700, 30928, −700), 56 × 0,5 (X 28364..57036); allungare `Acqua_Golfo_Device` fino a X ≥ 57000.
-      - [ ] (utente) Foto F7 (passo delle palme 8 o 9 m) e conferma della forma di REDAMARE come elemento urbano (nota in decisioni.md).
-      - [ ] (blender-artist) Blocco 3 / raccordo: lunetta del monumento (~553; 46), scogliera del fianco ovest, Largo Fiorillo, fioriere nere,
-            cartello ZTL, bandiere sulle 3 aste, botti-tavolo del dehors, strisce pedonali su Viale Italia (X 300,7 / 506,4 / 520).
+      - [x] (uefn-builder, 2026-11-20) **Import Blocco 2 v1 in UEFN** (`docs/uefn_arte.md` §32): 12 mesh nuove in `Arte/Blocco2` + 2 blockout,
+            `T_Morin_Corten_D/N/ORM` (1024, LODBias 0), `MI_Morin_Corten`, `MI_Morin_Cannone_Legno`; 620 istanze in 45 attori nuovi (`Arte/Blocco2/<gruppo>`,
+            HISM nuovi, Blocco 1 non toccato); `Arte_Banchina_Testata_Fine` nascosto. Barriere: `Barriera_FineBlocco` a X 56700; `Barriera_LatoCitta_B2`
+            **50** × 0,5 e `Barriera_Acqua_LatoMare_B2` **60** × 0,5 (51 e 56 non sono valori ammessi dal device), perimetro continuo (passo 4 uu).
+            Acqua: secondo device `Acqua_Golfo_Device_B2` X 34100..57652, bordo comune senza fessura. Traffico: 34 auto statiche non posate;
+            `LS_Viale_Traffico` portata a 90 s e X −150 ↔ +573 m, 21 auto (+7). Line trace: suolo continuo X 248-566, raccordo B1/B2 senza salti,
+            gradini ≤ 15 cm, prop con collisione. Validazione 567/567, 0 errori; nessun pacchetto sporco. Catture `docs/qa/uefn_blocco2_{redamare,infilata,fine}.png`.
+            Aperti: tangenti degeneri di `SM_Morin_ChioscoOttagonale` (blender-artist); prova in sessione di traffico, barriere e acqua (qa-tester);
+            10 temporanei `_Temp/TMPB2_*` da eliminare con conferma.
+      - [ ] (utente) Foto F7 (passo delle palme 8 o 9 m). ~~Conferma della forma di REDAMARE~~: sostituita da "LA SPEZIA" (decisione 2026-11-20).
+      - [x] (blender-artist, 2026-11-20) **Blocco 2 v2 in Blender** (script `blender/scripts/morin_blocco2_v2.py`, backup
+            `blender/arte_blocco2_pre_v2_laspezia.blend` e `morin_blocco2_pre_v2_laspezia.py.bak`). Asset nuovi in `exports/blocco2/` (tri LOD0/1/2):
+            `SM_Morin_ScrittaLaSpezia` 420/364/296, 2 UCX, 8,0 × 0,6 × 1,35 m, `T_Morin_Corten` riusato · `SM_Morin_Bandiera_Italia/_Comune/_Aquile`
+            96/24/4 ciascuna, 2,34 × 1,7 m, card two-sided masked, atlante nuovo `T_Morin_Bandiere_D/N/ORM` 2048 (`M_Morin_Bandiere`), origine alla base
+            dell'asta (stessa posizione dell'asta, yaw −70), senza UCX (a 10 m d'altezza) · `SM_Morin_ChioscoOttagonale_v2` 138/138/106, 2 UCX,
+            7,39 × 7,39 × 3,12 m, tettoia bianca a padiglione con mantovana, **0 triangoli a UV nulla** (la v1 ne aveva 118: avviso tangenti)
+            · `SM_Pav_Piazzale_Fine_B2_v2` 10 tri, 3 UCX (la v1 ha 3 triangoli rovesciati sopra il camminamento).
+            CSV `exports/blocco2/blocco2_nuovi_v2.csv` (18 righe; v1 intatta). Catture `docs/qa/arte_blocco2_v2_{laspezia,bandiere,chiosco}.png`.
+      - [ ] (uefn-builder) Blocco 2 v2 in UEFN: importare i 6 asset nuovi; sostituire `SM_Morin_Redamare` → `SM_Morin_ScrittaLaSpezia`,
+            `SM_Morin_ChioscoOttagonale` → `_v2`, `SM_Pav_Piazzale_Fine_B2` → `_v2` (stesse posizioni); posare le 3 bandiere; MI two-sided masked.
+      - [x] (blender-artist, 2026-11-20) Raccordo B2/B3 fatto nel Blocco 3 v1 (lunetta, scogliera, Largo Fiorillo, bandiere). Restano: fioriere nere,
+            cartello ZTL, botti-tavolo del dehors, strisce pedonali su Viale Italia (X 300,7 / 506,4 / 520).
 - [ ] Blocco 1, dettagli da fare: ~~ancora monumentale~~ e ~~ciglio a grandi blocchi bianchi~~ fatti in Blender il 2026-11-20 (banchina v2,
       da importare; l'ancora è all'OSM X 226, non all'imbocco del ponte); fascia longitudinale di lastre a ~1/3 del camminamento dal mare [S];
       Giardini a Mare (prato, aiuole di rose bordate in metallo, agavi, panchine bianche a schienale curvo); ponte con le foto in `ref/foto/ponte/`.
@@ -834,12 +848,27 @@ Ordine per impatto visivo:
             navi da crociera e gru come fondale) e `ref/blocco2.md` §4.5 (piazzale in cubetti, 3 aste h ~11-12 m, monumento con busto
             nella lunetta ~(553; 46), lampioni a pastorale nel raccordo, chiosco con tetto in lamiera e tende crema, dehors).
       - [ ] (utente) Integrazioni di `ref/molo_italia.md` §10 (8 richieste, prima il chiosco dal lato del viale per B2.4 e la sezione del molo a passi).
-      - [ ] (blender-artist → uefn-builder) B3.1 `SM_MoloItalia_Suolo` con la sezione di `molo_italia.md` §2.2 + ciglio d'ormeggio con il kit
-            banchina v2 (solo lato bacino e dita) + **scogliera** sul lato esterno (kit massi nuovo); Acqua V2 estesa fino a X ~720, Y −350; barriere.
-      - [ ] (blender-artist) B3.2 `SM_MoloItalia_Faro`, pezzo unico, nessuna texture nuova, luce rossa a lampo di 4 s.
-      - [ ] (blender-artist) B3.3 `SM_MoloItalia_RistoranteGalleggiante` + 2 accessi (rampa blu e passerella ad arco): le foto bastano, nome inventato.
-      - [ ] (blender-artist → uefn-builder) B3.4 Arredi del molo: lampioni, panchine in cemento, cestino, bitte solo nelle zone d'ormeggio; battelli ai moli a dito.
-      - [ ] (blender-artist) B3.5 Radice e fondale: Capitaneria, chioschetti tondi, fontana del Palio, terminal, circoli nautici.
+      - [x] (blender-artist, 2026-11-20) **Molo Italia v1 in Blender** (B3.1-B3.5 lato Blender): `blender/arte_molo_italia.blend`, script
+            `blender/scripts/morin_molo_italia.py`, kit dei Blocchi 1-2 collegati in sola lettura. 23 asset nuovi in `exports/molo_italia/` (65 FBX,
+            tri LOD0/1/2): `SM_MoloItalia_Suolo` 66 (4 UCX, rami + gomito + testata, sezione §2.2) · `SM_MoloItalia_Suolo_Radice` 104 (4 UCX, Largo
+            Fiorillo + calata + parcheggio X 555-640, Y 1,3-120,85) · `SM_Molo_Scogliera_A/B/C` ~1,3-1,4k/~340/182, 1 UCX a cuneo · `SM_MoloItalia_Dito`
+            142/142/14 (×2) · `SM_MoloItalia_Faro` 2144/1316/432, 4 UCX, lanterna `M_MoloItalia_FaroLuce` emissiva · `SM_MoloItalia_RistorantePiccioni`
+            1748/1508/208, 11 UCX (calpestabile: coperta, terrazza, scala, rampa blu, passerella ad arco) · `SM_MoloItalia_Capitaneria` 998/766/98,
+            3 UCX (scritta GUARDIA COSTIERA, giardino) · `SM_MoloItalia_Edificio4P` 266/266/34 · `SM_MoloItalia_EdificioEst` 50 · `SM_MoloItalia_InfoPoint_Blu/_Rosso` 38
+            · `SM_Morin_LampionePastorale` 768/508/160, 2 UCX · `SM_MoloItalia_RinghieraModulo` 132/100/56 · `SM_MoloItalia_Monumento` 465/423/333, 13 UCX
+            · `SM_MoloItalia_MonumentoAlpini` 72 [S] · `SM_MoloItalia_Rimorchiatore_Tiramolla/_Spingitutto/_Ostinato` ~2,0k/1,5k/124, 2 UCX
+            · `SM_MoloItalia_Motovedetta` 1388/1340/72, 2 UCX · fondale senza UCX: `SM_MoloItalia_NaveCrociera` 1126, `SM_MoloItalia_GruPortuale` 92.
+            Texture nuove (`blender/textures/molo_italia/`): `T_MoloItalia_Tinte` 1024, `T_MoloItalia_Facciata` 1024, `T_Molo_Scogliera` 1024,
+            `T_MoloItalia_Cemento` 2048. CSV UE `exports/molo_italia/molo_italia_posizioni_v1.csv` (315 righe, colonna `gruppo`).
+            Catture `docs/qa/arte_moloitalia_v1_{faro,ristorante,infilata_ramo1,infilata_ramo2,radice,raccordo_b2,alto}.png`.
+      - [ ] (uefn-builder) Import Molo Italia v1: Acqua V2 estesa fino a X ~720 (UE 72000), Y −350 (UE +35000); MI `M_MoloItalia_FaroLuce`
+            con lampo Fl R 4 s (1 s acceso, 3 s spento); barriere (vedi sotto); controllo memoria.
+            Barriere: (1) `Barriera_FineBlocco` (oggi a X 56700) da spostare a **X 64000** su Y 1,3…120,85 (UE Y −130…−12085), cioè il limite est
+            della radice; (2) lato città della radice a **Y 120,85** fra X 566 e 640 (UE Y −12085), in continuità con `Barriera_LatoCitta_B2`;
+            (3) mare: perimetro dell'acqua oltre la scogliera e attorno al bacino, box X 540…720, Y −350…1,3 (UE X 54000…72000, Y −130…35000);
+            nessuna barriera sul ciglio del molo (chi cade rientra).
+      - [ ] (blender-artist) B3.6 Mancano: fontana del Palio, terminal crociere con scultura, circoli nautici, pilotine, casetta a lamelle e pontile di D1,
+            bidoni della differenziata, cartelli; texture [SV] ritagliate dalle foto (mattoni, giallo della chiatta) se le tinte non bastano.
       - [ ] (utente) Memoria: con B2 + B3 la stima sale a 242-244 MiB su 245. Decidere se usare le alternative a 0 MiB (agave, ristorante)
             o liberare memoria prima. **Superata (2026-11-20, §30):** la soglia 245 non è il limite di Epic; il budget reale di
             pubblicazione è al 3,4 % di 300 MiB. Da ricontrollare solo "Budget memoria mappa" dopo ogni sessione.
@@ -859,3 +888,4 @@ Ordine per impatto visivo:
 | 2026-11-19 | Pavimentazione v2: filari allineati, cordolo a gradino di 15 cm (fascia palme a Z +0,15), panchine/lampioni/tombini/pensilina | Dati confermati dall'utente; dettagli e stime [S] in `docs/decisioni.md` |
 | 2026-11-19 | Pavimentazione v3: gazebo con tetto a piramide (h 5,12 m), uno solo a X 25,5 fra la 2ª e la 3ª palma; torna la palma F1_04 (54 palme) | Correzioni dell'utente; dettagli in `docs/decisioni.md` |
 | 2026-11-19 | v2/v3 in UEFN: asset aggiornati copiando LOD e collisione da temporanei importati da zero (mai reimport); master emissivo per i globi; tinta cubetti (0,62; 0,58; 0,52) | Evita la finestra modale e la rotazione di Interchange; dettagli in `docs/uefn_arte.md` §12 e `docs/decisioni.md` |
+| 2026-11-20 | Blocco 2 in UEFN: barriere B2 larghe 50 e 60 unità (non 51/56), secondo device Acqua V2, traffico finto a 90 s con 21 auto fino a X 573 m | Il device Barriera accetta solo larghezze fisse; Acqua V2 max 512 m; 723 m di corsa non stanno in 60 s; dettagli in `docs/uefn_arte.md` §32 |
