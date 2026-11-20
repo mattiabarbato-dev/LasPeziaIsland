@@ -751,6 +751,13 @@ Ordine per impatto visivo:
 ## Fase 4 — Ottimizzazione
 - [ ] (blender-artist) Collisioni UCX_ su tutti gli asset; verifica budget triangoli
 - [ ] (uefn-builder) Controllo "Dimensioni del progetto" e calcolo della memoria
+  - [x] (uefn-builder, 2026-11-20) Memoria reale letta dallo Spatial Profiler (sorgente "Pubblica", cook 09:38, prima di ponte e Mirabello):
+        **10,16 MiB su 300 (3,4 %)**; mesh 6,49 · blueprint 1,08 · texture 1,08 · materiali 0,71 MiB. I mip in streaming non contano:
+        la stima a mano di 236 MiB e la soglia di 245 non sono il limite di Epic. Streaming WP non attivo. Da rileggere dopo la prossima
+        sessione dell'utente; elenco per asset solo dal pannello. `docs/uefn_arte.md` §30.
+        Nuovo limite di progetto: 300 MiB statici di pubblicazione, allarme 85 % ("Budget memoria mappa", sorgente "Pubblica").
+  - [x] (uefn-builder, 2026-11-20) LODBias 0 su tutte le 138 texture (49 portate da 1), una alla volta con GetSize > 32; 0 "no miplevels",
+        0 pacchetti sporchi, validazione 538/538 (37 avvisi mesh già noti). Render `docs/qa/uefn_lodbias0_parcheggio.png`. §31.
 - [ ] (qa-tester) Profilazione con unreal-insights; elenco dei 5 asset più pesanti
 - [ ] (blender-artist) Riduzione degli asset segnalati
 
@@ -771,11 +778,41 @@ Ordine per impatto visivo:
       Elementi confermati dall'utente il 2026-11-19 (foto in `ref/foto/arredi/` e `ref/foto/pavimentazione/`):
       cannone antico su affusto e scultura "REDAMARE" (lettere in corten) sul ciglio **a metà dell'intera passeggiata (~275 m dal ponte)**;
       scritta "PASSEGGIATA MORIN" in pietre bianche nei cubetti all'inizio lato città (~550 m)
+      - [x] (geo-scout, 2026-11-20) Scheda **`ref/blocco2.md`** (X 251 → 560): sezione (invariata, più il vialetto Y 118 e i varchi X 275-301 / 437-506),
+            ritmo degli arredi, elementi con posizione OSM, raccordi, 21 elementi con kit/asset, memoria texture **≈ 2,9-5,6 MiB**, 10 foto da chiedere.
+            Estratto OSM nuovo `ref/osm/morin_blocchi23.osm` (il vecchio non copre X > ~330). **Correzione:** cannoni OSM a X 249,0 e 259,3,
+            REDAMARE **fra i due** (X ≈ 250,5-258, articolo 2022), non a ~275 m; ancora 2 a X 279,9.
+      - [ ] (utente) Foto F1-F10 di `ref/blocco2.md` §10; soprattutto F7, il passo delle palme: le panchine OSM sono ogni ~16 m, quindi il passo potrebbe essere 8 m.
+      - [ ] (blender-artist → uefn-builder) B2.1 Banchina X 251,4-548,7 (kit v2 + nicchie ogni ~50 m, niente bitte finché F4 non lo dice),
+            `SM_Banchina_Angolo_MoloItalia`, pavimentazione e cordolo fino a X 560, suolo/blockout; nascondere `Arte_Banchina_Testata_Fine`,
+            spostare `Barriera_FineBlocco` a X ≈ 560.
+      - [ ] (blender-artist → uefn-builder) B2.2 Palme, panchine, lampioni, tombini sulla stessa griglia del Blocco 1 (solo CSV + HISM esistenti).
+      - [ ] (blender-artist) B2.3 `SM_Morin_Cannone` (×2), `SM_Morin_Redamare` (corten 1024, ≈ 2,7 MiB), ancora 2 con `SM_Morin_AncoraMonumento`;
+            deroga della corsia come l'ancora 1.
+      - [ ] (blender-artist) B2.4 `SM_Pav_Scritta_Morin` (geometria, `M_Pav_Fascia`) e `SM_Morin_ChioscoOttagonale` (atlante chiosco) a fine passeggiata.
+      - [ ] (blender-artist → uefn-builder) B2.5 Giardini a Mare: `SM_Morin_Prato_Giardini_B2` con i varchi, oleandri e panchina lunga da
+            `exports/giardini/giardini_posizioni_v1_blocco2.csv`, vialetti.
+      - [ ] (blender-artist → uefn-builder) B2.6 Viale Italia X 326-560 (moduli e incroci X 506/520, isola X 396-483), cortina con `SM_Fondale_Palazzo_A/B/C`, traffico finto allungato.
+      - [ ] (blender-artist) B2.7 Dettagli: aiuole di rose, agave (facoltativa, ≈ 2,7 MiB), panchina curva, memoriale Aviatori, pannelli, fontanella.
 - [ ] Blocco 1, dettagli da fare: ~~ancora monumentale~~ e ~~ciglio a grandi blocchi bianchi~~ fatti in Blender il 2026-11-20 (banchina v2,
       da importare; l'ancora è all'OSM X 226, non all'imbocco del ponte); fascia longitudinale di lastre a ~1/3 del camminamento dal mare [S];
       Giardini a Mare (prato, aiuole di rose bordate in metallo, agavi, panchine bianche a schienale curvo); ponte con le foto in `ref/foto/ponte/`.
       Aiuole delle palme: terra (confermato dall'utente)
 - [ ] Blocco 3: Molo Italia e faro rosso come finale esteso
+      - [x] (geo-scout, 2026-11-20) Scheda **`ref/molo_italia.md`**:
+            - geometria OSM: ramo 1 largo 16,5-17,5 m e lungo 285 m; ramo 2 largo 15,4 m e lungo 161 m, a 136,5°; due moli a dito di ~50 m sul lato est;
+            - ristorante galleggiante = chiatta "I Gabbiani" (`building=houseboat`), 19,5 × 10,3 m, lato est a (583,9; −51,5), passerella e cancello, 2 livelli;
+            - faro: torre tonda rossa di ~8 m con ballatoio e lanterna, Fl R 4 s (1+3), a (678,6; −327,1);
+            - memoria texture ≈ 0-2,7 MiB; 10 foto da chiedere.
+      - [ ] (utente) Foto M1-M10 di `ref/molo_italia.md` §10: nessuna foto del molo è ancora in `ref/foto/`.
+      - [ ] (blender-artist → uefn-builder) B3.1 `SM_MoloItalia_Suolo` + ciglio con il kit banchina v2; Acqua V2 estesa fino a X ~720, Y −350; barriere.
+      - [ ] (blender-artist) B3.2 `SM_MoloItalia_Faro`, pezzo unico, nessuna texture nuova, luce rossa a lampo di 4 s.
+      - [ ] (blender-artist) B3.3 `SM_MoloItalia_RistoranteGalleggiante` + passerella (dopo le foto M5-M6).
+      - [ ] (blender-artist → uefn-builder) B3.4 Arredi del molo: lampioni, panchine in cemento, cestino, bitte solo nelle zone d'ormeggio; battelli ai moli a dito.
+      - [ ] (blender-artist) B3.5 Radice e fondale: Capitaneria, chioschetti tondi, fontana del Palio, terminal, circoli nautici.
+      - [ ] (utente) Memoria: con B2 + B3 la stima sale a 242-244 MiB su 245. Decidere se usare le alternative a 0 MiB (agave, ristorante)
+            o liberare memoria prima. **Superata (2026-11-20, §30):** la soglia 245 non è il limite di Epic; il budget reale di
+            pubblicazione è al 3,4 % di 300 MiB. Da ricontrollare solo "Budget memoria mappa" dopo ogni sessione.
 - [ ] Modalità aggiuntive: nascondino tra i giardini, gara a squadre
 
 ---

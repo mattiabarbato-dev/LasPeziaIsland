@@ -991,7 +991,7 @@ Texture nuove `T_Banchina_Blocchi_D/N/ORM` 2048 (N = Normalmap senza flip, ORM =
 `docs/qa/uefn_banchina_v2.png` (UE 25200, −7930, 175; yaw 184; pitch −6; FOV 75; 1024 px; ombre), da confrontare con
 `ref/foto/vista/banchina_vista_montagne_verso_ponte.jpg`: grandi blocchi bianchi del ciglio, ancora sul camminamento, filare di palme.
 
-### LODBias delle texture "vicine": stima, NON applicato
+### LODBias delle texture "vicine": stima, NON applicato (soglie 220/245 MiB superate: vedi §30, limite reale 300 MiB)
 Regola del task: fermarsi se il totale stimato delle texture del progetto supera 220 MiB. Stima = larghezza × altezza × byte/px × 4/3 (mip),
 ÷ 4 per ogni passo di LODBias; byte/px: BC5 normal 1, DXT1 0,5, DXT5 (D con alfa) 1. Due casi: solo le D "masked" con alfa (chiome, fronde,
 fregio) oppure tutte le D salvate RGBA nei PNG sorgente (UE potrebbe trattarle come DXT5).
@@ -1640,3 +1640,74 @@ unici e temporanei).
 - 2 `LaSpezia/_Temp/TMPMB_SM_Mirabello_YachtB_v2_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente.
 - **(blender-artist)** `SM_Mirabello_YachtB_v2_LOD1/_LOD2`: strallo con tratti neri da 20-45 m (UV del genoa non aggiornate nei LOD?).
 - **(qa-tester)** Confermare in sessione e dopo un riavvio dell'editor che le 4 texture restino colorate.
+
+## 30. Memoria reale di pubblicazione (Memory Calculation di UEFN, letta il 2026-11-20 ~13:30 ora locale)
+Sola lettura, nessuna sessione avviata, nessuna modifica agli asset. Fonte: il calcolo ufficiale `LogValkyrieMemoryCalculation`
+che UEFN rifà a ogni cook (avvio sessione / push changes) e pubblica nello **Spatial Profiler** come sorgente **"Pubblica"**
+(metrica `ValkyrieFortniteEditorPublishMemory`, "Budget memoria mappa", categoria Pubblicazione). Letta con
+`SpatialProfilerToolset.ProfilerToolset.ListSources/ListMetrics/GetMetricStats` e dal log dell'editor.
+
+**Ultimo calcolo disponibile: cook delle 09:38 ora locale (2026-11-20)**, cioè con la sessione dell'utente del mattino.
+È **precedente** a ponte (§27), riduzione texture (§27), Mirabello v1/v2 (§28-29): quei lavori entreranno nel prossimo cook.
+
+| Voce | Byte | MiB | % del limite |
+|---|---:|---:|---:|
+| **Totale "Budget memoria mappa" (picco)** | **10.651.648** | **10,16** | **3,4 %** |
+| Mesh statiche | 6.801.408 | 6,49 | 2,2 % |
+| Blueprint (device, ecc.) | 1.133.568 | 1,08 | 0,36 % |
+| Texture | 1.131.520 | 1,08 | 0,36 % |
+| Materiali | 739.328 | 0,71 | 0,24 % |
+| Livello | 494.592 | 0,47 | 0,16 % |
+| Altro | 304.128 | 0,29 | 0,10 % |
+| Audio | 47.104 | 0,04 | 0,01 % |
+| **Limite (soglia di pubblicazione)** | **314.572.800** | **300** | 100 % |
+
+Andamento nel log: 5,81 MB (19/11 16:56) → 8,16 MB (19/11 22:28) → 10,65 MB (20/11 09:38). Un solo campione
+(`sampled=1`, cella da 2,59 km che copre tutta la mappa): il calcolo è fatto sull'isola intera, non per posizione.
+
+**Lettura.** Il budget di pubblicazione conta la memoria **statica** dei pacchetti cotti. I mip delle texture in streaming
+non ci entrano: alle 09:38 avevamo già ~200-260 MiB di texture secondo la stima a mano (§21-§26), ma la voce Texture vale 1,08 MiB.
+Quindi **la stima a mano (236 MiB) e la soglia interna di 245 MiB non misurano il limite di Epic**: misurano (per eccesso) la memoria
+texture a piena risoluzione, che conta per il pool di streaming e il download, non per il blocco di pubblicazione.
+
+**LODBias → 0 su tutte (le 30 vicine alla corsia e le 19 del §27).** Effetto sul budget di pubblicazione: trascurabile
+(la parte statica di una texture è l'header più la coda dei mip piccoli, indipendente dal LODBias; ordine dei KB, < 0,1 MiB in tutto).
+Il ponte e Mirabello aggiungono soprattutto mesh: stima prudente del prossimo cook **15-25 MiB (5-8 %)**, margine > 90 % sul limite,
+ben oltre il 15 % richiesto. Costo vero di LODBias 0: memoria texture a runtime (stima a mano: torna a 313,7-391,5 MiB di mip
+a piena risoluzione, gestiti dallo streaming) e dimensione di download (limite 400 MiB; v7 era 21,4 MiB). **Nulla applicato**: decide l'orchestratore.
+
+**Voci più pesanti per asset.** Gli strumenti MCP danno solo i totali per tipo e per cella; nessun elenco per asset, nessun file
+di report su disco (`Saved/` del progetto e dell'editor controllati). Da leggere a mano nel pannello (vedi sotto).
+
+**Streaming World Partition: NON attivo** (evidenza indiretta: `FortWorldSettings.bHideEnableStreamingWarning = false`, cioè
+l'avviso "streaming disattivato" è ancora mostrato; e il calcolo usa un solo campione su tutta la mappa). La proprietà
+`WorldPartition.bEnableStreaming` non è leggibile via MCP. Se si attivasse, il budget si calcolerebbe per posizione del giocatore
+(picco della cella peggiore, non il totale): con 3,4 % sul totale non serve. Decisione del progetto invariata: non accettare il popup.
+
+**Per l'utente, dopo la prossima sessione o push changes** (il cook rifà il calcolo): scheda **Spatial Profiler** → sorgente
+**"Pubblica"** → metrica **"Budget memoria mappa"** (unità byte; soglia 314.572.800 = 300 MiB); sotto "Memoria mappa per tipo" le voci
+Texture / Mesh statica / Materiale / Blueprint / Audio / Livello / Altra. Se il pannello mostra l'elenco degli asset della cella,
+annotare i primi 15. In alternativa, nel registro di output cercare `Memory calculation complete: peak=` (byte).
+
+**Proposta:** sostituire la soglia interna di 245 MiB con il limite reale (300 MiB di memoria statica, con allarme al 85 % = 255 MiB
+del valore misurato) e trattare la memoria texture a piena risoluzione come voce di qualità/prestazioni, da verificare in sessione
+con lo Spatial Profiler (metriche client, profilo Desktop) e non come vincolo di pubblicazione.
+
+**Decisione (2026-11-20, utente tramite orchestratore):** la soglia interna di 245 MiB è sostituita dal limite reale: **300 MiB di memoria
+statica di pubblicazione, allarme all'85 % (255 MiB)**, controllato sul valore **"Budget memoria mappa" della sorgente "Pubblica"** dello
+Spatial Profiler. Le stime "metodo §21" restano solo informative (memoria texture a runtime). Riga in `docs/decisioni.md`.
+
+## 31. LODBias 0 su tutte le texture (2026-11-20, ~13:18-13:22 ora locale)
+- Inventario `LaSpezia/`: 138 Texture2D, **49 a LODBias 1** (nessuna a 2): `T_Morin_Gazebo_Fregio_*`, `T_Banchina_Paramento_*`, `T_Banchina_Ciglio_*`,
+  `T_Pav_Terra_*`, `T_Albero_Latifoglia_Chioma_*`, `T_Molo_Asfalto/Facciate/Masselli_*`, `T_Morin_PinoDomestico_Chioma_*`, `T_Morin_Oleandro_Chioma_*`,
+  `T_Morin_Prato_*`, `T_Parcheggio_Asfalto_*`, `T_Morin_Auto_v2_D/N/ORM/E`, `T_Morin_Imbarco_*`, `T_Morin_Imbarco_Legno_*`, `T_Ponte_Acciaio_*` (4096).
+- Procedura (regola §29): **una texture alla volta**: `finish_all_asset_compilation` → `lod_bias = 0` → `finish_all_asset_compilation` →
+  `TextureToolset.GetSize` > 32 → successiva. 49/49 a dimensione piena (2048, Ponte_Acciaio 4096; Fregio 2048 × 512). "Compress Without Alpha" non toccato.
+- Controllo finale: **138/138** a LODBias 0 e dimensione valida; nessun nuovo `contains no miplevels` nel log (gli ultimi sono quelli già noti del §29).
+- Salvati i 49 pacchetti; poi **0 pacchetti sporchi** (contenuti e mappe).
+- Validazione `LaSpezia/` (`validate_assets_with_settings`): **538 controllati, 538 validi, 0 errori**, 37 avvisi tutti di `ValkyrieValidator_StaticMesh`
+  (già noti, conteggio vertici); `ValkyrieValidator_Textures` 138, 0 avvisi.
+- Render `docs/qa/uefn_lodbias0_parcheggio.png` (camera di `uefn_auto_colori_fix.png`: UE 2150, −10660, 212; yaw −8; pitch −6; FOV 78; 1024 px; ombre;
+  mip forzati residenti 20 s): auto colorate con vetri, fanali e targhe; asfalto, strisce, chiome e palme nitidi.
+- Memoria: budget di pubblicazione invariato in pratica (§30); stima a mano a piena risoluzione (solo informativa) ≈ 314-392 MiB a runtime in streaming.
+  Da rileggere "Budget memoria mappa" (sorgente "Pubblica") dopo la prossima sessione dell'utente.
