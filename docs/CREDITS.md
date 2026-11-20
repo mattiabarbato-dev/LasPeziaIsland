@@ -172,6 +172,15 @@ Pianta del parcheggio e della corsia da OSM (© OpenStreetMap contributors, ODbL
 - Planimetria dell'incrocio: © OpenStreetMap contributors (ODbL).
 - `docs/qa/arte_incrocio_v1_confronto.png` e `arte_parcheggio_v3_confronto.png` contengono catture Street View: file di QA, non vanno pubblicati.
 
+### Ponte Thaon di Revel v1 (blender-artist, 2026-11-20) — `blender/textures/ponte/`, `blender/scripts/morin_ponte.py`
+Texture **procedurali** (numpy, nessun pixel da foto o da terzi); dalle foto dell'utente `ref/foto/ponte/ponte1.png`,
+`ponte_verso_passegiata.png`, `ringhiera_ponte.png` solo i colori campionati e la disposizione (doghe longitudinali, file di borchie,
+forma del parapetto). Nessuna geometria o texture Google.
+- `T_Ponte_Legno_{D,N,ORM}` 4096: tavolato grigio invecchiato 6 × 6 m (tono mediano della foto al sole ~118/116/112).
+- `T_Ponte_Acciaio_{D,N,ORM}` 4096: acciaio verniciato bianco con usura leggera, 4 × 4 m.
+- `T_Ponte_Cavo_{D,N,ORM}` 1024: fune spiroidale.
+- Riusata `T_Banchina_Paramento_*` (spalla Mirabello), già elencata sopra.
+
 ## Audio
 
 ### Ambiente Viale Italia (2026-11-20) — `exports/audio/`

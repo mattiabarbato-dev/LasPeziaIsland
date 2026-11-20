@@ -229,6 +229,16 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
        mono 0,85 / 1,55 / 0,50 / 2,00 / 0,70 / 0,60 s, fade-out ~50 ms. Nessun transitorio isolato nel loop; due passaggi di veicoli
        vicini (~+20 dB sul fondo) a **14-19 s** (picco 17 s) e **39-44 s** (picco 42 s).
      - [ ] (utente) Ascoltare il loop (14-19 s e 39-44 s) e i 6 clacson; poi (uefn-builder) import e device audio.
+     - [x] (uefn-builder, 2026-11-20 ~11:10, `docs/uefn_arte.md` §26) Audio importato in `LaSpezia/Audio/` (7 SoundWave, il loop con
+       Looping). `Audio_Viale_BrusioTraffico` (AmbientSound) = loop, auto-activate, volume 0,3, box 180 × 9 × 6 m + falloff lineare 80 m.
+       Clacson: l'Audio Player non ha né casualità né intervalli → tracce Audio nella sequenza `LS_Viale_Traffico` (già in loop col device
+       `Device_Cinematica_TrafficoViale`), legate alle auto: 3,0 s Clacson_03 + 3,65 s Clacson_06 (auto 12), 19 s Clacson_01 (auto 00),
+       41 s Clacson_04 (auto 08) → intervalli 16 / 22 / 22 s, ripetuti ogni 60 s; attenuazione `ATT_Viale_ClacsonLontano` (sfera 15 m +
+       120 m lineare), volume 0,45. Clacson_02 e _05 non usati. `Device_Audio_TrafficoViale_SO`: audio = Clacson_01, nessuna riproduzione
+       automatica (inerte, pronto per Verse). Traffico riallineato ai centri corsia v2 (Y −12380 / −12860 / −13375 / −13685).
+     - [ ] (utente / qa-tester) **In sessione:** il brusio si sente dalla passeggiata come sottofondo? I clacson suonano, lontani e legati
+       alle auto? Il loop non ha stacchi? Se le tracce Audio delle cinematiche non suonano in UEFN: piano B Timer device + Audio Player,
+       oppure Verse (casualità vera tra i 6 clacson).
    - [x] (blender-artist, 2026-11-20) **Via il marciapiede all'incrocio** (richiesta dell'utente, `ref/foto/ToFIX/Immagine 2026-11-20 104227.png`;
      `docs/decisioni.md`). Sorgente `morin_incrocio.py` (`build_via_marciapiede`, `ucx_ray_test_via_marciapiede`, `export_via_marciapiede`,
      `build_incrocio(..., varco)`); backup `blender/arte_incrocio_pre_via_marciapiede.blend`, `scripts/morin_incrocio_pre_via_marciapiede.py.bak`.
@@ -243,7 +253,7 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      - `exports/viale/SM_Viale_Italia_Strada_v2_Varco{,_LOD1,_LOD2}.fbx`: 132 / 132 / 46 tri, 19 × 24,15 × 0,205 m, = Strada_v2 con il cordolo a
        raso per X 22-26 (solo il modulo SO_01). Niente UCX. Lo "spezzone" segnato dall'utente era questo cordolo (banda 0 del viale).
      Ray test a griglia 5 cm: asfalto 29.678 punti visibili, strada molo v2 68.935, **0 senza UCX**. Render `docs/qa/arte_incrocio_fix_marciapiede.png`.
-   - [ ] (uefn-builder) Import e sostituzione (nessuna cancellazione): **nascondere** `Arte_Incrocio_Marciapiede_v2` (e lasciare nascosto
+   - [x] (uefn-builder, 2026-11-20 ~11:00-11:20, `docs/uefn_arte.md` §26) Import e sostituzione (nessuna cancellazione): **nascondere** `Arte_Incrocio_Marciapiede_v2` (e lasciare nascosto
      `Arte_Incrocio_Marciapiede`), `Arte_Molo_Pav_Strada`; posare `SM_Viale_Incrocio_Asfalto` e `SM_Molo_Pav_Strada_v2` a (0,0,0);
      `SM_Viale_Italia_Incrocio_v3` (+LOD) al posto della mesh del modulo `Arte_Viale_Incrocio` (SO_00, oggi v1 o v2), `SM_Viale_Italia_Strada_v2_Varco`
      (+LOD) al posto della mesh dell'istanza `Viale_Strada_SO_01` (togliere quell'istanza dall'HISM e ricrearla come attore, stessa posa X 22).
@@ -265,7 +275,7 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
        la tacca X 20-24, che la mesh visibile riempie), box cordolo, box aiuola, convesso (94,95; 102,25)-(95; 102,25)-(106; 120,85)-(94,95; 120,85).
        Ray test a griglia (passo 10 cm su tutto, 2 cm su smusso e tacca): 151.175 + 279.025 + 64.125 punti visibili, **0 senza UCX** (la v3 ne
        lasciava 8.098 = ~81 m²: smusso e tacca). Causa: la triangolazione EAR_CLIP dell'OUTLINE riempie tacca e triangolo concavo.
-   - [ ] (uefn-builder) **Import e sostituzione** (nessuna cancellazione): `SM_Viale_Italia_Strada_v2` (+ LOD1/LOD2, metodo LOD di §10) in
+   - [x] (uefn-builder, 2026-11-20 ~11:00-11:20, `docs/uefn_arte.md` §26; incrocio **v3** al posto della v2) **Import e sostituzione** (nessuna cancellazione): `SM_Viale_Italia_Strada_v2` (+ LOD1/LOD2, metodo LOD di §10) in
      `Arte/Viale` al posto di `SM_Viale_Italia_Strada` in tutti i moduli (stessa posa, istanza per istanza), `SM_Viale_Italia_Incrocio_v2`
      (+ LOD) al posto di `SM_Viale_Italia_Incrocio` (modulo SO_00), `SM_Parcheggio_Asfalto_v4` a (0,0,0) al posto di `Arte_Parcheggio_Asfalto_v3`
      (v3 nascosto). Materiali esistenti (`M_Molo_Asfalto`, `M_Pav_Fascia`, `M_Viale_Segnaletica`, `M_Parcheggio_Asfalto`, `M_Pav_Terra`):
@@ -500,7 +510,18 @@ Obiettivo: la corsa è divertente prima di essere bella.
 Obiettivo: sostituire il grigio con asset definitivi, uno alla volta, senza rompere il gioco.
 Ordine per impatto visivo:
 
-- [ ] (blender-artist) **Ponte Thaon di Revel** da `ref/ponte.md`: impalcato, antenna, stralli, parapetti
+- [~] (blender-artist) **Ponte Thaon di Revel** da `ref/ponte.md`: impalcato, antenna, stralli, parapetti
+      - [x] v1 2026-11-20 (in Blender, **da importare**): `blender/arte_ponte.blend`, script `blender/scripts/morin_ponte.py`.
+            Stessa giacitura e quote del blockout (raccordi visivi ≤ 7 cm). 4 pezzi in coordinate di progetto, posa (0,0,0)
+            (`exports/ponte/ponte_posizioni_v1.csv`), FBX LOD0 + `_LOD1`/`_LOD2` in `exports/ponte/`. Tri LOD0/1/2:
+            Impalcato 13.538/6.698/1.964 · Parapetti 33.472/17.148/4.944 · Antenne 1.436/572/380 · Stralli 3.360/2.016/448 ·
+            **totale 51.806 / 26.434 / 7.736** (budget 120k). UCX: Impalcato 14, Parapetti 22, Antenne 2, Stralli 0.
+            Texture `blender/textures/ponte/` T_Ponte_Legno/Acciaio 4096, Cavo 1024 (+ M_Banchina_Paramento riusato).
+            Render `docs/qa/arte_ponte_v1_confronto_calpestio.png`, `_confronto_passeggiata.png`, `arte_ponte_v1_partenza.png`
+            (entrambe le antenne visibili, raycast libero Z 10-33). Scelte [S] in `docs/decisioni.md` 2026-11-20.
+      - [ ] (uefn-builder) Import (metodo `docs/uefn_arte.md` §12-13), posa in (0,0,0), nascondere `SM_Blockout_Ponte`
+            (il blockout di Mirabello resta); verifica UCX e Nanite off/on da decidere.
+      - [ ] (utente) Foto laterale del ponte (inclinazione pennoni, n. stralli, profilo), dettaglio dell'imbocco e del concio apribile.
 - [x] (geo-scout) Schede per la grafica di palme e banchina (2026-11-19): `ref/palme.md`, `ref/banchina.md`, `ref/asset_fonti.md`
       Specie: filari a prevalenza Phoenix dactylifera (tag OSM) con possibile P. canariensis (Comune, 2014): certezza media.
       Restano [S]: passo delle palme (9 m, coerente con il conteggio comunale), altezze, materiali del ciglio, bitte, scalette, lastre.
