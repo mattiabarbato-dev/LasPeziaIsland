@@ -98,8 +98,18 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      `M_Molo_Asfalto`, `M_Pav_Fascia`. Blockout nuovo `exports/blockout/SM_Blockout_Fondale_v3.fbx` (417 tri, 43 UCX; v2 557/57;
      sorgente `blender/blockout_blocco1.blend` collezione `Blockout_Fondale_v3`, backup `blockout_blocco1_pre_fondale_v3.blend`).
      Confronto `docs/qa/arte_viale_v1_confronto.png` (camera `CAM_Viale_F1` a X 221,8, Y 93,4).
-   - [ ] (uefn-builder) Import vista città v1: FBX `exports/viale/` + CSV; posare `SM_Blockout_Fondale_v3` e **nascondere** l'attore
-     `Blockout_Fondale_v2` (non cancellare). Facoltativo: `MI_Morin_Prato` anche sullo slot Verde del Fondale_v3 (Giardini pubblici).
+   - [x] (uefn-builder, 2026-11-19 23:14-23:22 ora locale) Import vista città v1 (`docs/uefn_arte.md` §18): 9 mesh (`Arte/Viale`,
+     `Arte/Fondale/Palazzi`) + `Blockout/SM_Blockout_Fondale_v3`, 21 texture, 8 MI; tri e LOD come da report (Prato 48, Aiuola 76/40/28,
+     Strada 88/80/32, Auto 324/204/124, Palazzi 2.264/878/22 · 2.740/1.186/22 · 1.940/754/22, Fondale_v3 417 con 43 convessi).
+     13 HISM + 1 attore in Outliner `Arte/Viale` (107 istanze dal CSV; alberi e palme dei Giardini pubblici con gli asset esistenti),
+     `Blockout_Fondale_v3` posato, **`Blockout_Fondale_v2` nascosto** (non cancellato). Strada, auto, palazzi e alberi oltre la barriera
+     senza collisione. Slot Verde di `SM_Blockout_Fondale_v3` su **`MI_Morin_Prato_Mondo`** (proiezione mondo: le UV del blockout sono nulle).
+     Trace: prato +8 continuo su X 117,5-250 m / Y 102-118 m. Validazione 278/278, 0 errori, 11 avvisi (10 noti + "un solo LOD" sul Fondale_v3).
+     Render `docs/qa/uefn_viale_v1.png` (camera F1).
+   - [ ] (utente) Conferma per cancellare `Blockout_Fondale_v2` (nascosto), la sua mesh e i 16 `TMPV_*` in `_Temp`.
+   - [ ] (blender-artist) Viale v1: il blockout Fondale_v3 finisce a X 330 m: palazzi a X 330/357,5 m e una latifoglia a X 333 m senza suolo
+     del blockout sotto; strada finisce a X 250 m (bordo a vista dall'alto); un cubo bianco nei Giardini pubblici (vista alta, origine da verificare: probabile scatola del Fondale_v3); tangenti
+     degeneri su palazzi e Fondale_v3 (avvisi d'import).
    - [ ] (utente/geo-scout) Verificare [S]: sezione del viale (sosta lato giardini, spartitraffico, sosta lato città, strisce bianche o blu),
      senso di marcia, disegno delle aiuole di bosso, densità degli alberi dei Giardini pubblici.
    - [ ] (blender-artist → uefn-builder) Layout fascia palme **v4**: filari da X 20,4 (via le palme a X 12), tutto il resto −0,6 m,

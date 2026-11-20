@@ -733,3 +733,71 @@ confronto con `ref/foto/vista/prato con alberelli.png`), `docs/qa/uefn_giardini_
 - 6 `LaSpezia/_Temp/TMPG_<asset>_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente.
 - Il prato provvisorio (`M_Blockout_Verde`) è verde menta chiarissimo: nel render stacca molto dagli oleandri; serve un materiale prato vero.
 - Oltre il prato (Y > 121 m) non c'è ancora Viale Italia con auto: si vedono le scatole del fondale.
+
+## 18. Vista città v1: prato, Viale Italia, palazzi, Giardini pubblici; blockout fondale v3 (2026-11-19, 23:14-23:22 ora locale)
+
+Sorgenti: `exports/viale/` (25 FBX), `exports/viale/viale_posizioni_v1.csv` (107 righe), texture `blender/textures/viale/`,
+`exports/blockout/SM_Blockout_Fondale_v3.fbx`. Controllo iniziale: nessun asset né attore con questi nomi. Metodo del §13
+(LOD0 col nome finale, LOD1/2 come `_Temp/TMPV_<asset>_LOD1/2` + `set_lod_from_static_mesh` dopo `remove_lods`).
+
+### Asset
+| Asset | Cartella | Tri LOD0/1/2 | Bbox LOD0 (uu) | Convessi | Slot → MI | MinLOD L/M |
+|---|---|---|---|---|---|---|
+| `SM_Morin_Prato_Giardini` | Arte/Viale | 48 | X 0..13250 · Y −1895..0 · Z −5..8 | 1 (UCX) | `MI_Morin_Prato` | 0 |
+| `SM_Morin_Aiuola_Bosso` | Arte/Viale | 76 / 40 / 28 | X ±600 · Y ±150 · Z −3..36 | 1 (UCX) | `MI_Morin_Bosso` | 2 |
+| `SM_Viale_Italia_Strada` | Arte/Viale | 88 / 80 / 32 | X 0..1900 · Y −2415..0 · Z −5..15,5 | **0** | `MI_Molo_Asfalto`, `MI_Pav_Fascia`, `MI_Viale_Segnaletica` | 2 |
+| `SM_Morin_Auto_A/B/C` | Arte/Viale | 324 / 204 / 124 | A X ±197,5 · Y ±88 · Z 0..150; B ±217,5 · ±92 · 0..164; C ±222,5 · ±89 · 0..145 | **0** | `MI_Morin_Auto` | 2 |
+| `SM_Fondale_Palazzo_A` | Arte/Fondale/Palazzi | 2.264 / 878 / 22 | X ±1062 · Y −1862..62 · Z 0..2686 | **0** | `MI_Fondale_Palazzo_A` | 2 |
+| `SM_Fondale_Palazzo_B` | Arte/Fondale/Palazzi | 2.740 / 1.186 / 22 | X ±1287 · Y −1862..95 · Z 0..2679 | **0** | `MI_Fondale_Palazzo_B` | 2 |
+| `SM_Fondale_Palazzo_C` | Arte/Fondale/Palazzi | 1.940 / 754 / 22 | X ±1062 · Y −1662..62 · Z 0..2279 | **0** | `MI_Fondale_Palazzo_C` | 2 |
+| `SM_Blockout_Fondale_v3` | Blockout | 417 (solo LOD0) | X −16388..33000 · Y −30000..30341 · Z −300..1949 | 43 | `M_Blockout_Fondale`, Verde → **`MI_Morin_Prato_Mondo`** | 0 |
+
+- Tutti: Nanite off, Use Simple Collision As Complex, soglie 1,0 / 0,2 / 0,08 sugli asset con LOD; sezioni di ogni LOD sugli slot giusti.
+- **Nuova insidia:** `ImportFile` genera **un convesso automatico** anche sugli FBX senza UCX (strada, auto, palazzi ne avevano 1):
+  tolto con `remove_collisions`. Inoltre i componenti HISM di strada, auto, palazzi e alberi dei Giardini pubblici sono **No Collision**.
+- Il bosso non è su card: master opaco `M_Morin_Master_PBR`. Nessun master nuovo.
+- Texture (21): `Arte/Viale/T_Morin_Prato_*` 2048, `T_Morin_Bosso_*`, `T_Morin_Auto_*` 1024, `T_Viale_Segnaletica_*` 512;
+  `Arte/Fondale/Palazzi/T_Fondale_Palazzo_{A,B,C}_*` 1024. N = Normalmap senza flip, ORM = Masks, sRGB off.
+- MI su `M_Morin_Master_PBR`: `MI_Morin_Prato`, `MI_Morin_Bosso`, `MI_Viale_Segnaletica`, `MI_Morin_Auto`, `MI_Fondale_Palazzo_A/B/C`.
+- **Prato sul blockout.** Le UV di `SM_Blockout_Fondale_v3` sono tutte (0,0) (area UV 0, letta con GeometryScript): `MI_Morin_Prato`
+  lì darebbe un solo texel. Creato `Arte/Viale/MI_Morin_Prato_Mondo` su `M_Morin_Master_Pav` (proiezione in coordinate mondo, `Tile_m` 4,
+  stesse texture del prato) e assegnato allo slot Verde **del solo asset** `SM_Blockout_Fondale_v3`. `M_Blockout_Verde` non toccato
+  (resta su `SM_Blockout_Fondale_v2` e sul blockout della passeggiata). Nella vista alta (25 m) il tiling a 4 m non si nota: tenuto.
+
+### Posa (Outliner `Arte/Viale`; HISM duplicati da `Arte_Arredi_Tombini` + `clear_instances`, attore singolo dal gazebo)
+| Attore | Mesh | Istanze | Collisione componente |
+|---|---|---|---|
+| `Arte_Viale_Prato` (FortStaticMeshActor) | SM_Morin_Prato_Giardini | (11750, −10190, 0) | Query Only (come il template) |
+| `Arte_Viale_AiuoleBosso` | SM_Morin_Aiuola_Bosso | 8 (Y −11000, Z 8) | Query Only |
+| `Arte_Viale_Strada` | SM_Viale_Italia_Strada | 7 (X 11700..23100, Y −12085) | No Collision |
+| `Arte_Viale_AutoA/B/C` | SM_Morin_Auto_A/B/C | 13 / 13 / 15 (Y −12207 e −13752, Z 2) | No Collision |
+| `Arte_Viale_PalazzoA/B/C` | SM_Fondale_Palazzo_A/B/C | 5 / 4 / 4 (Y −20600..−26600) | No Collision |
+| `Arte_Viale_GP_LatifogliaA/B` | `Arte/Alberi/SM_Albero_LatifogliaA/B` (esistenti) | 11 / 8 | No Collision |
+| `Arte_Viale_GP_PinoDomestico` | `Arte/Alberi/SM_Morin_PinoDomestico` (esistente) | 5 | No Collision |
+| `Arte_Viale_GP_PalmaA` | `Arte/Palme/SM_Morin_PalmaA` (esistente) | 13 | No Collision |
+| `Blockout_Fondale_v3` (`Blockout`) | SM_Blockout_Fondale_v3 | (0,0,0), dup. della v2, Query Only | — |
+
+Posizioni e yaw dal CSV, scala 1. **`Blockout_Fondale_v2` nascosto, non cancellato** (metodo §14). `Barriera_LatoCitta` occupa Y −118,0..−120,6 m:
+tutto ciò che sta oltre è senza collisione.
+
+### Verifiche (line trace in editor, semplice = complessa)
+- Griglia 100 × 50 uu su X 11750..25000, Y −10200..−11800 (4.389 punti), ignorando oleandri, panchine, aiuole e `Luce_OraDelGiorno`:
+  **prato +8** su 4.256 punti, fascia palme +15 a Y −10200; nessun buco, il blockout v4 (+5) non è mai il primo impatto.
+- Trace verticali sui centri delle 41 auto, dei 7 moduli di strada, davanti ai 13 palazzi e su alberi/palme: primo impatto sempre
+  `Blockout_Fondale_v3` a Z 0 (mai auto, strada, palazzi né alberi). Trace orizzontali a Z 80 lungo le due file di auto (X 115-250 m): nessun impatto.
+- Oltre la barriera (X 118-250 m, Y −118,5..−146 m) suolo continuo `Blockout_Fondale_v3` a Z 0.
+- **Senza suolo del blockout sotto:** Palazzo A a X 330 m, Palazzo B a X 357,5 m e una latifoglia a X 333 m (il Fondale_v3 finisce a X 330 m).
+
+### Salvataggio, validazione, render
+`save_dirty_packages` 23:20:16 (71 pacchetti), date dei 15 `.uasset` OFPA controllate (contengono i riferimenti nuovi; v2 risalvato nascosto),
+`SM_Blockout_Fondale_v3` contiene `MI_Morin_Prato_Mondo`; nessun pacchetto sporco. Validazione `LaSpezia/` + mappa: 278 controllati,
+278 validi, 0 errori, 11 avvisi (10 noti + "un solo LOD" su `SM_Blockout_Fondale_v3`, voluto). Log: solo tangenti degeneri su palazzi e
+Fondale_v3 (import) ed EOS. Render `docs/qa/uefn_viale_v1.png` (UE 22180, −9340, 205; yaw −90; pitch −3; FOV 100, 1024 px, ombre):
+stessa camera di `CAM_Viale_F1` (Z = cubetti +15 + 1,9 m).
+
+### Memoria
+Project Size non riletto (nessuna sessione). Stima delle texture nuove a piena risoluzione con i mip: prato 2048 ≈ 11-13 MiB,
+cinque set 1024 ≈ 13-17 MiB, segnaletica ≈ 0,8 MiB: **≈ 25-31 MiB** in più. Mesh: < 20k tri complessivi.
+
+### Temporanei
+16 `LaSpezia/_Temp/TMPV_<asset>_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente.
