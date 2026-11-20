@@ -525,6 +525,19 @@ def _sfx(lod):
     return "" if lod == 0 else f"_LOD{lod}"
 
 
+# v2 (2026-11-20, correzioni dopo l'import in UEFN, docs/uefn_arte.md §33): gli asset elencati si costruiscono ed esportano
+# col suffisso di versione (le v1 restano in UEFN e nel .blend). Vano scala del ristorante; LOD1/LOD2 con la stessa bbox del LOD0.
+VER = {n: "_v2" for n in ("SM_MoloItalia_RistorantePiccioni", "SM_MoloItalia_Edificio4P", "SM_MoloItalia_Capitaneria",
+                          "SM_MoloItalia_Motovedetta", "SM_MoloItalia_Rimorchiatore_Tiramolla",
+                          "SM_MoloItalia_Rimorchiatore_Spingitutto", "SM_MoloItalia_Rimorchiatore_Ostinato",
+                          "SM_MoloItalia_Faro", "SM_MoloItalia_Dito", "SM_Morin_LampionePastorale",
+                          "SM_Molo_Scogliera_A", "SM_Molo_Scogliera_B", "SM_Molo_Scogliera_C")}
+
+
+def _nm(name):
+    return name + VER.get(name, "")
+
+
 def _clear_ucx(name):
     for u in [x for x in bpy.data.objects if x.name.startswith(f"UCX_{name}_")]:
         bpy.data.objects.remove(u)
@@ -611,7 +624,7 @@ def build_suolo_molo(coll, name="SM_MoloItalia_Suolo"):
     r3, rO = S["O3"][0], S["O"][0]
     g.quad([(r3.x, r3.y, 0.0), (rO.x, rO.y, 0.0), (rO.x, rO.y, Z_MARC), (r3.x, r3.y, Z_MARC)], "M_MoloItalia_Cemento")
     o = g.finish(name, coll)
-    _clear_ucx(name)
+    _clear_ucx(_nm(name))
     # UCX: un box orientato per ciascuna fascia e ciascun ramo (+ cuneo del gomito)
     k = 0
     for i in range(2):
@@ -622,9 +635,9 @@ def build_suolo_molo(coll, name="SM_MoloItalia_Suolo"):
         Lo3 = [S["O3"][i], S["O3"][i + 1]]
         Lo = [S["O"][i], S["O"][i + 1]]
         pts = [(p.x, p.y, z) for p in Lb + Lo3 for z in (-3.0, 0.0)]
-        _ucx_hull(name, k, pts, coll); k += 1
+        _ucx_hull(_nm(name), k, pts, coll); k += 1
         pts = [(p.x, p.y, z) for p in Lo3 + Lo for z in (-1.0, Z_MARC)]
-        _ucx_hull(name, k, pts, coll); k += 1
+        _ucx_hull(_nm(name), k, pts, coll); k += 1
     return o
 
 
@@ -662,8 +675,8 @@ def build_suolo_radice(coll, name="SM_MoloItalia_Suolo_Radice"):
         y = 87.5 + k * 1.0
         g.quad([(566.5, y, 0.004), (575.0, y, 0.004), (575.0, y + 0.5, 0.004), (566.5, y + 0.5, 0.004)], sw="bianco_vernice", face=(0, 0, 1))
     o = g.finish(name, coll)
-    _clear_ucx(name)
-    pk._ucx(name, [(PIAZZALE_X1, RADICE_X1, 47.0, Y_VIALE, -3.0, 0.0), (571.8, RADICE_X1, yb, 47.0, -3.0, 0.0),
+    _clear_ucx(_nm(name))
+    pk._ucx(_nm(name), [(PIAZZALE_X1, RADICE_X1, 47.0, Y_VIALE, -3.0, 0.0), (571.8, RADICE_X1, yb, 47.0, -3.0, 0.0),
                    (555.0, 571.8, 41.6, 47.0, -3.0, 0.0), (xb, 571.8, Y_RADICE_B, 41.6, -3.0, 0.0)], coll)
     return o
 
@@ -725,11 +738,21 @@ def build_scogliera(coll, var="A", lod=0):
     pts = [(0.0, -0.1), (SC_L, -0.1), (SC_L, -SC_W), (0.0, -SC_W)]
     g.quad([(SC_L, -SC_W, _slope_z(-SC_W)), (SC_L, -0.1, SC_ZTOP - 0.25), (0.0, -0.1, SC_ZTOP - 0.25), (0.0, -SC_W, _slope_z(-SC_W))],
            "M_Molo_Scogliera", tile=2.5, face=(0, 0, 1))
-    o = g.finish(name + _sfx(lod), coll, smooth=60.0)
+    if lod > 0:   # v2: le icosfere meno suddivise "perdono" le punte dei massi -> riporto la bbox su quella del LOD0
+        ref = bpy.data.objects.get(_nm(name))
+        if ref is not None:
+            rv = [v.co for v in ref.data.vertices]
+            lo0 = Vector([min(c[i] for c in rv) for i in range(3)])
+            hi0 = Vector([max(c[i] for c in rv) for i in range(3)])
+            lo = Vector([min(v.co[i] for v in g.bm.verts) for i in range(3)])
+            hi = Vector([max(v.co[i] for v in g.bm.verts) for i in range(3)])
+            for v in g.bm.verts:
+                v.co = Vector([lo0[i] + (v.co[i] - lo[i]) * (hi0[i] - lo0[i]) / max(hi[i] - lo[i], 1e-6) for i in range(3)])
+    o = g.finish(_nm(name) + _sfx(lod), coll, smooth=60.0)
     if lod == 0:
-        _clear_ucx(name)
+        _clear_ucx(_nm(name))
         # cuneo calpestabile un po' sopra il piano medio dei massi
-        _ucx_hull(name, 0, [(x, y, z) for x in (0.0, SC_L) for y, z in ((0.0, SC_ZTOP + 0.35), (0.0, SC_ZBOT - 0.5),
+        _ucx_hull(_nm(name), 0, [(x, y, z) for x in (0.0, SC_L) for y, z in ((0.0, SC_ZTOP + 0.35), (0.0, SC_ZBOT - 0.5),
                                                                       (-SC_W, SC_ZBOT - 0.5), (-SC_W, SC_ZBOT + 0.4))], coll)
     return o
 
@@ -777,15 +800,15 @@ def build_dito(coll, lod=0, name="SM_MoloItalia_Dito"):
            sw="giallo_vernice", face=(0, 0, 1))
     g.quad([(0.0, w - 0.37, 0.006), (DITO_L - 0.3, w - 0.37, 0.006), (DITO_L - 0.3, w - 0.25, 0.006), (0.0, w - 0.25, 0.006)],
            sw="giallo_vernice", face=(0, 0, 1))
-    if lod < 2:
-        for k in range(8):
-            x = 1.5 + k * (DITO_L - 3.0) / 7
-            for y in (-w + 0.5, w - 0.5):
+    for k in (range(8) if lod < 2 else (0, 7)):        # v2: in LOD2 i 4 pilastri d'angolo (stessa bbox in Z)
+        x = 1.5 + k * (DITO_L - 3.0) / 7
+        for y in (-w + 0.5, w - 0.5):
+            if True:
                 g.box(x - 0.25, x + 0.25, y - 0.25, y + 0.25, -3.5, -0.8, "M_MoloItalia_Cemento", faces=("xn", "xp", "yn", "yp"))
-    o = g.finish(name + _sfx(lod), coll)
+    o = g.finish(_nm(name) + _sfx(lod), coll)
     if lod == 0:
-        _clear_ucx(name)
-        pk._ucx(name, [(0.0, DITO_L, -w, w, -0.8, 0.0)], coll)
+        _clear_ucx(_nm(name))
+        pk._ucx(_nm(name), [(0.0, DITO_L, -w, w, -0.8, 0.0)], coll)
     return o
 
 
@@ -805,8 +828,8 @@ def build_faro(coll, lod=0, name="SM_MoloItalia_Faro"):
     g.lathe([(0.70, 6.90), (0.70, 7.50)], n, mat="M_MoloItalia_FaroLuce", sw="luce_rossa", cap_top=False)   # vetri
     g.lathe([(0.78, 7.50), (0.76, 7.56), (0.55, 7.72), (0.25, 7.88), (0.10, 7.94)] +
             ([(0.10, 8.0), (0.0, 8.02)] if lod == 2 else [(0.12, 7.98), (0.12, 8.04), (0.0, 8.07)]), n, sw=R, cap_top=False)
+    g.tube([(0.0, 0.0, 8.0), (0.0, 0.0, 8.40)], 0.012, 6 if lod < 2 else 3, sw="nero")         # parafulmine (tutti i LOD, v2)
     if lod < 2:
-        g.tube([(0.0, 0.0, 8.02), (0.0, 0.0, 8.40)], 0.012, 6, sw="nero")                       # parafulmine
         for k in range(8):                                                                     # montanti della lanterna
             a = 2 * math.pi * k / 8
             c = Vector((0.71 * math.cos(a), 0.71 * math.sin(a), 0))
@@ -829,14 +852,14 @@ def build_faro(coll, lod=0, name="SM_MoloItalia_Faro"):
     g.box(-0.05, 0.0, -0.20, 0.20, 2.35, 2.85, sw="nero", M=M)
     if lod < 2:
         g.box(-rx(4.6) - 0.02, -rx(4.6) + 0.1, -0.15, 0.15, 4.4, 4.8, sw="vetro")
-    o = g.finish(name + _sfx(lod), coll, smooth=40.0)
+    o = g.finish(_nm(name) + _sfx(lod), coll, smooth=40.0)
     if lod == 0:
-        _clear_ucx(name)
+        _clear_ucx(_nm(name))
         oc = lambda r, z: [(r * math.cos(2 * math.pi * k / 10), r * math.sin(2 * math.pi * k / 10), z) for k in range(10)]
-        _ucx_hull(name, 0, oc(1.72, 0.0) + oc(1.25, 0.62), coll)
-        _ucx_hull(name, 1, oc(1.21, 0.62) + oc(1.0, 5.30), coll)
-        _ucx_hull(name, 2, oc(1.30, 5.30) + oc(1.30, 6.85), coll)
-        _ucx_hull(name, 3, oc(0.80, 6.85) + oc(0.12, 8.05), coll)
+        _ucx_hull(_nm(name), 0, oc(1.72, 0.0) + oc(1.25, 0.62), coll)
+        _ucx_hull(_nm(name), 1, oc(1.21, 0.62) + oc(1.0, 5.30), coll)
+        _ucx_hull(_nm(name), 2, oc(1.30, 5.30) + oc(1.30, 6.85), coll)
+        _ucx_hull(_nm(name), 3, oc(0.80, 6.85) + oc(0.12, 8.05), coll)
     return o
 
 
@@ -868,7 +891,13 @@ def build_ristorante(coll, lod=0, name="SM_MoloItalia_RistorantePiccioni"):
     # piano principale giallo (con un passaggio di 2,4 m sul lato sud per la scala)
     bx0, bx1, by0, by1 = x0 + 0.4, x1 - 0.4, y0 + 2.4, y1 - 0.4
     g.box(bx0, bx1, by0, by1, R_DECK, R_TOP, sw="giallo_rist", faces=("xn", "xp", "yn", "yp"))
-    g.box(x0 + 0.2, x1 - 0.2, y0 + 0.2, y1 - 0.2, R_TOP - 0.25, R_TOP, sw="bianco")         # solaio-terrazza (bordo bianco)
+    # solaio-terrazza (bordo bianco) con il vano della scala (v2): 4 lastre attorno al vano, stesse 4 nell'UCX
+    sx0, sx1, sy0, sy1 = x0 + 0.6, x0 + 7.2, y0 + 0.5, y0 + 2.1          # scala (vedi sotto)
+    hx0, hx1, hy0, hy1 = x0 + 0.4, sx1, y0 + 0.35, sy1 + 0.10            # vano: dal parapetto sud a 10 cm oltre la scala
+    sx_a, sx_b, sy_a, sy_b = x0 + 0.2, x1 - 0.2, y0 + 0.2, y1 - 0.2
+    slabs = [(sx_a, sx_b, hy1, sy_b), (hx1, sx_b, sy_a, hy1), (sx_a, hx0, sy_a, hy1), (hx0, hx1, sy_a, hy0)]
+    for a0, a1, b0, b1 in slabs:
+        g.box(a0, a1, b0, b1, R_TOP - 0.25, R_TOP, sw="bianco")
     # fronte verso il molo (-X): porta a vetri, finestra, serranda grigia; scritta RISTORANTE
     fx = bx0 - 0.02
     g.quad([(fx, 1.2, R_DECK + 0.05), (fx, 2.6, R_DECK + 0.05), (fx, 2.6, R_DECK + 2.25), (fx, 1.2, R_DECK + 2.25)], sw="vetro", face=(-1, 0, 0))
@@ -894,38 +923,53 @@ def build_ristorante(coll, lod=0, name="SM_MoloItalia_RistorantePiccioni"):
     rail = [(x0 + 0.25, y0 + 0.25), (x1 - 0.25, y0 + 0.25), (x1 - 0.25, y1 - 0.25), (x0 + 0.25, y1 - 0.25)]
     for i in range(4):
         a, b = rail[i], rail[(i + 1) % 4]
-        if i == 0:   # varco della scala sul lato sud (X da x0+2,4 a x0+4,0)
-            segs = [(a, (x0 + 5.6, a[1])), ((x0 + 7.2, a[1]), b)]
-        else:
-            segs = [(a, b)]
+        segs = [(a, b)]   # v2: parapetto sud continuo (si sale dal vano, non dal bordo)
         for p, q in segs:
             g.quad2([(p[0], p[1], tz), (q[0], q[1], tz), (q[0], q[1], tz + 1.0), (p[0], p[1], tz + 1.0)], sw="telo_bianco")
             if lod < 2:
                 g.tube([(p[0], p[1], tz + 1.03), (q[0], q[1], tz + 1.03)], 0.03, 5, sw="bianco")
-    poles = [(x0 + 1.0, y0 + 1.0), (0.0, y0 + 1.0), (x1 - 1.0, y0 + 1.0), (x0 + 1.0, y1 - 1.0), (0.0, y1 - 1.0), (x1 - 1.0, y1 - 1.0)]
+    # ringhiera zincata attorno al vano: lato nord e lato ovest (a sud c'e' il parapetto, a est si sbarca)
+    hrail = [((hx0, hy1), (hx1, hy1)), ((hx0, hy0), (hx0, hy1))]
+    for (p, q) in hrail:
+        ns = (4, 3, 3)[lod]
+        nseg = max(1, round(math.dist(p, q) / 1.6))
+        for k in range(nseg + 1):
+            t = k / nseg
+            c = (p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t)
+            if lod < 2:
+                g.tube([(c[0], c[1], tz), (c[0], c[1], tz + 1.0)], 0.022, ns, sw="zincato")
+        for z in ((0.5, 1.0) if lod < 2 else (1.0,)):
+            g.tube([(p[0], p[1], tz + z), (q[0], q[1], tz + z)], 0.024, ns, sw="zincato")
+        if lod == 2:   # in LOD2 il telo pieno al posto dei montanti
+            g.quad2([(p[0], p[1], tz), (q[0], q[1], tz), (q[0], q[1], tz + 1.0), (p[0], p[1], tz + 1.0)], sw="zincato")
+    # palo sud-ovest della copertura spostato fuori dal vano (era a x0+1, y0+1: sopra la scala)
+    poles = [(x0 + 1.0, hy1 + 0.25), (0.0, y0 + 1.0), (x1 - 1.0, y0 + 1.0), (x0 + 1.0, y1 - 1.0), (0.0, y1 - 1.0), (x1 - 1.0, y1 - 1.0)]
     for px, py in poles:
         g.box(px - 0.06, px + 0.06, py - 0.06, py + 0.06, tz, R_COVER, sw="bianco", faces=("xn", "xp", "yn", "yp"))
     cz0, cz1 = R_COVER, R_COVER + 0.35
     g.quad2([(x0 + 0.6, y0 + 0.6, cz0), (x1 - 0.6, y0 + 0.6, cz0), (x1 - 0.6, 0.0, cz1), (x0 + 0.6, 0.0, cz1)], sw="telo_bianco")
     g.quad2([(x0 + 0.6, 0.0, cz1), (x1 - 0.6, 0.0, cz1), (x1 - 0.6, y1 - 0.6, cz0), (x0 + 0.6, y1 - 0.6, cz0)], sw="telo_bianco")
-    if lod < 2:   # veranda vetrata sul lato nord (meta' est), condizionatori, asta con bandiera
+    # asta con bandierina (tinta neutra): in tutti i LOD, e' il punto piu' alto e sporge a nord (bbox uguale, v2)
+    g.tube([(x0 + 0.5, y1 - 0.5, tz), (x0 + 0.5, y1 - 0.5, tz + 3.0)], 0.03, (5, 5, 3)[lod], sw="bianco")
+    g.quad2([(x0 + 0.5, y1 - 0.5, tz + 2.2), (x0 + 0.5, y1 + 0.7, tz + 2.2), (x0 + 0.5, y1 + 0.7, tz + 2.95),
+            (x0 + 0.5, y1 - 0.5, tz + 2.95)], sw="bianco")
+    if lod < 2:   # veranda vetrata sul lato nord (meta' est), condizionatori
         g.box(1.5, x1 - 1.0, y1 - 3.2, y1 - 1.0, tz, tz + 2.3, sw="vetro", faces=("xn", "xp", "yn", "yp"))
         for k, x in enumerate((-4.5, -3.4)):
             g.box(x, x + 0.85, y1 - 2.0, y1 - 1.4, tz, tz + 0.6, sw="grigio_chiaro")
-        g.tube([(x0 + 0.5, y1 - 0.5, tz), (x0 + 0.5, y1 - 0.5, tz + 3.0)], 0.03, 5, sw="bianco")
-        g.quad2([(x0 + 0.5, y1 - 0.5, tz + 2.2), (x0 + 0.5, y1 + 0.7, tz + 2.2), (x0 + 0.5, y1 + 0.7, tz + 2.95),
-                (x0 + 0.5, y1 - 0.5, tz + 2.95)], sw="bianco")   # bandierina (tinta neutra)
         # insegna parodia sul telo del fronte verso il molo
         g.text("I PICCIONI", 0.55, 0.03, Matrix.Translation((x0 + 0.20, 0.0, tz + 0.18)) @
                Matrix.Rotation(math.radians(-90), 4, "Z") @ Matrix.Rotation(math.radians(90), 4, "X"), sw="blu_insegna", resol=2)
     # scala esterna sul passaggio sud: da coperta (x0+0,4) a terrazza (x0+7,2), larga 1,6 m
-    sx0, sx1, sy0, sy1 = x0 + 0.6, x0 + 7.2, y0 + 0.5, y0 + 2.1
-    nst = 16 if lod == 0 else (8 if lod == 1 else 1)
+    # (sx0..sy1 definiti sopra col vano) 16 alzate da 0,20 m; sale dentro il vano del solaio
+    nst = 16 if lod == 0 else (8 if lod == 1 else 0)
     for k in range(nst):
         xa = sx0 + (sx1 - sx0) * k / nst
         xb = sx0 + (sx1 - sx0) * (k + 1) / nst
         z = R_DECK + (tz - R_DECK) * (k + 1) / nst
         g.box(xa, xb, sy0, sy1, z - 0.06, z, sw="grigio_scuro", faces=("top", "xn", "yn", "yp"))
+    if lod == 2:   # rampa inclinata al posto dei gradini
+        g.quad2([(sx0, sy0, R_DECK), (sx1, sy0, tz), (sx1, sy1, tz), (sx0, sy1, R_DECK)], sw="grigio_scuro")
     if lod < 2:
         for y in (sy0, sy1):
             g.tube([(sx0, y, R_DECK + 1.0), (sx1, y, tz + 1.0)], 0.03, 5, sw="bianco")
@@ -956,23 +1000,29 @@ def build_ristorante(coll, lod=0, name="SM_MoloItalia_RistorantePiccioni"):
         p0 = (ca - rr * math.cos(a0), 2.0 + rr * math.sin(a0))
         p1 = (ca - rr * math.cos(a1), 2.0 + rr * math.sin(a1))
         g.quad2([(px0, p0[0], p0[1]), (px1, p0[0], p0[1]), (px1, p1[0], p1[1]), (px0, p1[0], p1[1])], sw="telo_bianco")
-    o = g.finish(name + _sfx(lod), coll, smooth=None)
+    o = g.finish(_nm(name) + _sfx(lod), coll, smooth=None)
     if lod == 0:
-        _clear_ucx(name)
+        _clear_ucx(_nm(name))
         boxes = [(x0, x1, y0, y1, R_HULL0, R_DECK),                                 # scafo + coperta
                  (bx0, bx1, by0, by1, R_DECK, R_TOP),                               # piano giallo
-                 (x0 + 0.2, x1 - 0.2, y0 + 0.2, y1 - 0.2, R_TOP - 0.25, R_TOP),     # terrazza
+                 ] + [(a0, a1, b0, b1, R_TOP - 0.25, R_TOP) for a0, a1, b0, b1 in slabs] + [   # terrazza: 4 lastre attorno al vano
                  (x0 + 0.2, x1 - 0.2, y1 - 0.35, y1 - 0.2, R_TOP, R_TOP + 1.05),    # parapetti
                  (x1 - 0.35, x1 - 0.2, y0 + 0.2, y1 - 0.2, R_TOP, R_TOP + 1.05),
                  (x0 + 0.2, x0 + 0.35, y0 + 0.2, y1 - 0.2, R_TOP, R_TOP + 1.05),
-                 (x0 + 7.2, x1 - 0.2, y0 + 0.2, y0 + 0.35, R_TOP, R_TOP + 1.05),
+                 (x0 + 0.2, x1 - 0.2, y0 + 0.2, y0 + 0.35, R_TOP, R_TOP + 1.05),    # sud continuo (v2)
+                 (hx0, hx1, hy1 - 0.03, hy1 + 0.03, R_TOP, R_TOP + 1.05),           # ringhiera del vano, nord
+                 (hx0 - 0.03, hx0 + 0.03, hy0, hy1 + 0.03, R_TOP, R_TOP + 1.05),    # ringhiera del vano, ovest
                  (x0 + 0.6, x1 - 0.6, y0 + 0.6, y1 - 0.6, R_COVER, R_COVER + 0.35),  # copertura
                  (rx0, rx1, ry0, ry1, -0.3, 0.0),                                    # rampa blu
                  (px0, px1, py0, py1, -0.3, 0.0)]                                    # passerella
-        pk._ucx(name, boxes, coll)
-        # scala come rampa (convesso inclinato)
-        _ucx_hull(name, len(boxes), [(sx0, y, R_DECK) for y in (sy0, sy1)] + [(sx1, y, tz) for y in (sy0, sy1)] +
-                  [(sx1, y, R_DECK) for y in (sy0, sy1)], coll)
+        pk._ucx(_nm(name), boxes, coll)
+        # scala come rampa continua (v2): il piano passa per il centro di ogni pedata (scarto <= 10 cm dai gradini),
+        # parte sulla coperta mezza pedata prima del primo gradino e arriva a quota terrazza; l'ultima mezza pedata e' piana
+        run = (sx1 - sx0) / 16
+        xr0, xr1 = sx0 - run / 2, sx1 - run / 2
+        _ucx_hull(_nm(name), len(boxes), [(x, y, z) for y in (sy0, sy1) for x, z in
+                                          ((xr0, R_DECK), (xr1, tz), (xr1, R_DECK), (xr0, R_DECK - 0.05))], coll)
+        pk._ucx(_nm(name), [(xr1, sx1, sy0, sy1, R_DECK, tz)], coll, start=len(boxes) + 1)
     return o
 
 
@@ -1019,19 +1069,21 @@ def _building(g, poly, floors, fh, parapet=0.9, cornice=0.25, lod=0):
     return H
 
 
-def _antenna(g, x, y, z, h, lattice=True):
+def _antenna(g, x, y, z, h, lattice=True, lod=0):
+    """v2: presente in tutti i LOD (stessa altezza); in LOD2 solo i montanti, a 3 lati."""
     if lattice:
         r = 0.35
         legs = [(x + r * math.cos(a), y + r * math.sin(a)) for a in (0.3, 2.4, 4.5)]
         for lx, ly in legs:
-            g.tube([(lx, ly, z), (x + (lx - x) * 0.3, y + (ly - y) * 0.3, z + h)], 0.03, 4, sw="grigio_chiaro")
-        for k in range(1, 5):
-            zz = z + h * k / 5
-            s = 1 - 0.7 * k / 5
-            ring = [(x + (lx - x) * s, y + (ly - y) * s, zz) for lx, ly in legs + legs[:1]]
-            g.tube(ring, 0.015, 3, sw="grigio_chiaro", cap=False)
+            g.tube([(lx, ly, z), (x + (lx - x) * 0.3, y + (ly - y) * 0.3, z + h)], 0.03, 4 if lod < 2 else 3, sw="grigio_chiaro")
+        if lod < 2:
+            for k in range(1, 5):
+                zz = z + h * k / 5
+                s = 1 - 0.7 * k / 5
+                ring = [(x + (lx - x) * s, y + (ly - y) * s, zz) for lx, ly in legs + legs[:1]]
+                g.tube(ring, 0.015, 3, sw="grigio_chiaro", cap=False)
     else:
-        g.tube([(x, y, z), (x, y, z + h)], 0.04, 5, sw="grigio_chiaro")
+        g.tube([(x, y, z), (x, y, z + h)], 0.04, 5 if lod < 2 else 3, sw="grigio_chiaro")
 
 
 def build_capitaneria(coll, lod=0, name="SM_MoloItalia_Capitaneria"):
@@ -1047,8 +1099,8 @@ def build_capitaneria(coll, lod=0, name="SM_MoloItalia_Capitaneria"):
         # scritta sul parapetto ovest (letta da ovest, dal parcheggio); in LOD1 con meno suddivisioni
         g.text("GUARDIA COSTIERA", 0.62, 0.06, Matrix.Translation((592.2, 62.2, H + 0.18)) @ Matrix.Rotation(math.radians(-90), 4, "Z") @
                Matrix.Rotation(math.radians(90), 4, "X"), sw="blu_insegna", resol=2 - lod)
-        _antenna(g, 600.0, 75.0, H + 0.15, 6.0, lattice=False)
-        _antenna(g, 612.0, 75.0, H + 0.15, 4.5, lattice=False)
+    _antenna(g, 600.0, 75.0, H + 0.15, 6.0, lattice=False, lod=lod)
+    _antenna(g, 612.0, 75.0, H + 0.15, 4.5, lattice=False, lod=lod)
     # giardino davanti al fronte ovest: prato rialzato, muretto con recinzione verde (X 586,6-592,5, Y 45-80,3)
     gx0, gx1, gy0, gy1 = 586.6, 592.6, 45.0, 80.3
     g.box(gx0, gx1, gy0, gy1, 0.0, 0.25, sw="verde_prato", faces=("top",))
@@ -1057,10 +1109,10 @@ def build_capitaneria(coll, lod=0, name="SM_MoloItalia_Capitaneria"):
     g.box(gx0 - 0.3, gx1, gy1, gy1 + 0.3, 0.0, 0.55, sw="pietra_chiara", faces=("top", "xn", "yn", "yp"))
     for (a, b) in (((gx0 - 0.15, gy0), (gx0 - 0.15, gy1)),):
         g.quad2([(a[0], a[1], 0.55), (b[0], b[1], 0.55), (b[0], b[1], 1.55), (a[0], a[1], 1.55)], sw="verde_scuro")
-    o = g.finish(name + _sfx(lod), coll)
+    o = g.finish(_nm(name) + _sfx(lod), coll)
     if lod == 0:
-        _clear_ucx(name)
-        pk._ucx(name, [(592.7, 617.3, 67.8, 80.5, 0.0, H + 1.0), (593.0, 607.4, 44.2, 67.8, 0.0, H + 1.0),
+        _clear_ucx(_nm(name))
+        pk._ucx(_nm(name), [(592.7, 617.3, 67.8, 80.5, 0.0, H + 1.0), (593.0, 607.4, 44.2, 67.8, 0.0, H + 1.0),
                        (gx0 - 0.3, gx0, gy0 - 0.3, gy1 + 0.3, 0.0, 1.55)], coll)
     return o
 
@@ -1069,13 +1121,12 @@ def build_edificio4p(coll, lod=0, name="SM_MoloItalia_Edificio4P"):
     """Edificio a 4 piani della radice (OSM 205839145): piano terra + 3 -> h ~14,5 m [S], stesso mattone, due antenne a traliccio."""
     g = G(["M_MoloItalia_Facciata", "M_MoloItalia_Tinte"])
     H = _building(g, EDIF_4P, 4, 3.5, parapet=0.8, lod=lod)
-    if lod < 2:
-        _antenna(g, 583.0, 36.0, H + 0.15, 9.0)
-        _antenna(g, 589.0, 24.0, H + 0.15, 7.0)
-    o = g.finish(name + _sfx(lod), coll)
+    _antenna(g, 583.0, 36.0, H + 0.15, 9.0, lod=lod)
+    _antenna(g, 589.0, 24.0, H + 0.15, 7.0, lod=lod)
+    o = g.finish(_nm(name) + _sfx(lod), coll)
     if lod == 0:
-        _clear_ucx(name)
-        pk._ucx(name, [(579.2, 593.6, 19.3, 40.6, 0.0, H + 0.8)], coll)
+        _clear_ucx(_nm(name))
+        pk._ucx(_nm(name), [(579.2, 593.6, 19.3, 40.6, 0.0, H + 0.8)], coll)
     return o
 
 
@@ -1083,10 +1134,10 @@ def build_edificio_est(coll, lod=0, name="SM_MoloItalia_EdificioEst"):
     """Edificio est della radice (OSM 205839033): non inquadrato dalle foto -> stesso mattone, 3 piani, h ~10,5 m [S]."""
     g = G(["M_MoloItalia_Facciata", "M_MoloItalia_Tinte"])
     H = _building(g, EDIF_EST, 3, 3.5, parapet=0.7, lod=lod)
-    o = g.finish(name + _sfx(lod), coll)
+    o = g.finish(_nm(name) + _sfx(lod), coll)
     if lod == 0:
-        _clear_ucx(name)
-        pk._ucx(name, [(615.4, 630.6, 19.6, 41.1, 0.0, H + 0.7)], coll)
+        _clear_ucx(_nm(name))
+        pk._ucx(_nm(name), [(615.4, 630.6, 19.6, 41.1, 0.0, H + 0.7)], coll)
     return o
 
 
@@ -1111,10 +1162,10 @@ def build_infopoint(coll, var="Blu", lod=0):
             pts = [c + n * 0.005 + t * 0.7 + Vector((0, 0, 0.0)), c + n * 0.005 + t * 1.6 + Vector((0, 0, 0.0)),
                    c + n * 0.005 + t * 1.6 + Vector((0, 0, 2.1)), c + n * 0.005 + t * 0.7 + Vector((0, 0, 2.1))]
             g.quad([tuple(p) for p in pts], sw="blu_scuro", face=n)
-    o = g.finish(name + _sfx(lod), coll)
+    o = g.finish(_nm(name) + _sfx(lod), coll)
     if lod == 0:
-        _clear_ucx(name)
-        pk._ucx(name, [(-h - 0.1, h + 0.1, -h - 0.1, h + 0.1, 0.0, 3.0)], coll)
+        _clear_ucx(_nm(name))
+        pk._ucx(_nm(name), [(-h - 0.1, h + 0.1, -h - 0.1, h + 0.1, 0.0, 3.0)], coll)
     return o
 
 
@@ -1145,11 +1196,12 @@ def build_lampione_pastorale(coll, lod=0, name="SM_Morin_LampionePastorale"):
     gl = [(0.0, 3.98)] + [(0.23 * math.sin(math.pi * j / 8), 4.21 - 0.23 * math.cos(math.pi * j / 8)) for j in range(1, 8)] + [(0.06, 4.43)]
     if lod == 2:
         gl = [gl[0], gl[2], gl[4], gl[6], gl[-1]]
-    g.lathe(gl, n, Matrix.Translation((0.90, 0, 0)), mat="M_Morin_Globo", tile=1.0, cap_top=False)
-    o = g.finish(name + _sfx(lod), coll, smooth=50.0)
+    # v2: globo almeno a 8 lati (vertici sugli assi), cosi' il LOD2 ha la stessa bbox del LOD0
+    g.lathe(gl, max(n, 8), Matrix.Translation((0.90, 0, 0)), mat="M_Morin_Globo", tile=1.0, cap_top=False)
+    o = g.finish(_nm(name) + _sfx(lod), coll, smooth=50.0)
     if lod == 0:
-        _clear_ucx(name)
-        pk._ucx(name, [(-0.2, 0.2, -0.2, 0.2, 0.0, 0.95), (-0.08, 0.08, -0.08, 0.08, 0.95, 5.0)], coll)
+        _clear_ucx(_nm(name))
+        pk._ucx(_nm(name), [(-0.2, 0.2, -0.2, 0.2, 0.0, 0.95), (-0.08, 0.08, -0.08, 0.08, 0.95, 5.0)], coll)
     return o
 
 
@@ -1163,10 +1215,10 @@ def build_ringhiera(coll, lod=0, name="SM_MoloItalia_RinghieraModulo"):
         g.box(x - 0.08, x + 0.08, -0.08, 0.08, 0.0, 0.012, sw="zincato", faces=("top", "xn", "xp", "yn", "yp"))
     for z in ((0.5, 1.0) if lod < 2 else (1.0,)):
         g.tube([(0.05, 0, z), (1.95, 0, z)], 0.024, s, sw="zincato")
-    o = g.finish(name + _sfx(lod), coll, smooth=50.0)
+    o = g.finish(_nm(name) + _sfx(lod), coll, smooth=50.0)
     if lod == 0:
-        _clear_ucx(name)
-        pk._ucx(name, [(0.0, 2.0, -0.06, 0.06, 0.0, 1.03)], coll)
+        _clear_ucx(_nm(name))
+        pk._ucx(_nm(name), [(0.0, 2.0, -0.06, 0.06, 0.0, 1.03)], coll)
     return o
 
 
@@ -1218,16 +1270,16 @@ def build_monumento(coll, lod=0, name="SM_MoloItalia_Monumento"):
         for (ax, ay), (bx, by) in zip(posts, posts[1:]):
             mid = ((ax + bx) / 2, (ay + by) / 2)
             g.tube([(ax, ay, 0.5), (mid[0], mid[1], 0.32), (bx, by, 0.5)], 0.015, 4, sw="nero", cap=False)
-    o = g.finish(name + _sfx(lod), coll)
+    o = g.finish(_nm(name) + _sfx(lod), coll)
     if lod == 0:
-        _clear_ucx(name)
+        _clear_ucx(_nm(name))
         k = 0
         for i in range(0, nseg, 2):
             a, b = ring_o[i], ring_o[min(i + 2, nseg)]
             c, d = ring_i[i], ring_i[min(i + 2, nseg)]
-            _ucx_hull(name, k, [(p[0], p[1], z) for p in (a, b, c, d) for z in (-1.2, 0.7)], coll); k += 1
-        pk._ucx(name, [(cx - 1.2 - 0.65, cx - 1.2 + 0.65, cy - 0.85, cy + 0.85, 0.0, 2.85), (cx, 555.0, cy - R, cy + R, -1.2, 0.0)], coll, start=k)
-        _ucx_hull(name, k + 2, [(p[0], p[1], z) for p in ring_i for z in (-1.2, 0.0)], coll)
+            _ucx_hull(_nm(name), k, [(p[0], p[1], z) for p in (a, b, c, d) for z in (-1.2, 0.7)], coll); k += 1
+        pk._ucx(_nm(name), [(cx - 1.2 - 0.65, cx - 1.2 + 0.65, cy - 0.85, cy + 0.85, 0.0, 2.85), (cx, 555.0, cy - R, cy + R, -1.2, 0.0)], coll, start=k)
+        _ucx_hull(_nm(name), k + 2, [(p[0], p[1], z) for p in ring_i for z in (-1.2, 0.0)], coll)
     return o
 
 
@@ -1237,10 +1289,10 @@ def build_monumento_alpini(coll, lod=0, name="SM_MoloItalia_MonumentoAlpini"):
     g = G(["M_Pav_Fascia", "M_MoloItalia_Tinte"])
     g.box(-1.1, 1.1, -0.8, 0.8, 0.0, 0.2, mat="M_Pav_Fascia", tile=1.0)
     _stele(g, 0.0, 0.0, 0.0, w=0.9, d=0.55, h=2.2, busto=False)
-    o = g.finish(name + _sfx(lod), coll)
+    o = g.finish(_nm(name) + _sfx(lod), coll)
     if lod == 0:
-        _clear_ucx(name)
-        pk._ucx(name, [(-1.1, 1.1, -0.8, 0.8, 0.0, 0.2), (-0.8, 0.8, -0.65, 0.65, 0.2, 2.6)], coll)
+        _clear_ucx(_nm(name))
+        pk._ucx(_nm(name), [(-1.1, 1.1, -0.8, 0.8, 0.0, 0.2), (-0.8, 0.8, -0.65, 0.65, 0.2, 2.6)], coll)
     return o
 
 
@@ -1291,9 +1343,17 @@ def build_rimorchiatore(coll, nome="Tiramolla", lod=0):
     g.box(-1.02, 4.52, -2.82, 2.82, 5.9, 6.7, sw="vetro", faces=("xn", "xp", "yn", "yp"))
     g.box(-1.3, 4.8, -3.1, 3.1, 7.0, 7.2, sw="grigio_chiaro")
     g.box(-4.5, -2.5, -0.9, 0.9, 4.6, 8.0, sw="fumaiolo")
+    # albero e crocetta in tutti i LOD (v2: in LOD2 a 3 lati), cosi' la sagoma resta alta 12,5 m
+    g.tube([(2.0, 0.0, 7.2), (2.0, 0.0, 12.5)], 0.12, 6 if lod < 2 else 3, sw="bianco_scafo")
+    g.tube([(2.0, -1.4, 11.0), (2.0, 1.4, 11.0)], 0.06, 4 if lod < 2 else 3, sw="bianco_scafo")
+    if lod == 2:   # parabordi di prua come due blocchi (stessa larghezza fuori tutto del LOD0)
+        t = 0.74
+        x = -L / 2 + L * t
+        for s in (-1, 1):
+            ya, yb = s * (hw(t) + 0.10), s * (hw(t) + 0.40)
+            g.box(x - 0.6, x + 0.6, min(ya, yb), max(ya, yb), 0.55, 1.45, sw="gomma",
+                  faces=("top", "xn", "xp", "yn", "yp"))
     if lod < 2:
-        g.tube([(2.0, 0.0, 7.2), (2.0, 0.0, 12.5)], 0.12, 6, sw="bianco_scafo")
-        g.tube([(2.0, -1.4, 11.0), (2.0, 1.4, 11.0)], 0.06, 4, sw="bianco_scafo")
         g.box(-13.5, -11.5, -0.6, 0.6, 2.0, 3.0, sw="grigio_scuro")                         # gancio di traino
         for k in range(7 if lod == 0 else 4):                                               # pneumatici a prua
             t = 0.74 + 0.04 * k
@@ -1307,10 +1367,10 @@ def build_rimorchiatore(coll, nome="Tiramolla", lod=0):
             M = Matrix.Translation((L / 2 - 6.5, s * (hw(0.8) + 0.03), tz)) @ Matrix.Rotation(math.radians(0 if s < 0 else 180), 4, "Z") @ \
                 Matrix.Rotation(math.radians(90), 4, "X")
             g.text(nome.upper(), 0.55, 0.02, M, sw="bianco_scafo", resol=1)
-    o = g.finish(name + _sfx(lod), coll)
+    o = g.finish(_nm(name) + _sfx(lod), coll)
     if lod == 0:
-        _clear_ucx(name)
-        pk._ucx(name, [(-L / 2, L / 2 - 2.0, -B / 2 + 0.3, B / 2 - 0.3, -2.0, 2.0), (-6.0, 6.0, -3.6, 3.6, 2.0, 7.2)], coll)
+        _clear_ucx(_nm(name))
+        pk._ucx(_nm(name), [(-L / 2, L / 2 - 2.0, -B / 2 + 0.3, B / 2 - 0.3, -2.0, 2.0), (-6.0, 6.0, -3.6, 3.6, 2.0, 7.2)], coll)
     return o
 
 
@@ -1322,8 +1382,8 @@ def build_motovedetta(coll, lod=0, name="SM_MoloItalia_Motovedetta"):
     hw = _hull(g, L, B, -1.3, 1.4, bow=0.35, sw_side="bianco_scafo", n=(10, 6, 4)[lod], sheer=0.4)
     g.box(-3.5, 2.5, -1.7, 1.7, 1.4, 3.3, sw="bianco_scafo")
     g.box(-3.52, 2.52, -1.72, 1.72, 2.5, 3.1, sw="vetro", faces=("xn", "xp", "yn", "yp"))
+    g.tube([(0.0, 0.0, 3.3), (0.0, 0.0, 6.0)], 0.06, 5 if lod < 2 else 3, sw="bianco_scafo")   # albero in tutti i LOD (v2)
     if lod < 2:
-        g.tube([(0.0, 0.0, 3.3), (0.0, 0.0, 6.0)], 0.06, 5, sw="bianco_scafo")
         for s in (-1, 1):
             y = s * (B / 2 + 0.012)
             # banda diagonale rossa (parallelogramma) a prua
@@ -1332,10 +1392,10 @@ def build_motovedetta(coll, lod=0, name="SM_MoloItalia_Motovedetta"):
             M = Matrix.Translation((-2.0, y + s * 0.01, 0.55)) @ Matrix.Rotation(math.radians(0 if s < 0 else 180), 4, "Z") @ \
                 Matrix.Rotation(math.radians(90), 4, "X")
             g.text("GUARDIA COSTIERA", 0.32, 0.01, M, sw="blu_insegna", resol=1)
-    o = g.finish(name + _sfx(lod), coll)
+    o = g.finish(_nm(name) + _sfx(lod), coll)
     if lod == 0:
-        _clear_ucx(name)
-        pk._ucx(name, [(-L / 2, L / 2 - 1.5, -B / 2 + 0.2, B / 2 - 0.2, -1.0, 1.4), (-3.5, 2.5, -1.7, 1.7, 1.4, 3.3)], coll)
+        _clear_ucx(_nm(name))
+        pk._ucx(_nm(name), [(-L / 2, L / 2 - 1.5, -B / 2 + 0.2, B / 2 - 0.2, -1.0, 1.4), (-3.5, 2.5, -1.7, 1.7, 1.4, 3.3)], coll)
     return o
 
 
@@ -1362,7 +1422,7 @@ def build_nave_crociera(coll, lod=0, name="SM_MoloItalia_NaveCrociera"):
             M = Matrix.Translation((L / 2 - 30.0, s * (B / 2 + 0.05), 6.0)) @ Matrix.Rotation(math.radians(0 if s < 0 else 180), 4, "Z") @ \
                 Matrix.Rotation(math.radians(90), 4, "X")
             g.text("PICCIONISSIMA", 3.0, 0.1, M, sw="blu_scuro", resol=1)
-    return g.finish(name + _sfx(lod), coll)
+    return g.finish(_nm(name) + _sfx(lod), coll)
 
 
 def build_gru(coll, lod=0, name="SM_MoloItalia_GruPortuale"):
@@ -1377,7 +1437,7 @@ def build_gru(coll, lod=0, name="SM_MoloItalia_GruPortuale"):
     M = Matrix.Translation((0, -13.0, 42.0)) @ Matrix.Rotation(math.radians(-70), 4, "X")
     g.box(-1.2, 1.2, 0.0, 2.4, 0.0, 50.0, sw="rosso_insegna", M=M)
     g.box(-1.2, 1.2, 13.0, 40.0, 41.0, 43.4, sw="bianco")
-    return g.finish(name + _sfx(lod), coll)
+    return g.finish(_nm(name) + _sfx(lod), coll)
 
 
 # =============================================================================================================
@@ -1425,8 +1485,8 @@ def build_all(only=None):
         rep[nm] = [pk.tri_count(fn(coll))]
     _hide_kit(coll)
     for nm in rep:
-        o = bpy.data.objects[nm]
-        n_ucx = len([u for u in coll.objects if u.name.startswith(f"UCX_{nm}_")])
+        o = bpy.data.objects[_nm(nm)]
+        n_ucx = len([u for u in coll.objects if u.name.startswith(f"UCX_{_nm(nm)}_")])
         rep[nm] = (rep[nm], tuple(round(d, 2) for d in o.dimensions), n_ucx)
         print(f"{nm:<40} tri {rep[nm][0]}  dim {rep[nm][1]}  UCX {n_ucx}")
     return rep
@@ -1670,7 +1730,7 @@ def export_all(overwrite=False, only=None):
             if only and nm not in only:
                 continue
             for lod in range(3):
-                on = nm + _sfx(lod)
+                on = _nm(nm) + _sfx(lod)
                 reps.append(morin_export.export_fbx([bpy.data.objects[on]], f"{EXPDIR}/{on}.fbx", mode="asset",
                                                     overwrite=overwrite, include_ucx=(lod == 0), bake_rotation=(lod > 0),
                                                     verbose=False))

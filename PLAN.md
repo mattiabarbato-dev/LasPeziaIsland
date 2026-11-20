@@ -877,7 +877,31 @@ Ordine per impatto visivo:
             Aperti: **terrazza del ristorante non raggiungibile** (la scala sbatte contro la soletta, Z 275: blender-artist); LOD2 bassi di Edificio4P,
             Capitaneria, rimorchiatori, motovedetta (blender-artist); in sessione lampo e luce del faro, bordo dell'acqua a ~20-25 m oltre il faro,
             macchie verdi sotto l'acqua del bacino (fondale NE?) (qa-tester); 52 temporanei `_Temp/TMPB3_*`, `TMPB2V2_*` da eliminare con conferma.
-      - [ ] (blender-artist → uefn-builder) Ristorante v2: vano scala aperto nella soletta della terrazza (geometria e UCX), poi sostituzione della mesh.
+      - [x] (blender-artist, 2026-11-20) **Molo Italia v2 in Blender** (correzioni del §33; backup `blender/arte_molo_italia_pre_v2.blend`,
+            `blender/scripts/morin_molo_italia_pre_v2.py.bak`, `blender/arte_fondale_pre_colline_ne_v2.blend`; in `morin_molo_italia.py` il dizionario
+            `VER` aggiunge `_v2` ai nomi; le v1 restano nel .blend e in `exports/`).
+            **Ristorante:** vano scala nella soletta (X −9,35..−2,55, Y −4,80..−2,95 locali), soletta e UCX in 4 lastre attorno al vano, ringhiera zincata
+            sui lati N e O del vano (UCX), parapetto sud continuo, palo della copertura spostato fuori dal vano; scala = rampa UCX continua per il centro
+            delle pedate (scarto ≤ 10 cm, alzata 0,20 m) + mezza pedata piana in cima. Ray test sulle UCX molo → passerella → coperta → scala → terrazza:
+            v1 "soffitto a 2,00 m" a X −7,4 (il blocco riportato); v2 percorso continuo fino a Z 3,00, salto massimo 2,4 cm, altezza libera ≥ 2 m.
+            **LOD:** test della bbox LOD1/LOD2 contro LOD0 sugli FBX di `exports/molo_italia/` e `exports/blocco2/`; corretti (stessa bbox entro 2 %,
+            verificato sugli FBX v2): Edificio4P e Capitaneria (antenne in tutti i LOD), rimorchiatori (albero, crocetta, parabordi), motovedetta (albero),
+            faro (parafulmine), dito (pilastri d'angolo), ristorante (asta e bandierina), lampione a pastorale (globo a 8 lati), scogliera A/B/C (LOD1/2
+            riportati sulla bbox del LOD0). Già in regola: EdificioEst, InfoPoint, Monumento, MonumentoAlpini, RinghieraModulo, GruPortuale, NaveCrociera
+            (0,9 %), Blocco 2 nuovi `ScrittaLaSpezia`, `ChioscoOttagonale_v2`. Tollerate (solo spessore, ≤ 6 cm): `SM_Morin_Bandiera_*` (21,9 % su 0,27 m).
+            **Macchie verdi del bacino:** causa `SM_Fondale_Colline_NE` (non `SM_Fondale_Citta_NE_01`, che nel bacino non ha facce): riga di costa
+            della griglia 30 m a Y 0 con Z −0,21..−0,80 (sopra l'acqua −1,03) e fondo −10 solo a Y −30 → 0-3 m di terreno chiaro sotto la superficie.
+            `SM_Fondale_Colline_NE_v2`: tagli a Y 1,3 (bordo dell'Acqua V2 B3), X 560 e X 726; vertici di costa X 560-726 con Y < 1,3 portati a Z −10.
+            Restano < 2 m di profondità solo gli ultimi 0,8 m prima del bordo dell'acqua (Y 0,5-1,3).
+      - [ ] (uefn-builder) **Import Molo Italia v2** (`exports/molo_italia/`, `exports/fondale/`; LOD0 + `_LOD1` + `_LOD2` per ognuno, metodo §32/§33,
+            materiali come le v1, stessi slot): **cambio di mesh sugli attori, stesse trasformazioni**, le v1 restano nel Content Browser.
+            `SM_MoloItalia_RistorantePiccioni_v2` → `Arte_B3_RistorantePiccioni` (17 UCX); `SM_MoloItalia_Edificio4P_v2` → `Arte_B3_Edificio4P`;
+            `SM_MoloItalia_Capitaneria_v2` → `Arte_B3_Capitaneria`; `SM_MoloItalia_Faro_v2` → `Arte_B3_Faro` (resta `MI_MoloItalia_FaroLuce` sullo slot luce);
+            `SM_MoloItalia_Rimorchiatore_{Tiramolla,Spingitutto,Ostinato}_v2` → `Arte_B3_Rimorchiatore_{…}`; `SM_MoloItalia_Motovedetta_v2` → HISM
+            `Arte_B3_barche_Motovedetta`; `SM_MoloItalia_Dito_v2` → HISM `Arte_B3_dita_Dito`; `SM_Morin_LampionePastorale_v2` → HISM
+            `Arte_B3_arredi_LampionePastorale`; `SM_Molo_Scogliera_{A,B,C}_v2` → HISM `Arte_B3_scogliera_Scogliera_{A,B,C}`;
+            `SM_Fondale_Colline_NE_v2` (no collisione, `MI_Fondale_Colline_NE`, solo LOD0 come le altre colline se i LOD danno problemi) → attore del fondale che oggi usa `SM_Fondale_Colline_NE`.
+            Poi: salire in sessione sulla terrazza del ristorante dalla passerella sud; verificare da lontano le sagome (antenne, alberi) e il bacino X 640-720.
       - [ ] (blender-artist) B3.6 Mancano: fontana del Palio, terminal crociere con scultura, circoli nautici, pilotine, casetta a lamelle e pontile di D1,
             bidoni della differenziata, cartelli; texture [SV] ritagliate dalle foto (mattoni, giallo della chiatta) se le tinte non bastano.
       - [ ] (utente) Memoria: con B2 + B3 la stima sale a 242-244 MiB su 245. Decidere se usare le alternative a 0 MiB (agave, ristorante)
