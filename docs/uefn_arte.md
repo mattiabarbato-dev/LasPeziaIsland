@@ -2524,3 +2524,53 @@ Una chiamata MCP con 6 HISM in un colpo ha fatto cadere la connessione (ECONNRES
   `Arte_Marina_Pontili_Raccordi`.
 - **(blender-artist, verifica)** `CAM_Mar_Banchina` dello script (X 282) non corrisponde all'immagine di confronto (sembra X ~300).
 - **(qa-tester)** In sessione: passerelle, raccordi, colonnine in asse sui `Pontile_Col`, barche senza collisione, acqua attorno ai pontili.
+
+## 40. Marina: pontili v3 e raccordi tondi (2026-11-20, ~18:35-18:50 ora locale)
+
+Sorgenti: `exports/marina/SM_Morin_Marina_Raccordo{,_LOD1,_LOD2}.fbx`, `marina_pontili_v3.csv` (111 righe, coordinate UE). Nessun attore né asset
+cancellato, nessuna sessione avviata.
+
+### Import (metodo §39)
+- LOD0 col nome finale `LaSpezia/Arte/Marina/SM_Morin_Marina_Raccordo` (`StaticMeshToolset.ImportFile`, materiali/texture off, combine on),
+  LOD1/2 come `_Temp/TMPMA_SM_Morin_Marina_Raccordo_LOD1/_LOD2`; `remove_lods` su tutti e tre, `set_lod_from_static_mesh(..., True)`.
+- **Insidia:** dopo la copia la sezione 1 dei LOD1/2 puntava allo slot 0 (nei temporanei era [0, 1]): rimappata con
+  `set_lod_material_slot(mesh, 1, lod, 1)` → tutti i LOD [0, 1]. Controllare sempre le sezioni per indice, non solo per nome.
+- Slot `M_Morin_Imbarco` → `MI_Morin_Imbarco`, `M_Morin_Imbarco_Legno` → `MI_Morin_Imbarco_Legno` (anche sui temporanei). Nanite off,
+  Use Simple Collision As Complex, soglie 1,0/0,2/0,08, MinLOD Low/Medium 2 (temporanei 0).
+- Tri **110 / 78 / 22**, bbox di tutti i LOD X ±150 · Y ±150 · Z −55..0, **1 convesso** (UCX arrivato con l'import).
+
+### Posa
+- `Arte_Marina_Pontili_PontileCol` 22, `_Pontile12` **50** (era 46), `Arte_Marina_Arredi_Colonnine` **27** (era 28): `clear_instances` +
+  `add_instances` dal CSV v3, `Rotator(roll, pitch, yaw)` come in §39. Quote dal CSV: moduli −45, radici −45,5, ultimo modulo prima di un gomito −46.
+- **`Arte_Marina_Pontili_Raccordo`** (nuovo, cartella `Arte/Marina/Pontili`): duplicato di `_Pontile12` (HISM `FortStaticMesh`, Query Only,
+  Static), mesh `SM_Morin_Marina_Raccordo`, **7 istanze** a Z −47 (Spina_v1/v2/v3/fine, Esterno2_v1/v2, L_Gamba_v1).
+- Passerelle (3), `Arte_Marina_PontileLargo`, `Arte_Marina_Circolo`: già identici al CSV v3, non toccati.
+- **`Arte_Marina_Pontili_Raccordi` (10 pezzi provvisori) nascosto, non cancellato** (metodo §14): Actor Hidden In Game sì, componente
+  Visible falso, Collision Enabled No Collision, Actor Enable Collision no. Per riattivarlo: inverso, profilo Query Only.
+- Attori nel livello 379 → **380**.
+
+### Barche: Z −103 → −110
+Catture a filo d'acqua (camera 7 m di lato, Z −80): a −103 la fascia rossa emergeva ~10-12 cm su gozzo e motoscafo. Abbassate a **−110** le
+461 istanze dei 18 HISM `Arte_Marina_Barche_*` (Gommone, Gozzo, Motoscafo, Vela9, anche `_Prua`); **yacht di Mirabello invariati** (−100).
+Dopo: sul galleggiamento resta la riga scura, il rosso si vede solo nel riflesso. Log decisioni in `docs/decisioni.md`.
+
+### Verifiche (editor, nessuna sessione)
+- **Line trace** a griglia 10 cm su ogni pezzo del CSV (Pontile12, Pontile_Col, passerelle; fascia ±1 m dall'asse, 60 cm oltre le testate di ogni
+  pezzo per coprire giunti, radici e gomiti) = **370.944 punti** + dischi r 1,4 m sui 7 raccordi: **0 buchi veri**. I 233 "buchi" della griglia
+  sono campioni esattamente sulle linee di giunzione fra moduli (larghezza 0): riprovati a ±1 cm hanno tutti calpestio. Gradino massimo fra
+  campioni vicini **3,2 cm** (piede della passerella, Z 0 → −45), sui raccordi 2,0 cm.
+- **Caduta di capsula** (r 34, hh 88) ogni 50 cm su asse e ±60 cm di tutti i pezzi + su tutti i campioni di giunzione + 5 punti per raccordo:
+  **10.951 prove, 0 cadute** dentro i pontili; le uniche cadute sono 50 cm oltre le **15 testate** (nessun calpestio nei 3 m successivi).
+- **Barche:** profilo Custom / No Collision su tutti i 20 HISM; 9 trace per barca (544): 0 colpi su barche, **0 punti barca sopra un pontile**.
+- Validazione `LaSpezia/` + mappa: **860/860 validi, 0 errori, 80 avvisi** (gli stessi di §39: "un solo LOD" su temporanei, largo, circolo,
+  blockout). Log: nessun errore; il raccordo e i suoi temporanei passano senza avvisi.
+- `save_dirty_packages` 18:45 (23 OFPA: 18 HISM barche, 3 HISM ripopolati, `_Raccordo`, `_Raccordi`; asset su disco 18:40), poi **0 pacchetti sporchi**.
+
+### Catture (`docs/qa/`, 1024 px, ombre, doppio render, stesse camere di §39)
+- `uefn_marina_finger_v3.png`: (15600, −1880, 120), yaw 0,8, pitch −1,6, FOV 70.
+- `uefn_marina_alto_v3.png`: (7500, −17500, 11000), yaw 56,3, pitch −29, FOV 62.
+
+### Temporanei e problemi aperti
+- Temporanei `_Temp/TMPMA_*` ora 46 (+2 del raccordo) e `Arte_Marina_Pontili_Raccordi` nascosto: eliminabili con conferma dell'utente.
+- `marina_barche_v2.csv` ha ancora Z −103 per le 4 famiglie nuove: va allineato a −110 al prossimo giro (blender-artist).
+- (qa-tester) In sessione: gomiti e radici raccordati, colonnine, barche senza collisione.

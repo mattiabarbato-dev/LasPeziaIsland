@@ -786,11 +786,18 @@ Ordine per impatto visivo:
             UCX 0 buchi, 0 gradini > 5 cm (max 2,2 cm); calpestio visibile 0 buchi, max 2,5 cm (gli unici 2 "buchi" sono campioni esattamente sul
             bordo delle punte NE e L_Ramo, a 5 mm dentro c'è calpestio). Stesso test sul CSV v2: 1.462 buchi. Barche v2: 544/544 uguali, distanza
             minima dai pezzi v3 0,40 m. `CAM_Mar_Banchina` a X 300.
-      - [ ] (uefn-builder) **Posa dei pontili v3**: import `SM_Morin_Marina_Raccordo` (LOD0 col nome finale + LOD1/2 come temporanei, metodo §39,
-            slot → `MI_Morin_Imbarco(_Legno)`); riempire di nuovo `Arte_Marina_Pontili_PontileCol` / `_Pontile12` / `Arte_Marina_Arredi_Colonnine`
-            dal CSV v3 (36 righe spostate, 4 moduli nuovi, 2 colonnine in meno, 1 in più) + HISM nuovo `Arte_Marina_Pontili_Raccordo` (7);
-            passerelle, largo e circolo invariati. Poi **nascondere** (non cancellare) `Arte_Marina_Pontili_Raccordi` e rifare line trace +
-            caduta di capsula. Facoltativo: se il fondo rosso delle barche emerge troppo, barche nuove a Z −110 (log decisioni).
+      - [x] (uefn-builder, 2026-11-20 ~18:35-18:50, `docs/uefn_arte.md` §40) **Posa dei pontili v3**: `SM_Morin_Marina_Raccordo` in
+            `Arte/Marina` (110/78/22 tri, bbox ±150 × ±150 × −55..0 su tutti i LOD, 1 convesso, Nanite off, Simple as Complex, MinLOD L/M 2;
+            sezione 1 dei LOD1/2 rimappata sullo slot Legno), temporanei `_Temp/TMPMA_SM_Morin_Marina_Raccordo_LOD1/2`; slot su
+            `MI_Morin_Imbarco(_Legno)`. HISM `PontileCol` 22, `Pontile12` 50, `Colonnine` 27 e nuovo **`Arte_Marina_Pontili_Raccordo` 7** = CSV v3
+            (svuotati e riempiti dal CSV); passerelle, largo e circolo già uguali al CSV. **`Arte_Marina_Pontili_Raccordi` nascosto** (non cancellato,
+            metodo §14). Verifiche: line trace a 10 cm su 370.944 punti + dischi dei raccordi: **0 buchi veri** (233 campioni su linee di giunzione
+            a larghezza 0, tutti con calpestio a 1 cm), gradino max **3,2 cm** (piede della passerella), raccordi 2,0 cm; **0 cadute** di capsula su
+            10.951 prove (le uniche cadute sono oltre le 15 testate); barche No Collision, 0 punti barca sopra un pontile. **Barche nuove a Z −110**
+            (461; yacht invariati a −100): a −103 il rosso emergeva ~10 cm. Salvato, 0 pacchetti sporchi, validazione 860/860, 0 errori, 80 avvisi noti.
+            Catture `docs/qa/uefn_marina_finger_v3.png`, `uefn_marina_alto_v3.png`.
+      - [ ] (utente) Conferma per cancellare `Arte_Marina_Pontili_Raccordi` (nascosto) e i temporanei `_Temp/TMPMA_*` (44 + 2).
+      - [ ] (blender-artist) Allineare `marina_barche_v2.csv` alla quota di posa −110 delle 4 famiglie nuove (oggi −103 nel CSV).
       - [ ] (qa-tester) Marina in sessione: passerelle, radici e gomiti raccordati, colonnine sui pontili, barche senza collisione.
       - [ ] (geo-scout) Dati [S] da confermare con foto (§7 della scheda): larghezze, galleggianti/fissi, verso delle barche, circolo.
 
