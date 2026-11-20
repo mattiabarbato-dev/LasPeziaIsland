@@ -134,8 +134,9 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      `Arte/Parcheggio` (53 istanze, collisione Query Only come il resto). `Blockout_Passeggiata_v5` posato, **`Blockout_Passeggiata_v4` nascosto**.
      Trace X 20-95 m / Y 100-118 m: asfalto +2, aiuola alberi +14, nessun buco, nessun blockout sopra, salti max 16 cm. Validazione 310/310,
      0 errori, 12 avvisi (11 noti + "un solo LOD" sul Fondale_v4). Render `docs/qa/uefn_parcheggio_v1.png` (camera `CAM_Park_F1`).
-   - [ ] (orchestratore/utente) Problemi del parcheggio v1 (§19): fila a pettine (Y ~119) dentro `Barriera_LatoCitta` (Y 118,0-120,6);
-     `NewJersey_00` (6200, −8060) sopra la bitta 3 (6200, −8052,7) — **corretto nel CSV v2** (X 6070), resta la fila a pettine.
+   - [x] (orchestratore/utente) Problemi del parcheggio v1 (§19): fila a pettine (Y ~119) dentro `Barriera_LatoCitta` (Y 118,0-120,6);
+     `NewJersey_00` (6200, −8060) sopra la bitta 3 (6200, −8052,7) — **corretto nel CSV v2** (X 6070). 2026-11-20: barriera spostata
+     davanti al parcheggio (vedi sotto, `docs/uefn_arte.md` §20).
    - [x] (blender-artist, 2026-11-20) **Auto v2 + parcheggio CSV v2 + viale CSV v3**: script `blender/scripts/morin_auto_v2.py`
      (in `blender/arte_parcheggio.blend`, collezione `AUTO_v2_Kit`; backup `arte_parcheggio_pre_auto_v2.blend`), texture
      `blender/textures/auto/T_Morin_Auto_v2_D/N/ORM` (2048, atlante 3 × 3 modello × colore), materiale `M_Morin_Auto_v2`.
@@ -145,8 +146,20 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      C 1.844/840/276 (4,45 × 1,78 × 1,47). CSV: `exports/parcheggio/parcheggio_posizioni_v2.csv` (colonne in più `pitch,roll`;
      auto v2 `_Col`, 7 pini domestici al posto delle 6 latifoglie, `NewJersey_00` a X 6070) e `exports/viale/viale_posizioni_v3.csv`
      (posizioni della v2, auto v2). Confronto `docs/qa/arte_auto_v2_confronto.png`. Decisioni in `docs/decisioni.md` (2026-11-20).
-   - [ ] (uefn-builder) Import `exports/auto/` (18 mesh × 3 LOD, 1 texture set) e ripopolamento da `parcheggio_posizioni_v2.csv`
-     (pitch dei pini!) e `viale_posizioni_v3.csv`; nascondere (non cancellare) HISM auto v1 e latifoglie del parcheggio.
+   - [x] (uefn-builder, 2026-11-20 ~04:50-05:05 ora locale) Import auto v2 e ripopolamento (`docs/uefn_arte.md` §20): 18 mesh in
+     `Arte/Auto` (3 LOD, Nanite off, UCX 2 box solo sulle `_Col`, convesso automatico tolto dalle altre), 1 set texture
+     `T_Morin_Auto_v2_D/N/ORM` 2048 + `MI_Morin_Auto_v2` condivisa (nessun duplicato: FBX importati senza materiali/texture).
+     Parcheggio: 9 HISM `Arte_Parcheggio_Auto{A,B,C}_Col_v2_<Colore>` (40 istanze) + `Arte_Parcheggio_Pini` (7, pitch dal CSV);
+     `NewJersey_00` a (6070, −8060). Viale: 9 HISM `Arte_Viale_Auto{A,B,C}_v2_<Colore>` (91, No Collision).
+     **Nascosti, non cancellati:** `Arte_Parcheggio_AutoA/B/C_Col`, `Arte_Parcheggio_LatifogliaA/B`, `Arte_Viale_AutoA/B/C`.
+     Barriera lato città spezzata in 5 device (`Barriera_LatoCitta` X 10624..31104, `_SO` X −3510..1610, `_Parcheggio` Y −12441..−12185
+     su X 1536..10752, raccordi `_RaccordoSO`/`_RaccordoNE`): fila a pettine e asfalto ora giocabili, catena senza varchi.
+     Salvataggio 05:03 (91 pacchetti), validazione 368/368, 0 errori, 12 avvisi noti. Render `docs/qa/uefn_parcheggio_v2.png`.
+   - [ ] (qa-tester) In sessione: le barriere nuove bloccano davvero (in modalità Crea non hanno collisione, verificate solo dai bounds);
+     al bordo Y −12185 il giocatore entra ~0,7-0,9 m nelle auto in sosta del viale (Y −12207, senza collisione): accettare o dare
+     collisione alle 13 auto del viale davanti al parcheggio (X 17-87 m).
+   - [ ] (utente) Auto v2 in scena: tetti e cofani molto chiari/lattiginosi con la luce delle 18 (riflesso del cielo?), mentre la
+     miniatura dell'asset è corretta; valutare `Roughness_Mult` di `MI_Morin_Auto_v2`.
    - [ ] (utente/geo-scout) Verificare [S] del parcheggio: larghezza corsia (6,25), seconda fila a pettine dietro gli alberi, senso unico,
      posizione dei cartelli e dei new jersey, lampione a due globi affiancati (non modellato).
    - [ ] (utente/geo-scout) Verificare [S]: sezione del viale (sosta lato giardini, spartitraffico, sosta lato città, strisce bianche o blu),

@@ -863,3 +863,76 @@ Nota sulla conversione: per una camera Blender (rotX ~90°) la direzione di vist
   (es. a Y ≥ 121 m solo davanti al parcheggio) o accettarlo.
 - **`NewJersey_00`** (6200, −8060) è sopra la bitta 3 di `Arte_Banchina_Bitte` (6200, −8052,7; alta 45 cm): la bitta sta dentro il new jersey.
   Da correggere nel CSV in Blender (spostare il new jersey di ~0,5-1 m lungo X) o togliere la bitta.
+
+## 20. Auto v2, pini del parcheggio, new jersey, barriera lato città (2026-11-20, ~04:50-05:05 ora locale)
+
+Sorgenti: `exports/auto/` (54 FBX), texture `blender/textures/auto/T_Morin_Auto_v2_D/N/ORM.png`, `exports/parcheggio/parcheggio_posizioni_v2.csv`
+(55 righe, colonne `pitch,roll`), `exports/viale/viale_posizioni_v3.csv` (167 righe). Controllo iniziale: nessun asset né attore con questi nomi.
+Metodo del §13: LOD0 col nome finale in `LaSpezia/Arte/Auto`, LOD1/2 come `_Temp/TMPA2_<asset>_LOD1/2`, `remove_lods` (ImportFile aveva messo
+3 LOD automatici) + `set_lod_from_static_mesh(..., True)`; Nanite off, Use Simple Collision As Complex, soglie 1,0 / 0,2 / 0,08, MinLOD Low/Medium 2.
+
+### Asset (`Arte/Auto`)
+| Asset | Tri LOD0/1/2 | Bbox (uu) | Convessi |
+|---|---|---|---|
+| `SM_Morin_Auto_A_v2_{Bianco,Rosso,Azzurro}` / `_A_Col_v2_*` | 1.804 / 812 / 260 | X ±197,5 · Y ±106 · Z 0..150 | 0 / 2 |
+| `SM_Morin_Auto_B_v2_{GrigioScuro,Argento,Arancio}` / `_B_Col_v2_*` | 1.844 / 840 / 260 | X ±217,5 · Y ±110 · Z 0..164 | 0 / 2 |
+| `SM_Morin_Auto_C_v2_{Nero,BluScuro,BiancoPerla}` / `_C_Col_v2_*` | 1.844 / 840 / 276 | X ±222,5 · Y ±108 · Z 0..147 | 0 / 2 |
+
+- Lunghezza e altezza come da brief. La larghezza della bbox (2,12 / 2,20 / 2,16 m) **include gli specchietti**: la scocca (UCX box) è ±87 uu = 1,74 m
+  per la A, come da brief (PLAN: "2,12 con specchietti").
+- `ImportFile` ha di nuovo creato **1 convesso automatico** sulle 9 mesh senza UCX: tolto con `remove_collisions` (0 convessi). Le `_Col` hanno i 2 UCX
+  (scocca Z 12..94, abitacolo Z 94..147 per la A).
+- **Texture una sola volta**: FBX importati con materiali e texture **off**; `T_Morin_Auto_v2_D/N/ORM` (2048, N = Normalmap senza flip, ORM = Masks,
+  sRGB off) importate da `blender/textures/auto/`. `MI_Morin_Auto_v2` su `M_Morin_Master_PBR` (BaseColor/Normal/ORM), assegnata allo slot
+  unico `M_Morin_Auto_v2` di tutte le 18 mesh e dei 36 temporanei. **Nessun duplicato** creato.
+
+### Posa
+| Attore (Outliner) | Mesh | Istanze | Collisione |
+|---|---|---|---|
+| `Arte_Parcheggio_Auto{A,B,C}_Col_v2_<Colore>` (9 HISM, `Arte/Parcheggio`, dup. di `Arte_Parcheggio_AutoA_Col`) | `_Col_v2` | 40 in tutto | Query Only (`FortStaticMesh`) |
+| `Arte_Parcheggio_Pini` (HISM) | `Arte/Alberi/SM_Morin_PinoDomestico` | 7, `Rotator(roll, pitch, yaw)` dal CSV (pitch −3,8..−7,8°) | Query Only |
+| `Arte_Viale_Auto{A,B,C}_v2_<Colore>` (9 HISM, `Arte/Viale`, dup. di `Arte_Viale_AutoA`) | `_v2` | 91 in tutto | No Collision |
+| `Arte_Parcheggio_NewJersey` | invariato | istanza 0 → (6070, −8060, 0), yaw 0,37 | Query Only |
+
+**Nascosti, non cancellati** (metodo §14): `Arte_Parcheggio_AutoA/B/C_Col`, `Arte_Parcheggio_LatifogliaA/B`, `Arte_Viale_AutoA/B/C`.
+Il resto del CSV del parcheggio (asfalto, cartelli, new jersey 01/02) è uguale a quanto già posato. Attori nel livello: 144.
+
+### Barriera lato città (`Device/Barriere`, device Barriera duplicati da `Barriera_LatoCitta`, stesse opzioni: Scatola, invisibile, sempre attiva,
+altezza 10, blocca proiettili, collisione visuale NO, dissolvenza NO; larghezza/profondità con `SetClassicDeviceOption`, 1 unità = 512 uu)
+Bordo dell'asfalto verificato: bbox di `SM_Parcheggio_Asfalto` Y min **−12085,0** (X 2000..10600). Fila a pettine: centri Y −11923..−11957, X 27,9-84,8 m.
+| Label | Centro | Unità L × P | Ingombro (da `BarrierBounds`) |
+|---|---|---|---|
+| `Barriera_LatoCitta` (modificata) | (20864, −11930, −700) | 40 × 0,5 | X 10624..31104 · Y −12058..−11802 |
+| `Barriera_LatoCitta_SO` (nuova) | (−950, −11930, −700) | 10 × 0,5 | X −3510..1610 · Y −12058..−11802 |
+| `Barriera_LatoCitta_Parcheggio` (nuova) | (6144, −12313, −700) | 18 × 0,5 | X 1536..10752 · Y −12441..−12185 |
+| `Barriera_LatoCitta_RaccordoSO` (nuova) | (1573, −12121, −700) | 0,5 × 1 | X 1445..1701 · Y −12377..−11865 |
+| `Barriera_LatoCitta_RaccordoNE` (nuova) | (10688, −12121, −700) | 0,5 × 1 | X 10560..10816 · Y −12377..−11865 |
+
+- Davanti al parcheggio la faccia lato terra è a **Y −12185** (1 m oltre l'asfalto); altrove resta a Y −11802 come prima. Il limite sinistro
+  resta −3510 (sovrapposto a `Barriera_Molo_AreaMilitare`); il destro passa da 27210 a 31104 (fuori area, oltre `Barriera_FineBlocco`): innocuo.
+- Il volume del segmento nuovo arriva a Y −12441, cioè ~1 m dentro la corsia di sosta/carreggiata del viale: è invisibile e non raggiungibile,
+  il giocatore si ferma a −12185.
+- **Verifica di continuità** sui bounds (passo 4 uu, X −3510..27210, con `Barriera_Molo_AreaMilitare` e `Barriera_FineBlocco`): ogni X è coperta e
+  i tratti adiacenti si sovrappongono in Y di almeno 256 uu → **nessun varco**, neanche in diagonale ai raccordi.
+- Line trace orizzontali a Z 100 (X −3500..27200 ogni 1 m, da Y −11700 a −12600): 249/308 senza impatto, il resto auto `_Col_v2` della fila
+  a pettine, un pino, oleandri, collina a X −35 m. **Le barriere non hanno collisione in modalità Crea**: il trace non le vede, quindi la tenuta
+  è verificata solo dai bounds. Da confermare in sessione (qa-tester).
+
+### Verifiche (line trace in editor)
+- Auto del parcheggio: trace dall'alto sulle 40 posizioni → **40/40** colpite (HISM `_Col_v2`), tetti a Z 146-163.
+- Auto del viale: 91/91 trace verticali passano e colpiscono `Blockout_Fondale_v4` a Z 0 (**nessuna collisione**).
+- Pini: tronco colpito a Z 112 su **7/7**; chioma a Z 1000 nessun impatto; suolo sotto = asfalto/aiuola del parcheggio.
+- `NewJersey_00` colpito a Z 81 nella nuova posizione.
+
+### Salvataggio, validazione, render
+`save_dirty_packages` 05:03:12 (58 asset + 33 pacchetti mappa/OFPA; 91 `.uasset` con data successiva alle 05:02 su disco, 22 in `Arte/Auto`),
+nessun pacchetto sporco. Validazione `LaSpezia/` (368 asset): 368 validi, 0 errori, 12 avvisi già noti (colline, blockout fondale/ponte "un solo LOD").
+Log: nessun errore nuovo (solo audio/EOS). Render `docs/qa/uefn_parcheggio_v2.png` (UE 2150, −10660, 212; yaw −8; pitch −6; FOV 78; 1024 px; ombre).
+
+### Temporanei e problemi aperti
+- 36 `LaSpezia/_Temp/TMPA2_<asset>_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente.
+- Alle auto del viale in sosta davanti al parcheggio (Y ≈ −12207..−12223, X 17-87 m, senza collisione) il giocatore arriva fino a Y −12185:
+  entra di ~0,7-0,9 m nel fianco delle auto. Da decidere: accettare, oppure usare le `_Col_v2` per quelle 13 auto.
+- Nel render le auto v2 hanno tetti e cofani lattiginosi e la texture appare morbida (la miniatura dell'asset è corretta): probabile riflesso
+  del cielo con la luce delle 18 e/o streaming delle mip nel render; da guardare in sessione, eventualmente `Roughness_Mult` di `MI_Morin_Auto_v2`.
+- I pini sono inclinati (pitch fino a −7,8°) tutti verso lo stesso lato: è il CSV, da confermare con la foto.
