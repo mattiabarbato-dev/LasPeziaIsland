@@ -519,8 +519,14 @@ Ordine per impatto visivo:
             Texture `blender/textures/ponte/` T_Ponte_Legno/Acciaio 4096, Cavo 1024 (+ M_Banchina_Paramento riusato).
             Render `docs/qa/arte_ponte_v1_confronto_calpestio.png`, `_confronto_passeggiata.png`, `arte_ponte_v1_partenza.png`
             (entrambe le antenne visibili, raycast libero Z 10-33). Scelte [S] in `docs/decisioni.md` 2026-11-20.
-      - [ ] (uefn-builder) Import (metodo `docs/uefn_arte.md` §12-13), posa in (0,0,0), nascondere `SM_Blockout_Ponte`
-            (il blockout di Mirabello resta); verifica UCX e Nanite off/on da decidere.
+      - [x] (uefn-builder) Import 2026-11-20 (`docs/uefn_arte.md` §27): 4 mesh in `Arte/Ponte` con LOD 3 (Nanite off, Simple as Complex,
+            UCX 14/22/2/0), 9 texture condivise (Legno/Acciaio 4096 a LODBias 0), 3 MI nuove + `MI_Banchina_Paramento`. Attori `Arte_Ponte_*`
+            in (0,0,0); `Blockout_Ponte` **nascosto** (non cancellato), Mirabello visibile. Line trace: calpestio continuo 0 → 430 → 130,
+            5,7 m liberi, corsie 2,8/2,9 m ai lati delle antenne, raccordi 1 cm (passeggiata) e 0,6 cm (Mirabello), parapetti continui 1,2 m,
+            stralli senza collisione, antenne visibili dalla partenza. Validazione 515/515, 0 errori. Render `docs/qa/uefn_ponte_v1_*.png`.
+      - [!] (utente) **Memoria texture oltre soglia**: totale stimato 313,7-391,5 MiB (soglia 245). Proposte di LODBias 1 in §27, nulla applicato.
+      - [ ] (qa-tester) Sessione: rampa, lati delle antenne, parapetti con montanti visibili, sfarfallio degli stralli a distanza.
+      - [ ] (blender-artist) `SM_Ponte_Parapetti` 37k vertici (avviso validatore): valutare divisione in due mesh o moduli.
       - [ ] (utente) Foto laterale del ponte (inclinazione pennoni, n. stralli, profilo), dettaglio dell'imbocco e del concio apribile.
 - [x] (geo-scout) Schede per la grafica di palme e banchina (2026-11-19): `ref/palme.md`, `ref/banchina.md`, `ref/asset_fonti.md`
       Specie: filari a prevalenza Phoenix dactylifera (tag OSM) con possibile P. canariensis (Comune, 2014): certezza media.

@@ -1405,3 +1405,74 @@ pitch −10, FOV 90, 1024 px, ombre: asfalto continuo dall'imbocco del molo al v
 - **(utente/qa-tester)** In sessione: brusio udibile ma di sottofondo; clacson lontani; le tracce Audio delle cinematiche suonano davvero in UEFN
   (non verificato in gioco). Piano B: Timer device + Audio Player, oppure Verse per la casualità vera.
 - Asset ora inutilizzati (nessuna istanza visibile): `SM_Viale_Italia_Strada`, `SM_Viale_Italia_Incrocio` (restano finché l'utente non conferma).
+
+## 27. Ponte Thaon di Revel v1 (2026-11-20, ~11:30-11:50 ora locale)
+
+Sorgenti: `exports/ponte/` (4 asset + `_LOD1`/`_LOD2`, LOD con bake_rotation), `exports/ponte/ponte_posizioni_v1.csv` (tutti a (0,0,0), yaw 0),
+texture `blender/textures/ponte/`. Controllo iniziale: nessun asset né attore con questi nomi. Metodo del §13/§22: LOD0 col nome finale in
+`LaSpezia/Arte/Ponte` (`ImportFile`, materiali/texture off, combine on), LOD1/2 come `_Temp/TMPP_SM_Ponte_<pezzo>_LOD1/2`, `remove_lods`
+(di nuovo 3 LOD automatici, anche sui temporanei) + `set_lod_from_static_mesh(..., True)`, sezioni dei LOD controllate slot per slot (nessuna da
+rimappare), Nanite off, Use Simple Collision As Complex, soglie 1,0 / 0,2 / 0,08, MinLOD Low/Medium 2 (temporanei 0).
+`remove_collisions` sugli stralli (ImportFile aveva aggiunto 1 convesso automatico) e attore stralli No Collision.
+Nota: il prefisso `TMPP_` era già usato dai temporanei di auto/cartelli del §19-20 (nomi diversi, nessun conflitto).
+
+| Asset (`Arte/Ponte`) | Tri LOD0/1/2 | Vertici LOD0 | Bbox (uu) | Convessi | Slot → MI |
+|---|---|---|---|---|---|
+| `SM_Ponte_Impalcato` | 13.538 / 6.698 / 1.964 | 18.864 | X −873..300 · Y 0..17900 · Z −300..437 | 14 | Legno, Acciaio, Paramento → `MI_Ponte_Legno`, `MI_Ponte_Acciaio`, `MI_Banchina_Paramento` |
+| `SM_Ponte_Parapetti` | 33.472 / 17.148 / 4.944 | 37.392 | X −845..325 · Y 0..17893 · Z 10..551 | 22 | Acciaio, Cavo (LOD2 solo Acciaio: i cavi sono decimati) |
+| `SM_Ponte_Antenne` | 1.436 / 572 / 380 | 1.088 | X −420..−171 · Y 7962..12938 · Z 350..3350 | 2 | Acciaio |
+| `SM_Ponte_Stralli` | 3.360 / 2.016 / 448 | 6.048 | X −868..270 · Y 4737..16163 · Z 226..2953 | 0 | Cavo |
+Totale LOD0 51.806 tri (budget 120k). **Segno di Y verificato:** Blender Y negativo → UE Y positivo, il ponte va verso Mirabello (Y +), come il blockout.
+
+Texture (`TextureToolset.ImportFile`, una volta sola, condivise): `T_Ponte_Legno_D/N/ORM`, `T_Ponte_Acciaio_D/N/ORM` 4096, `T_Ponte_Cavo_D/N/ORM` 1024;
+N = Normalmap senza flip, ORM = Masks, sRGB off. **Insidia nuova:** le 4096 arrivano con **LODBias 2** automatico (le 1024 con 0): portate a **0**
+come da brief. MI nuove su `M_Morin_Master_PBR` (BaseColor/Normal/ORM): `MI_Ponte_Legno`, `MI_Ponte_Acciaio`, `MI_Ponte_Cavo`.
+
+### Posa (Outliner `Arte/Ponte`, duplicati di `Arte_Arredi_Gazebo`: FortStaticMesh, Query Only, Static, nessun override di materiale)
+`Arte_Ponte_Impalcato`, `Arte_Ponte_Parapetti`, `Arte_Ponte_Antenne`, `Arte_Ponte_Stralli` (No Collision) in (0,0,0), yaw 0, scala 1.
+**Nascosto, non cancellato** (metodo §14): `Blockout_Ponte` (`SM_Blockout_Ponte`). `Blockout_Mirabello` resta visibile. Attori nel livello: 200 (+4).
+
+### Verifiche (line trace in editor)
+- **Calpestio:** griglia trasversale ogni 50 cm (Y −100..18000, ±4,5 m dall'asse, passo 10 cm) + profilo sull'asse ogni 10 cm: **nessun buco**.
+  Rampa Z 0 → 430 (Y 0 → 7000, 6,1 %), piano 430 fino a Y ~13610, discesa a **130 a Y 17900**. Larghezza libera fra i parapetti **5,7 m**
+  (X asse −280..+290), 7,7 m agli anelli delle antenne. Nessun gradino trasversale (0 cm) né longitudinale (max 3,1 cm ogni 50 cm di rampa).
+- **Fori delle antenne** (Y ~7750-8250 e ~12750-13000): attorno a ogni antenna una ringhiera ad anello; ai lati due corsie di **2,8 m e 2,9 m**,
+  nessuna cella senza collisione fra impalcato, ringhiera e antenna.
+- **Raccordi:** passeggiata/impalcato a Y 0: `Arte_Molo_Pav_Masselli_03` Z +1 → impalcato Z 0..0,3, salto **1 cm**, nessuna fessura (passo 5 cm,
+  28 colonne). Impalcato/spalla Mirabello a Y 17900: Z 130,0 → `Blockout_Mirabello` 129,4, salto **0,6 cm**, nessuna fessura.
+- **Parapetti:** trace orizzontali ogni 25 cm (Y 25..17875) da dentro verso fuori, entrambi i lati, a +20/60/100/115 cm dal calpestio: **colpiti
+  sempre**, a +125 e +140 mai → altezza 1,15-1,25 m (1,21 da Blender). Nessun varco.
+- **Stralli:** 3.286 trace (Visibility e Camera, verticali e orizzontali nella bbox) senza alcun colpo; componente No Collision.
+- **Linea di vista** dalla partenza (24000, −8250/−8400/−8450, 180) alle due antenne a Z 10/20/30 m: il primo colpo è sempre l'antenna (27-76 uu dal bersaglio).
+
+### Memoria texture (metodo §21, ricalcolato su tutte le 138 texture di `LaSpezia/`, esclusi i `_Temp`)
+- Ponte: Legno 42,7-53,3 + Acciaio 42,7-53,3 + Cavo 2,7-3,3 = **+88,0-110,0 MiB** (a LODBias 0).
+- Totale progetto: prima **225,7-281,5 MiB**, ora **313,7-391,5 MiB**: **oltre la soglia di 245 MiB in entrambi i casi**. Nessuna modifica fatta.
+- Proposta (NON applicata), risparmio basso-alto in MiB: `T_Ponte_Acciaio_*` a LODBias 1 (2048 effettive; antenne e parapetti bianchi, poco dettaglio
+  da vicino) −32,0-40,0 · `T_Morin_Auto_v2_*` −10,0-14,0 · `T_Morin_Imbarco_*` e `T_Morin_Imbarco_Legno_*` −16,0-20,0 · `T_Pav_Terra_*` −8,0-10,0 ·
+  `T_Banchina_Paramento_*` (lato mare, si vede solo dall'acqua) −8,0-10,0. Totale −74,0-94,0 → **239,7-297,5 MiB**: sotto soglia solo nel caso basso.
+  Per chiudere il caso alto: "Compress Without Alpha" sulle D opache (il caso alto suppone che UE tenga l'alfa nei PNG RGBA) oppure Legno a LODBias 1.
+  `T_Ponte_Legno_*` resta a 0 (ci si cammina sopra).
+
+### Salvataggio, validazione, log
+`save_dirty_packages` 11:38:32: 24 asset (4 mesh, 8 temporanei, 9 texture, 3 MI) + 5 OFPA (4 attori nuovi + `Blockout_Ponte`) + 1 external object,
+date 11:38:34-38 su disco; **nessun pacchetto sporco**. Validazione `LaSpezia/`: **515/515 validi, 0 errori, 27 avvisi** = 20 noti + 6 "un solo LOD"
+sui `TMPP_SM_Ponte_*` (temporanei; le antenne sono sotto soglia) + **`SM_Ponte_Parapetti`: "numero di vertici del LOD0 troppo elevato"** (37.392).
+Log: nessun errore.
+
+### Render (`docs/qa/`, 1024 px, ombre, `r.Streaming.FullyLoadUsedTextures 1`)
+- `uefn_ponte_v1_calpestio.png`: (−120, 4300, 429), yaw 90, pitch 4, FOV 62 (= `CAM_Ponte_F1`), confronto con `arte_ponte_v1_confronto_calpestio.png`.
+- `uefn_ponte_v1_passeggiata.png`: (24000, −8400, 180), yaw 142,3, pitch 3, FOV 70 (= `CAM_Ponte_Partenza`, X 240 m): due antenne visibili, nessun ostacolo.
+- **Insidia:** il primo render del calpestio mostrava i parapetti **senza montanti** (proxy di rendering non aggiornato dopo la posa); dopo un
+  `set_forced_lod_model` 1 → 0 sul componente (nessuna modifica salvata) i montanti compaiono. In sessione va controllato a occhio.
+- **Stralli:** da vicino continui, con qualche tratto più scuro (ombra sui cilindri sottili); a ~120 m (vista di prova dall'acqua, FOV 40) restano
+  visibili ma **tratteggiati** (aliasing dei cavi da pochi cm), non spariscono. In movimento è probabile uno sfarfallio: da verificare in sessione.
+
+### Temporanei e problemi aperti
+- 8 `LaSpezia/_Temp/TMPP_SM_Ponte_{Impalcato,Parapetti,Antenne,Stralli}_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente.
+- **(utente)** Memoria oltre soglia: scegliere fra le proposte qui sopra.
+- **(blender-artist)** `SM_Ponte_Parapetti` 37k vertici: avviso del validatore. Opzione: dividere in due mesh (lato sinistro/destro) o in moduli istanziati.
+- **(blender-artist, facoltativo)** stralli tratteggiati a distanza: raggio un po' maggiore nei LOD1/2 o card.
+- **(qa-tester)** In sessione: rampa e discesa, passaggio ai lati delle antenne, parapetti, montanti visibili, sfarfallio degli stralli.
+- `Blockout_Mirabello`: a Y 18000 la rampa di arrivo ha un rialzo a +110 (parapetto del blockout) solo sul lato X+; sul lato X− bordo libero a ~1,2 m
+  dal suolo (preesistente, non toccato).
