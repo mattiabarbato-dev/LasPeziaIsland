@@ -156,9 +156,8 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      su X 1536..10752, raccordi `_RaccordoSO`/`_RaccordoNE`): fila a pettine e asfalto ora giocabili, catena senza varchi.
      Salvataggio 05:03 (91 pacchetti), validazione 368/368, 0 errori, 12 avvisi noti. Render `docs/qa/uefn_parcheggio_v2.png`.
    - [ ] (qa-tester) In sessione: le barriere nuove bloccano davvero (in modalità Crea non hanno collisione, verificate solo dai bounds);
-     al bordo Y −12185 il giocatore entra ~0,7-0,9 m nelle auto in sosta del viale (Y −12207, senza collisione): accettare o dare
-     collisione alle 13 auto del viale davanti al parcheggio (X 17-87 m).
-   - [ ] (utente) Auto v2 in scena: tetti e cofani molto chiari/lattiginosi con la luce delle 18 (riflesso del cielo?), mentre la
+     (risolto 2026-11-20: le 13 auto del viale davanti al parcheggio spostate negli HISM `_Col_v2`, ora solide; §20)
+   - [x] (uefn-builder, risolto: LODBias 1 → 0 sulle texture auto v2, §20) Auto v2 in scena: tetti e cofani molto chiari/lattiginosi con la luce delle 18 (riflesso del cielo?), mentre la
      miniatura dell'asset è corretta; valutare `Roughness_Mult` di `MI_Morin_Auto_v2`.
    - [ ] (utente/geo-scout) Verificare [S] del parcheggio: larghezza corsia (6,25), seconda fila a pettine dietro gli alberi, senso unico,
      posizione dei cartelli e dei new jersey, lampione a due globi affiancati (non modellato).

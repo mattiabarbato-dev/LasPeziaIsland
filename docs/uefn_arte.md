@@ -936,3 +936,8 @@ Log: nessun errore nuovo (solo audio/EOS). Render `docs/qa/uefn_parcheggio_v2.pn
 - Nel render le auto v2 hanno tetti e cofani lattiginosi e la texture appare morbida (la miniatura dell'asset è corretta): probabile riflesso
   del cielo con la luce delle 18 e/o streaming delle mip nel render; da guardare in sessione, eventualmente `Roughness_Mult` di `MI_Morin_Auto_v2`.
 - I pini sono inclinati (pitch fino a −7,8°) tutti verso lo stesso lato: è il CSV, da confermare con la foto.
+- **Correzione (05:15 circa):** auto sfocate/lattiginose per **LODBias 1** su `T_Morin_Auto_v2_D/N/ORM` (default dell'import; sRGB, compressione e
+  canali della MI erano già giusti, identici a `MI_Morin_Chiosco`) e mip non residenti nel render: LODBias → **0**, mip forzati prima della cattura;
+  `uefn_parcheggio_v2.png` rifatta (texture nitide, vetri scuri, `Roughness_Mult` non toccato). Le 13 auto del viale in sosta davanti al
+  parcheggio (Y −12207..−12223, X 17-86 m) spostate dagli HISM `Arte_Viale_Auto*_v2_*` agli HISM `Arte_Parcheggio_Auto*_Col_v2_*` dello stesso
+  modello e colore (parcheggio 53 istanze, viale 78): trace dall'alto 13/13 sulle `_Col_v2`. Salvato, nessun pacchetto sporco, validazione 368/368, 0 errori.
