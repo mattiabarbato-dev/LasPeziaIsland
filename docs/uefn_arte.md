@@ -1583,3 +1583,60 @@ Pianerottolo: pezzi unici; `TMPMB_..._YachtA_LOD1`, `_YachtB_LOD1`). Log: nessun
 - **(blender-artist)** UCX per la recinzione del Fondale (ora attraversabile).
 - **(utente)** Pontile_087 e yacht senza collisione raggiungibili dall'area nuova: accettare (si cade in acqua) o dare collisione.
 - **(qa-tester)** In sessione: barriere nuove, scala a rampa, passerella fino a terra, bordo aperto, auto quasi bianche.
+
+## 29. Correzioni Mirabello v2 e auto bianche (2026-11-20, ~13:00-13:15 ora locale)
+
+### A. Import (metodo §28: `ImportFile` da zero con nomi nuovi, materiali/texture off; nessun asset vecchio cancellato)
+| Asset | Tri LOD0/1/2 | Convessi | Note |
+|---|---|---|---|
+| `Arte/Mirabello/SM_Mirabello_Pianerottolo_v2` | 704 | 9 (UCX) | `remove_lods` (pezzo unico), bbox identica alla v1 (X −1780..300 · Y 17900..18660 · Z 0..255) |
+| `Arte/Mirabello/SM_Mirabello_Fondale_v2` | 549 | 1 (UCX recinzione, **nessun `remove_collisions`**) | `remove_lods`; nessun convesso automatico in più |
+| `Arte/Mirabello/SM_Mirabello_YachtB_v2` | 522 / 282 / 77 | 0 (`remove_collisions`) | LOD1/2 da `_Temp/TMPMB_SM_Mirabello_YachtB_v2_LOD1/_LOD2` (`set_lod_from_static_mesh`), soglie 1,0/0,2/0,08, MinLOD Low/Medium 2 |
+| `Blockout/SM_Blockout_Fondale_v5` | 397 | 41 (UCX) | `remove_lods`; slot `M_Blockout_Fondale` → `M_Blockout_Fondale`, `M_Blockout_Verde` → `MI_Morin_Prato_Mondo` (come v4) |
+Tutti: Nanite off, Use Simple Collision As Complex, slot → stesse MI degli asset v1 (nessuna texture né materiale nuovo).
+
+Posa: `Arte_Mirabello_Pianerottolo` → mesh v2 (Query Only, invariato); `Arte_Mirabello_Fondale` → mesh v2, **No Collision → `FortStaticMesh` Query Only**;
+`Arte_Mirabello_YachtB` (HISM) → mesh v2, 23/23 istanze, No Collision; nuovo `Blockout_Fondale_v5` (dup. di `Blockout_Fondale_v4`, (0,0,0), Query Only,
+Outliner `Blockout`). **Nascosto, non cancellato** (§14): `Blockout_Fondale_v4` (Visible falso, Hidden In Game, No Collision, collisione attore off).
+Attori nel livello: 235 (+1). `SM_Mirabello_Pianerottolo`, `_Fondale`, `_YachtB` e `SM_Blockout_Fondale_v4` restano inutilizzati nel Content Browser.
+
+Line trace (in editor):
+- **Ringhiera N** (X −195..−50 ogni 5 cm, da Y 17960 a 17840, calpestio Z 130): colpita **30/30 a +20/60/100/115 cm**, 1/30 a +125 (parapetto del ponte),
+  0/30 a +140 → altezza ~1,15-1,25 m, varco chiuso.
+- **Recinzione** (X 1000..5000 ogni 50 cm, da Y 16700 a 18300): colpita **81/81 a Z 10/20/60/100/120**, mai a 130 → alta ~1,25 m, a Y 17243..17500
+  (leggermente ruotata). Suolo sotto = `Blockout_Fondale_v5` Z 0. Trace verticali sul Fondale (griglia 4 m, 1035 punti): **0 colpi** → prati e
+  asfalto restano senza collisione, l'unico convesso è la recinzione.
+- **Fondale v5 vs v4** (`line_trace_component` sulle due mesh, griglia 2,5 m su tutta la bbox, 47.718 punti): **204 differenze, tutte a X −150,5..−138,
+  Y 21850..30100**: v4 Z 700 (blocco) → v5 nessuna superficie. Il blocco non sporge più a ovest del multipiano; dentro l'impronta (X −135..−120)
+  resta il blocco a Z 700. Nota: nella fascia tagliata non c'è suolo con collisione (fuori dall'area giocabile, oltre la barriera `Fondo`).
+- Yacht a vela: render `docs/qa/uefn_mirabello_v2_yacht.png` (1900, 17300, 500), yaw −90, FOV 60: genoa **bianco** sugli yacht vicini (LOD0).
+  Sugli yacht a 20-45 m (LOD1/LOD2) lo strallo mostra ancora **tratti neri** vicino alla base e in testa: probabili UV dei LOD1/2 non aggiornate.
+
+### B. Auto tutte bianche: causa e correzione
+- **Sintomo** (`docs/qa/uefn_auto_colori_prima.png`, camera di `uefn_parcheggio_v2.png`): auto completamente bianche, senza vetri, fanali né cerchi, cioè
+  non un mip basso (le celle dell'atlante 3 × 3 sono grandi, ~680 px; un mip mescolato darebbe colori medi e vetri scuri), ma **nessuna texture**.
+- **Prove:** `TextureToolset.GetSize` = **0 × 0** su 4 texture su 138: `T_Morin_Auto_v2_D`, `T_Morin_Imbarco_D`, `T_Morin_Imbarco_Legno_D`, `T_Ponte_Acciaio_D`
+  (le uniche con "senza alfa" **e** LODBias 1 cambiati insieme, insieme a Pav_Terra_D e Banchina_Paramento_D che invece si erano compilate). Log:
+  `LogTexture: Warning: ... contains no miplevels! (Format: 0)` per tutte e 4 alle **11:47:19 ora locale** (= passo "senza alfa + LODBias" del §27).
+  Il sorgente è intatto (`ExportPng` del D: atlante 2048 con i 9 colori corretti). Impostazioni del D normali: LOD Group World, Mip Gen da gruppo,
+  MaxTextureSize 0, streaming normale (NeverStream off), sRGB on. MI corrette: `MI_Morin_Auto_v2` = D/N/ORM giusti, `MI_Morin_Auto_v2_Luci` = D/N/ORM + `_E`
+  (Emissive_Intensita 4) usata solo dalle auto in movimento. La `_E` era sana (2048). Luce/esposizione non c'entrano (le altre superfici sono normali).
+- **Causa:** il LODBias è stato scritto mentre la ricompilazione asincrona dovuta a "senza alfa" era in corso → dati di piattaforma vuoti → il materiale
+  campiona la texture di default (bianca). Riprodotto: riscrivere `lod_bias` su quella texture ha di nuovo dato "no miplevels" (log 13:09:13).
+- **Correzione (memoria invariata):** sulle 4 texture `compression_no_alpha` False → attesa compilazione → True → attesa (GetSize di nuovo 2048/2048/2048/4096),
+  LODBias 1 lasciato. Dopo: 138/138 texture con dimensione valida, nessun nuovo avviso. `T_Morin_Auto_v2_E` invariata (LODBias 1).
+  **Memoria texture: 235,5-236,2 MiB, invariata** (stesse impostazioni del §27; la stima già le contava).
+- **Regola:** dopo un cambio di compressione aspettare la fine della compilazione (GetSize > 32) prima di toccare LODBias o altro, e controllare GetSize ≠ 0.
+- Render: `docs/qa/uefn_auto_colori_fix.png` (stessa camera di `uefn_parcheggio_v2.png`): colori, vetri, fanali, targhe corretti;
+  `docs/qa/uefn_mirabello_auto_fix.png` (−300, 18750, 330), pitch −12, yaw 35, FOV 70: parcheggio di Mirabello colorato. Lo stesso guasto
+  riguardava gli asset sull'atlante Imbarco (battelli, multipiano, pontili, yacht) e l'acciaio del ponte: ora hanno di nuovo la texture (yacht verificati nel render).
+
+### Salvataggio, validazione
+`save_dirty_packages` 13:10:31: 10 asset (4 mesh, 2 temporanei, 4 texture) + 5 OFPA (Pianerottolo, Fondale, YachtB, Fondale_v4, Fondale_v5); date su disco
+controllate; **nessun pacchetto sporco**. Validazione `LaSpezia/`: **538/538 validi, 0 errori, 37 avvisi** (33 noti + "un solo LOD" sui nuovi pezzi
+unici e temporanei).
+
+### Temporanei e problemi aperti
+- 2 `LaSpezia/_Temp/TMPMB_SM_Mirabello_YachtB_v2_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente.
+- **(blender-artist)** `SM_Mirabello_YachtB_v2_LOD1/_LOD2`: strallo con tratti neri da 20-45 m (UV del genoa non aggiornate nei LOD?).
+- **(qa-tester)** Confermare in sessione e dopo un riavvio dell'editor che le 4 texture restino colorate.

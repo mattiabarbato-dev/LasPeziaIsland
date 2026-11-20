@@ -551,20 +551,19 @@ Ordine per impatto visivo:
             alluminio (cella ACCIAIO), genoa avvolto bianco (era il tubo BLU sullo strallo che da lontano sembrava l'albero), no UCX ·
             `exports/blockout/SM_Blockout_Fondale_v5.fbx` 397 tri, 41 UCX, blocco Z 7 m tagliato a X ≥ −136 (mesh e UCX_Edifici_00),
             collezione `Blockout_Fondale_v5` in `blockout_blocco1.blend`. FBX in `exports/mirabello/` (`_v2`, `_v2_LOD1/2`).
-      - [ ] (uefn-builder) **Import correzioni Mirabello v2** (metodo §28, nomi nuovi, nessun vecchio asset cancellato):
-            1. `SM_Mirabello_Pianerottolo_v2` (scena, UCX 9) → mesh dell'attore `Arte_Mirabello_Pianerottolo` (stessa posa 0,0,0, Query Only);
-               `SM_Mirabello_Pianerottolo` resta nel Content Browser inutilizzato.
-            2. `SM_Mirabello_Fondale_v2` (scena, 1 UCX = recinzione) → mesh dell'attore `Arte_Mirabello_Fondale`; **collisione da No Collision
-               a Query Only/BlockAll** (l'unico convesso è la recinzione; i prati/suolo restano senza collisione, il suolo resta il blockout).
-               Non fare `remove_collisions` su questa mesh. Verifica: trace orizzontale sulla recinzione a X 1000..5000 uu.
-            3. `SM_Mirabello_YachtB_v2` + `_v2_LOD1/_LOD2` (asset, 3 LOD, no UCX: `remove_collisions`) → mesh dell'HISM
-               `Arte_Mirabello_YachtB` (23 istanze, No Collision); `SM_Mirabello_YachtB` resta inutilizzato.
-            4. `SM_Blockout_Fondale_v5` (scena, solo LOD0, 41 UCX, slot Verde → `MI_Morin_Prato_Mondo` come v4) → nuovo attore
-               `Blockout_Fondale_v5` in (0,0,0) Query Only (dup. di `Blockout_Fondale_v4`); **nascondere `Blockout_Fondale_v4`** (metodo §14).
-            Controlli: suolo continuo in area Mirabello e Viale (v5 identico alla v4 tranne X < −136 m), ringhiera N (trace a +20/60/100 cm
-            su X −190..−55, Y 17900), validazione, memoria (nessuna texture nuova).
-      - [ ] (utente) Pontile_087 e yacht senza collisione raggiungibili dall'area nuova (si cade in acqua): accettare o dare collisione.
-      - [ ] (qa-tester) Sessione: barriere nuove di Mirabello, scala, passerella, auto quasi bianche nel render (LODBias/streaming?).
+      - [x] (uefn-builder) **Import correzioni Mirabello v2** 2026-11-20 ~13:10 (`docs/uefn_arte.md` §29): mesh v2 su `Arte_Mirabello_Pianerottolo`
+            (704 tri, 9 UCX), `Arte_Mirabello_Fondale` (549 tri, 1 UCX, ora Query Only), HISM `Arte_Mirabello_YachtB` (522/282/77, 23 istanze, No Collision);
+            nuovo `Blockout_Fondale_v5` (397 tri, 41 UCX); `Blockout_Fondale_v4` **nascosto** (non cancellato). Trace: ringhiera N colpita 30/30 fino a
+            +115 cm (alta ~1,15-1,25 m); recinzione 81/81 fino a Z 120 (Y 17243..17500); Fondale senza altre collisioni (0/1035); v5 = v4 tranne
+            X −150,5..−138 (blocco Z 7 m tolto, lì nessun suolo: fuori area). Genoa bianco al LOD0. Validazione 538/538, 0 errori; nessun pacchetto sporco.
+            Decisione dell'utente: pontili e yacht restano senza collisione (`decisioni.md`).
+      - [x] (uefn-builder) **Auto tutte bianche** risolto (§29 B): 4 texture (`T_Morin_Auto_v2_D`, `T_Morin_Imbarco_D`, `T_Morin_Imbarco_Legno_D`,
+            `T_Ponte_Acciaio_D`) avevano dati di piattaforma vuoti ("no miplevels") dal passo memoria del §27 (LODBias scritto durante la ricompilazione
+            "senza alfa"); ricostruite con le stesse impostazioni. Memoria invariata 235,5-236,2 MiB. Render `docs/qa/uefn_auto_colori_fix.png`,
+            `uefn_auto_colori_prima.png`, `uefn_mirabello_auto_fix.png`, `uefn_mirabello_v2_yacht.png`.
+      - [ ] (blender-artist) `SM_Mirabello_YachtB_v2_LOD1/_LOD2`: tratti neri sullo strallo/genoa visti a 20-45 m (UV dei LOD da controllare).
+      - [ ] (qa-tester) Sessione: barriere nuove di Mirabello, scala, passerella, ringhiera N, recinzione; auto colorate anche dopo riavvio dell'editor.
+      - [x] (utente) Pontile_087 e yacht senza collisione: **accettato**, restano senza collisione (decisione 2026-11-20).
       - [ ] (utente) Foto di Mirabello: arrivo del ponte (scala e passerella), fronte del multipiano, pavimentazione del quai.
       - [ ] (utente) Foto laterale del ponte (inclinazione pennoni, n. stralli, profilo), dettaglio dell'imbocco e del concio apribile.
 - [x] (geo-scout) Schede per la grafica di palme e banchina (2026-11-19): `ref/palme.md`, `ref/banchina.md`, `ref/asset_fonti.md`
