@@ -171,3 +171,19 @@ Pianta del parcheggio e della corsia da OSM (© OpenStreetMap contributors, ODbL
 - Segnali stradali generici (Codice della strada, simboli pubblici); nessun nome o insegna del ristorante reale.
 - Planimetria dell'incrocio: © OpenStreetMap contributors (ODbL).
 - `docs/qa/arte_incrocio_v1_confronto.png` e `arte_parcheggio_v3_confronto.png` contengono catture Street View: file di QA, non vanno pubblicati.
+
+## Audio
+
+### Ambiente Viale Italia (2026-11-20) — `exports/audio/`
+Fonte: **BigSoundBank** (libreria di Joseph Sardin, https://bigsoundbank.com). Ogni pagina dichiara
+"License CC0 (public domain): Free and royalty-free". Attribuzione non richiesta, citata per cortesia. Data di accesso: 2026-11-20.
+File scaricati in WAV originale (link `UPLOAD/bwf-en/<n>.wav`), **non elaborati** (ffmpeg non installato): formato, livelli e durate sono quelli della sorgente.
+
+| File finale | Sorgente (n., titolo) | URL | Autore (come in pagina) | Licenza |
+|---|---|---|---|---|
+| `A_Viale_TrafficoLontano_Loop.wav` | #2457 "City garden atmosphere" (Dreux) | https://bigsoundbank.com/city-garden-atmosphere-s2457.html | Joseph SARDIN | CC0 |
+| `A_Viale_Clacson_01.wav` | #3506 "Horn #3" | https://bigsoundbank.com/horn-3-s3506.html | Le tiroir du fond | CC0 |
+| `A_Viale_Clacson_02.wav` | #0260 "Car horn #4" | https://bigsoundbank.com/car-horn-4-s0260.html | DenisChardonnet | CC0 |
+| `A_Viale_Clacson_03.wav` | #0258 "Recent Car Horn #2" | https://bigsoundbank.com/recent-car-horn-2-s0258.html | DenisChardonnet | CC0 |
+| `A_Viale_Clacson_04.wav` | #0850 "Recent car horn #5" (3 colpi, da tagliare) | https://bigsoundbank.com/recent-car-horn-5-s0850.html | Joseph SARDIN | CC0 |
+| `A_Viale_Clacson_05.wav` | #0969 "Recent Car Horn #7" (5 colpi, da tagliare) | https://bigsoundbank.com/recent-car-horn-7-s0969.html | Joseph SARDIN | CC0 |

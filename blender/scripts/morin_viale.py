@@ -63,6 +63,14 @@ STRISCE_CONT = [(123.30, 0.12, 0.02), (130.80, 0.12, 0.02), (132.20, 0.12, 0.02)
                 (140.00, 0.10, 0.15), (142.50, 0.10, 0.15)]
 STRISCE_TRAT = [(127.00, 0.12), (134.50, 0.12)]     # tratteggio 4,5 m pieno / 5 m vuoto (periodo 9,5 = MOD_L / 2)
 Y_SOSTA_A, Y_SOSTA_B = 122.15, 137.45                 # assi delle file di auto parcheggiate [S]
+# v2 (2026-11-20, decisione dell'utente: in Viale Italia niente sosta, solo traffico): 2 corsie per carreggiata.
+# A (Y 121-131): bordo 121,20 | corsia 5,2 m | tratteggio 126,40 | corsia 4,4 m | bordo 130,80
+#   (le auto in movimento di UEFN, assi 125,15 e 128,9, restano dentro le corsie con >= 0,35 m di margine)
+# B (Y 132-138,6): bordo 132,20 | corsia 3,1 m | tratteggio 135,30 | corsia 3,1 m | bordo 138,40
+STRISCE_CONT_V2 = [(121.20, 0.12, 0.02), (130.80, 0.12, 0.02), (132.20, 0.12, 0.02), (138.40, 0.12, 0.02),
+                   (140.00, 0.10, 0.15), (142.50, 0.10, 0.15)]
+STRISCE_TRAT_V2 = [(126.40, 0.12), (135.30, 0.12)]
+ASSI_CORSIE_V2 = {"A1": 123.80, "A2": 128.60, "B1": 133.75, "B2": 136.85}   # centri corsia (Y Blender)
 
 # colori sRGB (dalla foto [SV], riportati a luce piena)
 C_PRATO = (92, 122, 50)
@@ -639,7 +647,11 @@ def build_aiuola(coll, name="SM_Morin_Aiuola_Bosso", lod=0):
 # =============================================================================================================
 # Viale Italia: modulo da 19 m
 # =============================================================================================================
-def build_strada(coll, name="SM_Viale_Italia_Strada", lod=0):
+def build_strada(coll, name="SM_Viale_Italia_Strada", lod=0, v2=None):
+    """v2 (default se il nome finisce in _v2): niente stalli, 2 corsie per carreggiata (STRISCE_*_V2)."""
+    if v2 is None:
+        v2 = name.endswith("_v2")
+    s_cont, s_trat = (STRISCE_CONT_V2, STRISCE_TRAT_V2) if v2 else (STRISCE_CONT, STRISCE_TRAT)
     bm = bmesh.new()
     layer = bm.loops.layers.uv.verify()
     L = MOD_L
@@ -673,14 +685,14 @@ def build_strada(coll, name="SM_Viale_Italia_Strada", lod=0):
         pts = [(xa, yc - w / 2 - y0, z + dz), (xb, yc - w / 2 - y0, z + dz), (xb, yc + w / 2 - y0, z + dz),
                (xa, yc + w / 2 - y0, z + dz)]
         _face(bm, layer, pts, [(p[0], p[1]) for p in pts], 2)
-    for yc, w, z in STRISCE_CONT:
+    for yc, w, z in s_cont:
         if lod == 2 and z > 0.1:
             continue
         stripe(0.0, L, yc, w, z)
-    for yc, w in STRISCE_TRAT:
+    for yc, w in s_trat:
         for xa in (0.25, 0.25 + L / 2):
             stripe(xa, xa + 4.5, yc, w, 0.02)
-    if lod == 0:    # stalli di sosta lato giardini, uno ogni 4,75 m
+    if lod == 0 and not v2:    # stalli di sosta lato giardini, uno ogni 4,75 m
         for xa in np.arange(0.0, L - 0.01, 4.75):
             pts = [(xa, 121.05 - y0, 0.02 + dz), (xa + 0.1, 121.05 - y0, 0.02 + dz), (xa + 0.1, 123.24 - y0, 0.02 + dz),
                    (xa, 123.24 - y0, 0.02 + dz)]
