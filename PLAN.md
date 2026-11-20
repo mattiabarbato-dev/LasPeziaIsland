@@ -159,6 +159,9 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      (risolto 2026-11-20: le 13 auto del viale davanti al parcheggio spostate negli HISM `_Col_v2`, ora solide; §20)
    - [x] (uefn-builder, risolto: LODBias 1 → 0 sulle texture auto v2, §20) Auto v2 in scena: tetti e cofani molto chiari/lattiginosi con la luce delle 18 (riflesso del cielo?), mentre la
      miniatura dell'asset è corretta; valutare `Roughness_Mult` di `MI_Morin_Auto_v2`.
+   - [ ] (**utente**, decisione) LODBias 0 sulle texture "vicine" (pavimentazione, banchina, palme, chiosco, giardini, arredi, molo,
+     parcheggio, alberi): **NON applicato** perché la stima supera la soglia di 220 MiB: texture del progetto ~110-133 MiB oggi,
+     ~273-325 MiB dopo (60 texture, +162-192 MiB). Elenco, stime e sottoinsiemi possibili in `docs/uefn_arte.md` §21.
    - [ ] (utente/geo-scout) Verificare [S] del parcheggio: larghezza corsia (6,25), seconda fila a pettine dietro gli alberi, senso unico,
      posizione dei cartelli e dei new jersey, lampione a due globi affiancati (non modellato).
    - [ ] (utente/geo-scout) Verificare [S]: sezione del viale (sosta lato giardini, spartitraffico, sosta lato città, strisce bianche o blu),
@@ -415,8 +418,16 @@ Ordine per impatto visivo:
             `SM_Banchina_Testata` 845/473/39 (smusso 45° + ciglio est del molo fino a Y 62) · `SM_Banchina_Testata_Fine` 67/39/19 ·
             `SM_Morin_AncoraMonumento` 1506/662/258 (2,70 × 3,16 × 2,72 m, X 226 Y 83). Texture `blender/textures/banchina_v2/T_Banchina_Blocchi_*`.
             Confronti `docs/qa/arte_banchina_v3_confronto_ciglio.png`, `_ancora.png`. Scelte e [S] in `docs/decisioni.md` (2026-11-20).
-      - [ ] (uefn-builder) import della banchina v2 con nomi nuovi; sostituire negli HISM: Mod4m → Mod4m_v2 (54) + Nicchia (4: Mod_06/18/30/42),
-            Scaletta → Scaletta_v2 (Z 0 invece di −1,3), Bitta → Bitta_v2 (stesse posizioni); posare Testata, Testata_Fine e l'ancora
+      - [x] (uefn-builder, 2026-11-20 ~05:10-05:25) import della banchina v2 (`docs/uefn_arte.md` §21): 7 mesh in `LaSpezia/Arte/Banchina`
+            (tri LOD0/1/2 come da Blender, UCX 1/1/3/1/3/1/4 convessi, Nanite off, Simple-as-Complex, MinLOD L/M 2), `T_Banchina_Blocchi_D/N/ORM`
+            2048 (LODBias 0) + `MI_Banchina_Blocchi`; Ghisa/Paramento riusano le MI v1. HISM nuovi `Arte_Banchina_Moduli_v2` (54),
+            `_Nicchie` (4), `_Scalette_v2` (4), `_Bitte_v2` (**6**, solo X ≤ 90 m: decisione dell'utente, zona d'imbarco), attori
+            `Arte_Banchina_Testata`, `_Testata_Fine`, `_AncoraMonumento`. **Nascosti, non cancellati:** `Arte_Banchina_Moduli`, `_Bitte`, `_Scalette`.
+            Line trace: ciglio continuo X 19,0-251,4 m (testata/Mod_00 senza buchi), scalette nelle nicchie con collisione, ancora solida.
+            Render `docs/qa/uefn_banchina_v2.png`. Validazione 393/393, 0 errori.
+      - [ ] (utente/geo-scout) L'ancora monumentale (Y 81,8-84,9 m) occupa 3,2 m dei 9 m del camminamento e lo divide:
+            1,8 m lato mare e 4,1 m lato palme, sotto gli 8 m di corsia libera (§3) per ~2,7 m di lunghezza. Nella foto
+            `banchina_vista_montagne_verso_ponte.jpg` sta davvero sul camminamento: accettare la deroga o spostarla verso la fascia palme.
       - [x] (orchestratore + utente) quota dell'acqua: DECISO 2026-11-19, acqua a −1,0 m. Applicato da uefn-builder: device
             Acqua V2 da Z −534 a −484, superficie Z −100, fondo −484, barriere (base −700) invariate, nessun buco sotto il ponte né a Mirabello
       - [x] (uefn-builder) import, materiali con ORM, LOD — 2026-11-19, dettagli in `docs/uefn_arte.md`.

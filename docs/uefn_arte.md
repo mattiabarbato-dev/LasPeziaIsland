@@ -941,3 +941,77 @@ Log: nessun errore nuovo (solo audio/EOS). Render `docs/qa/uefn_parcheggio_v2.pn
   `uefn_parcheggio_v2.png` rifatta (texture nitide, vetri scuri, `Roughness_Mult` non toccato). Le 13 auto del viale in sosta davanti al
   parcheggio (Y −12207..−12223, X 17-86 m) spostate dagli HISM `Arte_Viale_Auto*_v2_*` agli HISM `Arte_Parcheggio_Auto*_Col_v2_*` dello stesso
   modello e colore (parcheggio 53 istanze, viale 78): trace dall'alto 13/13 sulle `_Col_v2`. Salvato, nessun pacchetto sporco, validazione 368/368, 0 errori.
+
+## 21. Banchina v2 e stima LODBias delle texture vicine (2026-11-20, ~05:10-05:25 ora locale)
+
+Sorgenti: `exports/banchina_v2/` (21 FBX), `exports/banchina_v2/banchina_posizioni_v2.csv` (83 righe), texture
+`blender/textures/banchina_v2/T_Banchina_Blocchi_*`. Controllo iniziale: nessun asset né attore con questi nomi. Metodo del §13:
+LOD0 col nome finale in `LaSpezia/Arte/Banchina`, LOD1/2 come `_Temp/TMPB2_<asset>_LOD1/2`, `remove_lods` (ImportFile aveva messo 3 LOD
+automatici) + `set_lod_from_static_mesh(..., True)`. Tutti i LOD0 hanno UCX (verificato nei file FBX): niente `remove_collisions`.
+
+### Asset (`Arte/Banchina`; Nanite off, Use Simple Collision As Complex, soglie 1,0 / 0,2 / 0,08, MinLOD Low/Medium 2 come la v1)
+| Asset | Tri LOD0/1/2 | Bbox locale (uu) | Convessi | Slot → MI |
+|---|---|---|---|---|
+| `SM_Banchina_Mod4m_v2` | 164 / 92 / 12 | X 0..400 · Y −55..0 · Z −300..0,1 | 1 (top Z −0,5) | Blocchi, Paramento |
+| `SM_Banchina_Mod4m_Nicchia` | 234 / 146 / 58 | come sopra; nicchia X 40..120, profonda 24 | 1 (scatola piena) | Blocchi, Paramento |
+| `SM_Banchina_Scaletta_v2` | 448 / 202 / 82 | X ±27 · Y −42,6..−1,4 · Z −285..50,6 | 3 | Ghisa |
+| `SM_Banchina_Bitta_v2` | 970 / 484 / 144 | X ±20 · Y ±20 · Z −1,2..45,4 | 1 | Ghisa |
+| `SM_Banchina_Testata` | 845 / 473 / 39 | X −970..0 · Y −55..1832 · Z −300..0 | 3 | Blocchi, Paramento |
+| `SM_Banchina_Testata_Fine` | 67 / 39 / 19 | X 0..25 · Y −55..0 · Z −300..0 | 1 | Blocchi, Paramento |
+| `SM_Morin_AncoraMonumento` | 1.506 / 662 / 258 | X −199,5..70,7 · Y −42,2..274,2 · Z 0..272,3 | 4 | Ghisa, Blocchi |
+
+Texture nuove `T_Banchina_Blocchi_D/N/ORM` 2048 (N = Normalmap senza flip, ORM = Masks, sRGB off), **LODBias 0** subito.
+`MI_Banchina_Blocchi` su `M_Morin_Master_PBR`; Paramento e Ghisa riusano `MI_Banchina_Paramento` e `MI_Banchina_Ghisa` (come bitte/scalette v1).
+
+### Posa (Outliner `Arte/Banchina`; HISM duplicati da `Arte_Arredi_Tombini` + `clear_instances`, singoli dal gazebo; profilo `FortStaticMesh`, Static)
+| Attore | Mesh | Istanze / posa |
+|---|---|---|
+| `Arte_Banchina_Moduli_v2` | Mod4m_v2 | 54 (CSV, Z 0, yaw 0,1241) |
+| `Arte_Banchina_Nicchie` | Mod4m_Nicchia | 4 (Mod_06/18/30/42) |
+| `Arte_Banchina_Scalette_v2` | Scaletta_v2 | 4 (X 44/92/140/188 m, Z 0) |
+| `Arte_Banchina_Bitte_v2` | Bitta_v2 | **6** (Bitta_00..05, X 26-86 m, Z −1,2): decisione dell'utente, solo zona d'imbarco (X ≤ 90 m); Bitta_06..17 non posate |
+| `Arte_Banchina_Testata` | Testata | (1920, −8032, 0), yaw 0,1241 |
+| `Arte_Banchina_Testata_Fine` | Testata_Fine | (25120, −7981,74, 0), yaw 0,1241 |
+| `Arte_Banchina_AncoraMonumento` | AncoraMonumento | (22660, −8450, 0), yaw 0 |
+
+**Nascosti, non cancellati** (metodo §14: Actor Hidden In Game, componente Visible = falso, No Collision, Actor Enable Collision = no):
+`Arte_Banchina_Moduli` (58), `Arte_Banchina_Bitte` (18), `Arte_Banchina_Scalette` (4). Attori nel livello: 151.
+
+### Verifiche (line trace in editor)
+- **Ciglio continuo:** trace verticali ogni 5 cm a 5/30/50 cm dal bordo, X 19,0-251,4 m: sempre banchina v2 (top collisione Z −0,5, 5 mm sotto
+  le lastre), nessun buco. Trace orizzontali dal mare a Z −20/−150/−280: faccia sempre a ±1,5 cm dalla retta del ciglio
+  (Y = −8032 + 0,002166·(X−1920)), 0 anomalie. Giunto testata/Mod_00: testata fino a X 1920, modulo da 1924; smusso a 45° (X 1900 → Y −8012).
+- **Scalette:** 4/4 dentro la nicchia (nicchia X 40..120 locale, scaletta X ±27,5 attorno a 80); UCX della scaletta (Y −24..+3, Z −285..−2 e
+  corrimani Z −2..50) colpiti dal mare a Z −100 e dall'alto a Z 50. La collisione della nicchia è una scatola piena (24 cm, ininfluente).
+- **Ancora:** 208/224 trace verticali sulla bbox colpiscono l'ancora; colpita anche orizzontalmente a Z 100 e 200. Nessuna panchina, lampione,
+  aiuola o palma entro 4,5 m. Occupa Y 81,8-84,9 m sul camminamento (Y 80-89): restano 1,8 m lato mare e 4,1 m lato palme (vedi problemi).
+- **Bitte:** 6 istanze, X max 8600 uu. `Bitta_03` (6200) a 10 cm dal `NewJersey_00` (X 5970..6170): nessuna compenetrazione.
+
+### Render
+`docs/qa/uefn_banchina_v2.png` (UE 25200, −7930, 175; yaw 184; pitch −6; FOV 75; 1024 px; ombre), da confrontare con
+`ref/foto/vista/banchina_vista_montagne_verso_ponte.jpg`: grandi blocchi bianchi del ciglio, ancora sul camminamento, filare di palme.
+
+### LODBias delle texture "vicine": stima, NON applicato
+Regola del task: fermarsi se il totale stimato delle texture del progetto supera 220 MiB. Stima = larghezza × altezza × byte/px × 4/3 (mip),
+÷ 4 per ogni passo di LODBias; byte/px: BC5 normal 1, DXT1 0,5, DXT5 (D con alfa) 1. Due casi: solo le D "masked" con alfa (chiome, fronde,
+fregio) oppure tutte le D salvate RGBA nei PNG sorgente (UE potrebbe trattarle come DXT5).
+- **Totale texture progetto (113):** oggi **110-133 MiB**, dopo **273-325 MiB** → oltre la soglia, nessuna modifica fatta.
+- 60 texture da 1 a 0 (tutte le altre "vicine" sono già a 0: Blocchi v2, tombino, oleandro fusto, bosso, cartelli, new jersey, cortecce,
+  segnaletica). Aumento per gruppo (MiB, caso basso-alto): Pavimentazione `T_Pav_Lastre/Cubetti/Fascia/Terra` 32-40 · Banchina v1
+  `Ciglio/Paramento/Ghisa` 24-30 · Palme `PalmaA_Fronde/Tronco` 18-20 · Chiosco `Chiosco/Dehors` 16-20 · Giardini `Oleandro_Chioma` 10 ·
+  Prato `T_Morin_Prato` 8-10 · Arredi `Gazebo_Fregio` (2048×512) 2,5 · Molo `Asfalto/Facciate/Masselli` 24-30 · Parcheggio `Asfalto` 8-10 ·
+  Alberi `Latifoglia_Chioma`, `PinoDomestico_Chioma` 20. Ogni set 2048 D+N+ORM passa da ~2,7-3,3 a ~10,7-13,3 MiB.
+- Note per la scelta: `T_Banchina_Ciglio_*` ora serve solo ai moduli v1 nascosti (resta in cottura finché non si cancellano);
+  con ~110 MiB di margine sotto i 220 ci stanno circa 10-13 set 2048 (es. pavimentazione + Ghisa/Paramento + palme + chiosco ≈ 90-110 MiB).
+
+### Salvataggio, validazione, log
+`save_dirty_packages` 05:22:05 (25 asset + 10 OFPA: 7 attori nuovi + 3 nascosti, date 05:22:04 su disco). I 14 `TMPB2_*` con 1 LOD avevano
+MinLOD 2 (avviso "non rientra nell'intervallo 0..0"): portati a 0 e risalvati. Nessun pacchetto sporco. Validazione `LaSpezia/`: **393/393 validi,
+0 errori, 13 avvisi** (12 noti "un solo LOD" + `TMPB2_SM_Morin_AncoraMonumento_LOD1`, temporaneo non referenziato). Log: solo EOS.
+
+### Temporanei e problemi aperti
+- 14 `LaSpezia/_Temp/TMPB2_<asset>_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente.
+- **(utente)** Ancora sul camminamento: corsia libera 4,1 m per ~2,7 m (§3 chiede ≥ 8 m). Nella foto è sul camminamento: deroga o spostamento.
+- **(utente)** LODBias delle texture vicine: scegliere il sottoinsieme (stime sopra).
+- Top della collisione dei moduli a Z −0,5 (UCX da Blender), visivo a 0..0,1: gradino di 5 mm, ininfluente.
+- **(qa-tester)** In sessione: moduli e ancora solidi, nessun inciampo al giunto testata/modulo, bitte v1 davvero assenti.
