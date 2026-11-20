@@ -1184,3 +1184,60 @@ il caso alto resta sopra la soglia di 245 MiB.
 - 18 `LaSpezia/_Temp/TMPX_<asset>_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente.
 - **(blender-artist)** UCX di `SM_Viale_Incrocio_Marciapiede` e `SM_Parcheggio_Asfalto_v2` fino al bordo visibile (Y −12085); valutare `Pino_04` (inclinazione).
 - **(qa-tester)** in sessione: marciapiede e dehors, corsia, auto a pettine, barriera davanti al parcheggio.
+
+## 24. Marciapiede v2, asfalto v3, dehors vetrato v2, Pino_04 (2026-11-20, ~10:00-10:10 ora locale)
+
+Sorgenti: `exports/incrocio/SM_Viale_Incrocio_Marciapiede_v2.fbx`, `exports/parcheggio/SM_Parcheggio_Asfalto_v3.fbx`,
+`exports/incrocio/SM_Molo_DehorsVetrato_v2.fbx` (+`_LOD1/_LOD2`), `exports/parcheggio/parcheggio_posizioni_v4.csv`. Metodo del §13/§23:
+LOD0 col nome finale (`ImportFile`, materiali/texture off), LOD1/2 del dehors come `_Temp/TMPX_SM_Molo_DehorsVetrato_v2_LOD1/2`, `RemoveLods`,
+`set_lod_from_static_mesh(..., True)`, Nanite off, Use Simple Collision As Complex, soglie 1,0 / 0,2 / 0,08, MinLOD Low/Medium 2 sul dehors
+(0 su marciapiede e asfalto, 1 LOD). Nessun convesso automatico (tutti con UCX).
+
+| Asset | Tri LOD0/1/2 | Bbox (uu) | Convessi | Slot → MI |
+|---|---|---|---|---|
+| `Arte/Incrocio/SM_Viale_Incrocio_Marciapiede_v2` | 27 | come v1 | 1 (X 955..2000, Y −12085..−11375, Z −30..15) | come v1 |
+| `Arte/Parcheggio/SM_Parcheggio_Asfalto_v3` | 173 | come v2 | 6 | come v2 |
+| `Arte/Incrocio/SM_Molo_DehorsVetrato_v2` | 3.168 / 1.579 / 366 | come v1 | 7 (identici alla v1, confrontati da `agg_geom`) | `MI_Incrocio_Props`, `MI_Molo_Vetro` |
+
+- **Insidia §22 confermata:** dopo `set_lod_from_static_mesh` le sezioni dei LOD1/2 puntavano entrambe allo slot 0; rimappate con
+  `set_lod_material_slot(mesh, 1, lod, 1)` → sezioni [0,1] su tutti e 3 i LOD.
+- **Vetro:** nessun master traslucido nel progetto → nuovo `Arte/Materiali/M_Morin_Master_Vetro` (Translucent, two-sided, parametri `Colore`
+  0,10/0,16/0,20, `Opacita` 0,25, `Metallic` 0,05, `Specular` 0,8, `Roughness` 0,08; usage Nanite e ISM come `M_Morin_Master_PBR`) e
+  `Arte/Incrocio/MI_Molo_Vetro`. `MaterialCostToolset.GetCost` non misura (manca il Mali Offline Compiler nelle preferenze): usate le
+  statistiche del compilatore. Istruzioni PS per modalità di illuminazione: Surface 1.197, Surface per-pixel 1.743, **Volumetric Directional
+  385** (scelta), Non Directional 360 (opaco PBR: 213). Superficie piccola: costo accettabile. Niente riflessi speculari della scena (volumetrico).
+
+### Posa (duplicati dei vecchi attori, stessa cartella, profilo `FortStaticMesh`, Query Only, nessun override di materiale)
+| Nuovo | Mesh | Vecchio, **nascosto** (metodo §14: Hidden In Game, Visible falso, No Collision, Actor Collision off) |
+|---|---|---|
+| `Arte_Incrocio_Marciapiede_v2` | Marciapiede_v2, (0,0,0) | `Arte_Incrocio_Marciapiede` |
+| `Arte_Parcheggio_Asfalto_v3` | Asfalto_v3, (0,0,0) | `Arte_Parcheggio_Asfalto_v2` |
+| `Arte_Incrocio_DehorsVetrato_v2` | DehorsVetrato_v2, (0,0,0) | `Arte_Incrocio_DehorsVetrato` |
+
+`Arte_Parcheggio_Pini` istanza 4 (= `Parcheggio_Pino_04`, (6744,35; −11621,15; 12)): yaw 56,52 → **−10**, pitch −7,03 → **−4** (CSV v4).
+Attori nel livello: 175. Nulla cancellato.
+
+### Verifiche (line trace in editor)
+- **Suolo X 975..10600, Y −12085..−11300** (griglia 25 uu, 12.352 punti, prop ignorati): **nessun buco**. Impronta visibile del marciapiede
+  (triangoli LOD0): 1.179/1.179 punti sul marciapiede v2 a Z 15. Impronta dell'asfalto: 9.061 a Z 2 e 1.160 sull'aiuola a Z 14;
+  sovrapposizioni attese con strada del molo (X 2000-2375, Y > −11385, sopra) e pavimento del chiosco (X 9500-10150, Y > −11335, Z 15).
+  **Problema:** 392 punti (X 9525..10575) colpiscono `Blockout_Passeggiata_v5` / `Blockout_Fondale_v4` a Z 0: il convesso dello smusso NE va
+  da (9500, −11350) a (10600, −12085), ma il triangolo visibile da (9500, −10225) a (10600, −12085) → fascia senza collisione propria,
+  piedi 2 cm dentro l'asfalto. Da correggere in Blender (PLAN.md).
+- **Dehors v2:** 7 convessi identici alla v1; 260/495 trace verticali sulla bbox colpiscono pavimento/tetto (aperture libere come la v1).
+  Nel render il vetro è trasparente (tavoli e sedie visibili dentro).
+- **Pino_04:** collisione del tronco a Z 20-200 fino a Y −11580..−11582 (cordolo −11575): non entra più negli stalli; auto più vicina a
+  Y −11553 (27 cm).
+
+### Salvataggio, validazione, log
+`save_dirty_packages` 10:05 e dopo il cambio di usage del master: nessun pacchetto sporco. Validazione `LaSpezia/`: **467/467 validi,
+0 errori, 20 avvisi** (18 noti + "un solo LOD" su `TMPX_SM_Molo_DehorsVetrato_v2_LOD1/2`, temporanei). Log: nessun errore; avvisi
+dell'import di `SM_Parcheggio_Asfalto_v3` (tangenti degeneri, normali quasi nulle: come le versioni precedenti, superficie piana) e un
+"MI_Molo_Vetro missing usage flag Nanite" risolto attivando l'usage sul master.
+
+### Render
+`docs/qa/uefn_incrocio_v2.png`: stessa camera del §23 (800, −11800, 270; yaw −122; pitch 0; FOV 150; 1024 px; ombre; mip forzati).
+
+### Temporanei e problemi aperti
+- 2 nuovi `LaSpezia/_Temp/TMPX_SM_Molo_DehorsVetrato_v2_LOD1/_LOD2`; i 3 attori nascosti e le loro mesh restano finché l'utente non conferma.
+- **(blender-artist)** convesso dello smusso NE di `SM_Parcheggio_Asfalto_v3` (sopra).

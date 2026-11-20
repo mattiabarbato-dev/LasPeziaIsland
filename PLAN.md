@@ -191,8 +191,15 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      (anche al LOD2 i tavoli); `exports/parcheggio/parcheggio_posizioni_v4.csv` (asfalto v3, `Pino_04` yaw −10 / pitch −4: fusto dentro
      l'aiuola Y 115,86-116,57); battello a X 66,56 (`BATT_POS`, `arte_imbarco.blend`, `imbarco_posizioni_v1.csv` = UEFN 6656).
      Backup: `blender/arte_incrocio_pre_fix_ucx.blend`, `arte_imbarco_pre_fix_battello.blend`, `scripts/*_pre_fix_*.py.bak`.
-   - [ ] (uefn-builder) Import di marciapiede v2, asfalto v3 (sostituiscono le istanze v1/v2, stessa posa) e dehors v2 (sostituisce v1,
-     `M_Molo_Vetro` → materiale traslucido); `Parcheggio_Pino_04` a yaw −10, pitch −4 (CSV v4).
+   - [x] (uefn-builder, 2026-11-20 ~10:00-10:10) Import marciapiede v2, asfalto v3, dehors v2 (`docs/uefn_arte.md` §24): attori
+     `Arte_Incrocio_Marciapiede_v2`, `Arte_Parcheggio_Asfalto_v3`, `Arte_Incrocio_DehorsVetrato_v2` a (0,0,0); **nascosti, non cancellati**
+     `Arte_Incrocio_Marciapiede`, `Arte_Parcheggio_Asfalto_v2`, `Arte_Incrocio_DehorsVetrato`. Vetro: nuovo master `M_Morin_Master_Vetro`
+     (Translucent, two-sided, Volumetric Directional, PS 385 istr.) + `MI_Molo_Vetro`. `Pino_04` aggiornato (yaw −10, pitch −4).
+     Trace: marciapiede 100 % OK, nessun buco; **asfalto v3: smusso NE senza collisione** (vedi voce sotto). Validazione 467/467.
+     Render `docs/qa/uefn_incrocio_v2.png`.
+   - [ ] (blender-artist) `SM_Parcheggio_Asfalto_v3`: il convesso dello smusso NE (coordinate Blender, m) ha il vertice a (95; 113,50) ma la superficie
+     visibile parte da (95; 102,25) → triangolo X 95-106 / Y 102,25-120,85 visibile a Z +0,02 senza collisione propria (sotto c'è il blockout a Z 0,
+     piedi 2 cm dentro). Allineare il convesso alla diagonale visibile (95; 102,25)-(106; 120,85).
    - [ ] (qa-tester) In sessione: marciapiede dell'incrocio, dehors vetrato (entrata, tetto), corsia del parcheggio, auto a pettine solide.
    - [ ] (utente/geo-scout) Verificare [S] dell'incrocio: posizione del semaforo grande e dei cartelli (spartitraffico di fronte allo sbocco),
      varco dello spartitraffico, dissuasori, angolo dei posti a pettine (60° o 90°), edificio con vetrate (area OSM 205843492).
