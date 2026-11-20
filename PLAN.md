@@ -107,9 +107,30 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      Trace: prato +8 continuo su X 117,5-250 m / Y 102-118 m. Validazione 278/278, 0 errori, 11 avvisi (10 noti + "un solo LOD" sul Fondale_v3).
      Render `docs/qa/uefn_viale_v1.png` (camera F1).
    - [ ] (utente) Conferma per cancellare `Blockout_Fondale_v2` (nascosto), la sua mesh e i 16 `TMPV_*` in `_Temp`.
-   - [ ] (blender-artist) Viale v1: il blockout Fondale_v3 finisce a X 330 m: palazzi a X 330/357,5 m e una latifoglia a X 333 m senza suolo
-     del blockout sotto; strada finisce a X 250 m (bordo a vista dall'alto); un cubo bianco nei Giardini pubblici (vista alta, origine da verificare: probabile scatola del Fondale_v3); tangenti
-     degeneri su palazzi e Fondale_v3 (avvisi d'import).
+   - [x] (blender-artist, 2026-11-20) **Correzioni Viale v1** (decisioni.md 2026-11-20): (1) palazzi X 330/357,5 e latifoglia X 333 stanno già
+     sul terreno `SM_Fondale_Colline_N` (Z 0..+1,29 sotto le impronte, ray test): nessun suolo nuovo, Palazzo_06 (B) alzato a Z +1,154 m;
+     (2) strada +4 moduli a NE (X 250-326) e +6 a SO (X 3-117, davanti al parcheggio), +50 auto in sosta; (3) il "cubo bianco" è l'isola/UCX
+     **30** di `SM_Blockout_Fondale_v3_Edifici` (X 197,9-201,9, Y 151,7-155,6, h 4,2 m), tolta con la **36** (X 97,6-101,1, Y 167,6-173,6) in
+     `exports/blockout/SM_Blockout_Fondale_v4.fbx` (397 tri, prima 417; 41 UCX, prima 43; collezione `Blockout_Fondale_v4` in
+     `blender/blockout_blocco1.blend`, backup `blockout_blocco1_pre_fondale_v4.blend`). CSV nuovo `exports/viale/viale_posizioni_v2.csv`
+     (167 righe; v1 intatto). Tangenti degeneri: non toccate.
+   - [ ] (uefn-builder) Viale v2: posare le righe nuove del CSV v2 (`Viale_Strada_07..10`, `Viale_Strada_SO_00..05`, `Auto_041..090`) negli
+     HISM esistenti, Palazzo_06 a Z 115,4; importare `SM_Blockout_Fondale_v4` (slot Verde → `MI_Morin_Prato_Mondo`), nascondere `Blockout_Fondale_v3`.
+   - [x] (blender-artist, 2026-11-20) **Parcheggio iniziale v1** (X 20-95 m, `ref/zona_parcheggio_chiosco.md` §1): `blender/arte_parcheggio.blend`
+     (copia di arte_viale + molo e blockout v5 collegati), script `blender/scripts/morin_parcheggio.py`, texture `blender/textures/parcheggio/`
+     (asfalto 2048 [SV], cartelli 512, new jersey 1024). 19 FBX in `exports/parcheggio/`, CSV `exports/parcheggio/parcheggio_posizioni_v1.csv`
+     (54 righe, coordinate UE). Tri LOD0/1/2: `SM_Parcheggio_Asfalto` 153 (pezzo unico in coordinate di progetto, posa 0,0,0; 86 × 18,85 m,
+     asfalto Z +0,02, cordolo +0,15, aiuola +0,12/+0,14; 6 UCX box fino a Y 118) · `SM_Morin_CartelloP` 78/50/20 (0,6 × 2,7 m) ·
+     `SM_Morin_CartelloDivieto` 154/94/48 · `SM_Morin_NewJersey` 54/26/18 (2,0 × 0,61 × 0,81 m, UCX convesso) ·
+     `SM_Morin_Auto_A/B/C_Col` 324/204/124 (mesh delle auto del viale + 2 UCX box). Istanze: 40 auto `_Col` (in linea Y 103,6 e 112,3,
+     pettine Y ~119), 4 cartelli, 3 new jersey (Y 80,6), 6 latifoglie A/B (Y 115,1, aiuola rialzata). Nuovo blockout
+     `exports/blockout/SM_Blockout_Passeggiata_Pav_v5.fbx` (98 tri, 10 UCX; tolte le aiuole a X < 94,5; sorgente `arte_pavimentazione.blend`,
+     collezione `Blockout_Passeggiata_Pav_v5`, backup `arte_pavimentazione_pre_blockout_v5.blend`). Confronto `docs/qa/arte_parcheggio_v1_confronto.png`.
+   - [ ] (uefn-builder) Import parcheggio v1 + `SM_Blockout_Passeggiata_Pav_v5`: nascondere `Blockout_Passeggiata_v4`; materiali riusati
+     (`MI_Viale_Segnaletica`, `MI_Pav_Fascia`, `MI_Pav_Terra`, `MI_Morin_Auto` sulle `_Col`); latifoglie dal CSV con il loro UCX (sono nell'area
+     giocabile). Line trace: asfalto +0,02 continuo X 20-95, nessun salto > 15 cm fra ramo del molo (X 24), cubetti (+0,15) e asfalto.
+   - [ ] (utente/geo-scout) Verificare [S] del parcheggio: larghezza corsia (6,25), seconda fila a pettine dietro gli alberi, senso unico,
+     posizione dei cartelli e dei new jersey, lampione a due globi affiancati (non modellato).
    - [ ] (utente/geo-scout) Verificare [S]: sezione del viale (sosta lato giardini, spartitraffico, sosta lato città, strisce bianche o blu),
      senso di marcia, disegno delle aiuole di bosso, densità degli alberi dei Giardini pubblici.
    - [ ] (blender-artist → uefn-builder) Layout fascia palme **v4**: filari da X 20,4 (via le palme a X 12), tutto il resto −0,6 m,

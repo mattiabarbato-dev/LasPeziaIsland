@@ -133,3 +133,14 @@ Foto: `ref/foto/vista/prato con alberelli.png` (cattura Street View) e `ref/foto
 - Riusi: `T_Molo_Asfalto_*` (asfalto del viale, sezione molo [SV]), `T_Pav_Fascia_*` (cordoli). Fronti dei palazzi da OSM
   (© OpenStreetMap contributors, ODbL; isole di `SM_Blockout_Fondale_v2_Edifici`).
 - Il confronto `docs/qa/arte_viale_v1_confronto.png` contiene la cattura con UI e una persona: file di QA, non va pubblicato.
+
+### Parcheggio iniziale (blender-artist, 2026-11-20) — `blender/textures/parcheggio/`, `blender/scripts/morin_parcheggio.py`
+Foto: `ref/foto/vista/parcheggio_iniziale.png` (cattura Street View), `ref/foto/vista/vista_dall_alto_2.png` (solo riferimento).
+Pianta del parcheggio e della corsia da OSM (© OpenStreetMap contributors, ODbL: amenity=parking 850396611, parking_aisle 378872040).
+- **[SV]** `T_Parcheggio_Asfalto_D/N/ORM` (2048, tileable 8 m): la grana fine dell'asfalto è un high-pass della cattura
+  (porzione x 300-520, y 560-680: solo asfalto, niente UI, persone, targhe o marchi) risintetizzata a splat; crepe, rattoppi,
+  macchie d'olio e inerti sono procedurali; colore medio a occhio dalla cattura.
+- `T_Morin_Cartelli_*` (512, atlante: P blu, divieto di sosta, pannello integrativo senza testo leggibile, zincato) e
+  `T_Morin_NewJersey_*` (1024, cemento con sporco al piede): procedurali, nessun ritaglio di foto.
+- Riusi: `T_Viale_Segnaletica_*` (strisce), `T_Pav_Fascia_*` (cordoli), `T_Pav_Terra_*` (aiuola), mesh e `T_Morin_Auto_*` delle auto.
+- Il confronto `docs/qa/arte_parcheggio_v1_confronto.png` contiene la cattura con UI e targhe sfocate: file di QA, non va pubblicato.
