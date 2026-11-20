@@ -1098,3 +1098,89 @@ battello con scala, fascia blu sull'acqua, biglietteria sulla piattaforma del po
 - **(blender-artist)** `BATT_POS` X 66,7 → 66,56 (o parabordi del battello/bottazzo più sottili) e rigenerare il CSV.
 - **(qa-tester)** salita a bordo dal varco con la fessura di ~54 cm, scala di poppa, rampa del pontile, nessun incastro fra scafo e pontile.
 - **(utente)** memoria: se il caso alto è reale, valutare LODBias 1 su `T_Morin_Imbarco_Legno_*` o sul set atlante.
+
+## 23. Incrocio v1, viale v4, parcheggio v3 (2026-11-20, ~09:40-09:55 ora locale)
+
+Sorgenti: `exports/incrocio/` (28 FBX), `exports/incrocio/incrocio_posizioni_v1.csv` (56 righe), `exports/parcheggio/SM_Parcheggio_Asfalto_v2.fbx`,
+`parcheggio_posizioni_v3.csv` (64), `exports/viale/viale_posizioni_v4.csv` (167), texture `blender/textures/incrocio/`. Controllo iniziale: nessun
+asset né attore con questi nomi. Metodo del §13: LOD0 col nome finale (`ImportFile`, materiali/texture off), LOD1/2 come `_Temp/TMPX_<asset>_LOD1/2`,
+`remove_lods` + `set_lod_from_static_mesh(..., True)`, Nanite off, Use Simple Collision As Complex, soglie 1,0 / 0,2 / 0,08, MinLOD Low/Medium 2
+(asset a 1 LOD e temporanei: 0). Sezioni dei LOD1/2 rimappate sugli slot giusti (insidia del §22) su spartitraffico e modulo del viale.
+
+### Asset
+| Asset | Cartella | Tri LOD0/1/2 | Bbox locale (uu) | Convessi | Slot → MI |
+|---|---|---|---|---|---|
+| `SM_Morin_Dissuasore` | Arte/Incrocio | 182 / 130 / 54 | X ±12,5 · Y ±12,2 · Z 0..65 | 1 | `MI_Incrocio_Props` |
+| `SM_Morin_Semaforo` | Arte/Incrocio | 214 / 104 / 54 | X −48..10 · Y ±24 · Z 0..466 | 2 | `MI_Incrocio_Props` |
+| `SM_Morin_CartelloPrecedenza` | Arte/Incrocio | 56 / 50 / 14 | X −5..3,2 · Y ±45 · Z 0..294 | 1 | `MI_Incrocio_Props` |
+| `SM_Morin_CartelloObbligoDestra` | Arte/Incrocio | 100 / 70 / 28 | X −5..3,2 · Y ±30 · Z 0..229 | 1 | `MI_Incrocio_Props` |
+| `SM_Morin_Scooter` | Arte/Incrocio | 440 / 276 / 180 | X −98..95 · Y ±36 · Z 0,7..134 | 2 | `MI_Incrocio_Props` |
+| `SM_Viale_Spartitraffico_Fiori` | Arte/Incrocio | 82 / 58 / 46 | X 0..475 · Y ±50 · Z 15..73 | 0 (automatico tolto) | `MI_Pav_Fascia`, `MI_Pav_Terra`, `MI_Viale_Fiori` |
+| `SM_Viale_Italia_Incrocio` | Arte/Incrocio | 256 / 254 / 128 | X 0..1900 · Y −2415..0 · Z −5..15,5 | 0 (automatico tolto) | `MI_Molo_Asfalto`, `MI_Pav_Fascia`, `MI_Viale_Segnaletica` |
+| `SM_Molo_DehorsVetrato` | Arte/Incrocio | 2.496 / 1.579 / 246 | X −828..495 · Y −11744..−11122 · Z 0..293 | 7 | `MI_Incrocio_Props` |
+| `SM_Fondale_EdificioVetrate` | Arte/Incrocio | 44 / 44 / 10 | X ±1610 · Y −1200..220 · Z 0..740 | 0 (automatico tolto) | `MI_Fondale_EdificioVetrate` |
+| `SM_Viale_Incrocio_Marciapiede` | Arte/Incrocio | 27 | X 660..2000 · Y −12085..−11375 · Z 0..15 | 2 | `MI_Molo_Masselli_Grigio`, `MI_Pav_Fascia`, `MI_Viale_Segnaletica` |
+| `SM_Parcheggio_Asfalto_v2` | Arte/Parcheggio | 173 | X 2000..10600 · Y −12085..−10200 · Z 2..15 | 6 | come v1 (`MI_Parcheggio_Asfalto`, Segnaletica, Fascia, Terra) |
+
+Texture (9, `Arte/Incrocio`, 1024, **LODBias 0**): `T_Incrocio_Props_*`, `T_Viale_Fiori_*` (D RGBA), `T_Fondale_EdificioVetrate_*`;
+N = Normalmap senza flip, ORM = Masks sRGB off. MI nuove: `MI_Incrocio_Props`, `MI_Fondale_EdificioVetrate` su `M_Morin_Master_PBR`,
+`MI_Viale_Fiori` su `M_Morin_Master_PBR_Masked` (masked, two-sided: stesso master delle chiome). Nessun master nuovo.
+
+### Posa (HISM duplicati da `Arte_Arredi_Tombini` + `clear_instances`, singoli dal gazebo; `Rotator(roll, pitch, yaw)`; profilo `FortStaticMesh`)
+| Attore (Outliner) | Mesh | Istanze / posa | Collisione |
+|---|---|---|---|
+| `Arte_Incrocio_Marciapiede` (Arte/Incrocio) | Viale_Incrocio_Marciapiede | (0,0,0) | Query Only |
+| `Arte_Incrocio_DehorsVetrato` | Molo_DehorsVetrato | (0,0,0) | Query Only |
+| `Arte_Incrocio_EdificioVetrate` | Fondale_EdificioVetrate | (4600, −15100, 0) | No Collision |
+| `Arte_Incrocio_Spartitraffico` (HISM) | Spartitraffico_Fiori | 22 (Y −13150) | No Collision |
+| `Arte_Incrocio_Dissuasori` / `_Semafori` / `_Scooter` | Dissuasore / Semaforo / Scooter | 8 / 4 / 6 | Query Only |
+| `Arte_Incrocio_CartelliPrecedenza` / `_CartelliObbligoDestra` / `_CartelliP` | idem / `SM_Morin_CartelloP` | 1 / 1 / 2 | Query Only |
+| `Arte_Incrocio_PlataniA` / `_PlataniB` | `Arte/Alberi/SM_Albero_LatifogliaA/B` | 5 / 4 (Giardini pubblici) | Query Only |
+| `Arte_Viale_Incrocio` (HISM, Arte/Viale) | Viale_Italia_Incrocio | 1: `Viale_Strada_SO_00` (300, −12085, 0) | No Collision |
+| `Arte_Parcheggio_Asfalto_v2` (Arte/Parcheggio) | Parcheggio_Asfalto_v2 | (0,0,0) | Query Only |
+
+- **Viale v4:** `Viale_Strada_SO_00` tolta da `Arte_Viale_Strada` e ricreata in `Arte_Viale_Incrocio`; `Viale_Strada_SO_m1` (−1600, −12085) aggiunta a
+  `Arte_Viale_Strada` (17 istanze); `Auto_065` (1742,22, −12222,96) tolta da `Arte_Parcheggio_AutoB_Col_v2_GrigioScuro` (dove era finita col §20;
+  la copia nell'HISM nascosto `Arte_Viale_AutoB` non è stata toccata). Confronto con il CSV v4 sulle istanze visibili: 166/166 righe HISM trovate
+  (+ `Prato_Giardini`, attore singolo), **0 duplicati, 0 istanze in più**.
+- **Parcheggio v3:** tolte le 9 `ParkAuto_010-018`, aggiunte le 18 `ParkAuto_Pettine_00-17` negli HISM `_Col_v2` del loro modello/colore, 7 pini
+  e `Cartello_P_01` aggiornati (match per posizione v2). Confronto di tutti gli HISM con il CSV v3 (X/Y ±1 uu, Z ±0,5, yaw/pitch ±0,05°):
+  0 mancanti, 0 errati; le 12 istanze in più sono le auto del viale in sosta a Y ≈ −122 m spostate negli HISM del parcheggio al §20 (sono nel CSV v4).
+- **Nascosti, non cancellati** (metodo §14): `Arte_Molo_Tendone` (sostituito dal dehors vetrato), `Arte_Parcheggio_Asfalto`. Attori nel livello: 172.
+
+### Verifiche (line trace in editor)
+- **Suolo X 0..25 m, Y 110..122 m** (griglia 25 uu, 4.949 punti, prop ignorati): **nessun buco**, salto massimo fra punti vicini **15 cm**.
+  Suolo: strada del molo +1/+15, masselli del molo +1, marciapiede dell'incrocio +15 (1.130 punti), asfalto v2 +2, blockout fondale 0.
+- **Marciapiede sulle lastre:** nella sua impronta il primo impatto è il marciapiede (1.128 punti) o la strada del molo; il blockout compare solo
+  in 20 punti verso l'angolo smussato (Y < −11965), dove manca la collisione del marciapiede (sotto).
+- **Collisione sotto il modulo del viale e nella fascia raggiungibile** (X ≥ 1700 fino a `Barriera_LatoCitta_Parcheggio`, Y −12185): sempre presente,
+  ma è `Blockout_Fondale_v4` a Z 0 in X 975..2000 / Y < −11965 (marciapiede visibile a Z 15: **piedi 15 cm dentro**), in X ≥ 2000 / Y < −11800
+  (asfalto v2 visibile a Z 2: 2 cm) e sotto il modulo del viale (Y < −12085, nessuna collisione propria). Gli UCX di marciapiede e asfalto v2 non
+  coprono tutta l'impronta visibile: **da estendere in Blender** fino a Y −12085.
+- **Prop:** trace orizzontali sulle istanze: dissuasori 8/8, semafori 4/4, scooter 6/6, cartelli 4/4, platani 9/9 colpiti. Dehors: 303/495 trace
+  verticali sulla bbox colpiscono pavimento Z 75 / tetto Z 250-293, 14/21 trace orizzontali a Z 100 dal lato mare (gli altri passano dalle aperture).
+  Dissuasori `_00-_04` (Y −11860), scooter, cartelli P e `Semaforo_02` stanno dentro o oltre il volume di `Barriera_LatoCitta_SO` (Y −11802..−12058):
+  non raggiungibili.
+- **Parcheggio:** auto a pettine 18/18 colpite dall'alto (tetti Z > 120); collisioni a pettine Y −11095..−11558; fila in linea lato corsia Y −10460:
+  **corsia libera 6,35 m** (nessun ostacolo fra le due file). Pini: base sull'aiuola (cordolo a Y ≈ −11575, suolo Z 14); tronco (Z 20-150, con
+  l'inclinazione) fino a Y −11571..−11583, tranne `Pino_04` che a 1,5 m arriva a −11557 (~18 cm sopra lo stallo, a ~1 cm dalla collisione dell'auto).
+- **Barriere (§20):** nessun device toccato; i nuovi attori non aprono varchi (nessuna geometria tolta lungo le barriere; il tendone nascosto stava
+  all'interno dell'area giocabile).
+
+### Salvataggio, validazione, log, memoria
+`save_dirty_packages` 09:50:35 (29 asset + 25 pacchetti mappa/OFPA), nessun pacchetto sporco. Validazione `LaSpezia/`: **460/460 validi, 0 errori,
+18 avvisi** (17 noti + "un solo LOD" su `TMPX_SM_Molo_DehorsVetrato_LOD1`, temporaneo non referenziato). Log: nessun errore (solo avvisi
+"accesso CPU" delle letture dei vertici fatte per la verifica).
+Memoria texture (metodo §21): 3 set 1024 a LODBias 0 = **+8,7-10,0 MiB**; totale progetto stimato **222,3-269,4 MiB** (prima 213,6-259,4):
+il caso alto resta sopra la soglia di 245 MiB.
+
+### Render
+- `docs/qa/uefn_incrocio_v1.png`: camera `CAM_Incrocio_F1` Blender (8; 118; 2,7) az −32° → UE (800, −11800, 270), yaw **−122** (= atan2(−cos az, sin az)),
+  pitch 0, **FOV 150** (accettato da `RenderLevelPOVs`), 1024 px, ombre, mip forzati. Inquadratura uguale a `arte_incrocio_v1_confronto.png`:
+  dehors a sinistra, scooter e dissuasori sul marciapiede, strisce, semafori e spartitraffico, edificio a vetrate a destra.
+- `docs/qa/uefn_parcheggio_v3.png`: (2150, −10660, 212), yaw −8, pitch −6, FOV 78.
+
+### Temporanei e problemi aperti
+- 18 `LaSpezia/_Temp/TMPX_<asset>_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente.
+- **(blender-artist)** UCX di `SM_Viale_Incrocio_Marciapiede` e `SM_Parcheggio_Asfalto_v2` fino al bordo visibile (Y −12085); valutare `Pino_04` (inclinazione).
+- **(qa-tester)** in sessione: marciapiede e dehors, corsia, auto a pettine, barriera davanti al parcheggio.

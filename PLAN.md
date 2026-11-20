@@ -174,9 +174,19 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      `exports/incrocio/incrocio_posizioni_v1.csv` (56), `exports/viale/viale_posizioni_v4.csv`, `exports/parcheggio/parcheggio_posizioni_v3.csv`
      (fila lato città a pettine 60°, 18 auto; pini a Y 116,35). Confronti `docs/qa/arte_incrocio_v1_confronto.png`, `arte_parcheggio_v3_confronto.png`.
      Risolve la nota "cordolo che attraversa l'innesto" e il primo piano a lastre X 10-20 / Y 114-118 (ora marciapiede in masselli).
-   - [ ] (uefn-builder) Import incrocio v1 + parcheggio v3: `Viale_Strada_SO_00` → mesh `SM_Viale_Italia_Incrocio`; nuovo `Viale_Strada_SO_m1`
-     (X −16); nascondere `Auto_065` del viale, `Molo_Tendone` (→ `SM_Molo_DehorsVetrato`), `Parcheggio_Asfalto` (→ `_v2`), le 9 auto
-     `ParkAuto_010`-`018` (→ `ParkAuto_Pettine_00-17`); spostare i 7 pini e `Cartello_P_01` come da CSV v3. `MI_Viale_Fiori` masked two-sided.
+   - [x] (uefn-builder, 2026-11-20 ~09:40-09:55) Import incrocio v1 + parcheggio v3 (`docs/uefn_arte.md` §23): 11 mesh in `Arte/Incrocio`
+     e `Arte/Parcheggio` (3 LOD dove previsti, Nanite off, UCX come da Blender, convesso automatico tolto da spartitraffico, modulo viale ed
+     edificio), 9 texture 1024 LODBias 0, `MI_Incrocio_Props`, `MI_Fondale_EdificioVetrate` (PBR), `MI_Viale_Fiori` (master masked two-sided
+     delle chiome). Outliner `Arte/Incrocio`: 9 HISM (spartitraffico 22, dissuasori 8, semafori 4, scooter 6, cartelli 1+1+2 P, platani 5+4)
+     + marciapiede, dehors vetrato, edificio. Viale: `Viale_Strada_SO_00` tolta dall'HISM e ricreata in `Arte_Viale_Incrocio`,
+     `Viale_Strada_SO_m1` aggiunta, `Auto_065` tolta (viale = CSV v4, 0 mancanti/duplicati). Parcheggio: `Arte_Parcheggio_Asfalto_v2` posato,
+     9 auto `ParkAuto_010-018` tolte, 18 a pettine aggiunte, pini e `Cartello_P_01` spostati; HISM = CSV v3 (0 mancanti/duplicati).
+     **Nascosti, non cancellati:** `Arte_Molo_Tendone`, `Arte_Parcheggio_Asfalto`. Verifiche a trace, salvataggio, validazione 460/460.
+     Render `docs/qa/uefn_incrocio_v1.png` (FOV 150), `uefn_parcheggio_v3.png`.
+   - [ ] (blender-artist) UCX da estendere a tutta l'impronta visibile: `SM_Viale_Incrocio_Marciapiede` (top Z 15 fino a Y −12085, collisione
+     solo fino a ~−11965 su X 975..2000) e `SM_Parcheggio_Asfalto_v2` (collisione fino a ~Y −11800 su X ≥ 2000): nella fascia raggiungibile
+     X 1700..2500, Y −11800..−12185 il suolo di collisione è il blockout a Z 0 (piedi 15 cm dentro il marciapiede). §23.
+   - [ ] (qa-tester) In sessione: marciapiede dell'incrocio, dehors vetrato (entrata, tetto), corsia del parcheggio, auto a pettine solide.
    - [ ] (utente/geo-scout) Verificare [S] dell'incrocio: posizione del semaforo grande e dei cartelli (spartitraffico di fronte allo sbocco),
      varco dello spartitraffico, dissuasori, angolo dei posti a pettine (60° o 90°), edificio con vetrate (area OSM 205843492).
    - [ ] (utente/geo-scout) Verificare [S]: sezione del viale (sosta lato giardini, spartitraffico, sosta lato città, strisce bianche o blu),
