@@ -349,7 +349,19 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
        se D-P2 confermato, lampione a 2 globi a (15,3; 101,9) nel CSV del molo;
      - controllo impronte (`check_footprints`) esteso a cestini, rastrelliere, Sirena, lampione a 2 globi e cartelli: 0 conflitti
        (oggi, contro le aiuole nuove, sono 48); render dall'angolo della Sirena verso il mare da confrontare con `vista__statua.png`.
-   - [ ] (uefn-builder) **Applicare il v5** (CSV e mesh pronti, vedi sopra):
+   - [x] (uefn-builder, 2026-11-20 ~23:15-23:30 ora locale) **Layout v5 applicato in UEFN** (`docs/uefn_arte.md` §45). Nessuna cancellazione, nessuna sessione.
+     - Import: `SM_Pav_FasciaPalme_8m` (36 tri, 8,00 × 12,85 × 0,30 m) e `_Testa` (16 tri, 6,65 m) in `Arte/Pavimentazione`, `SM_Pav_FasciaPalme_Fine_v2`
+       (46 tri, 6,35 m) in `Arte/Blocco2`; 1 UCX ciascuna, Use Simple As Complex, Nanite off, solo LOD0, MI esistenti `MI_Pav_Cubetti`/`MI_Pav_Fascia`.
+     - HISM = CSV (0 mancanti, 0 in più, X/Y ±1 uu, yaw ±0,05°): palme B1 54 → **60** (yaw/scala seme 20261119 come §12), B2 68 → **76**; aiuole 54 → 60
+       e 68 → 76; panchine 13 → 14 e 17 → 19; lampioni 7 → 7 e 8 → 10; tombini 8 e 10; cestini v2 9, B2 11; rastrelliere 3. Fascia: nuovi HISM
+       `Arte_Pav_FasciaPalme_8m` (30) e `Arte_B2_Pav_FasciaPalme_8m` (37), attori `Arte_Pav_FasciaPalme_Testa` (975, 0, 0) e `Arte_B2_Fascia_Fine_v2`
+       (55240, 0, 0); **nascosti** (§14, cartelle `.../Sostituiti`) `Arte_Pav_FasciaPalme` (27 × 9 m), `Arte_B2_Pav_FasciaPalme_9m` (33), `Arte_B2_Fascia_33`.
+       Gazebo (4040, −9320, 15), `Arte_Molo_Lampione2Globi_00` (1530, −10190, 15), `Arte_B2_Pav_Scritta_Morin` X 0 → 420. Camminamento e cordolo già = CSV.
+     - Verifiche: **136 palme, 136 aiuole**; impronte (371, bounds XY, tronco palma r 30 cm × scala): **0 contatti nuovi** (solo NJPlastica_02/03, noto);
+       corsia Y 80-89 (25.323 trace): nessun oggetto del v5; suolo della fascia continuo X 9,6 → 558,75 (testa/8 m/Fine_v2 a Z +15, nessun buco).
+       Catture `docs/qa/uefn_layout_v5_inizio.png`, `uefn_layout_v5_alto.png`. Salvato, 0 pacchetti sporchi, validazione 621/621 (43 avvisi già noti).
+     - Fuori dal v5, solo segnalati: `PaloCartelli_00` (19,2; 81,1) nella corsia (7,47 m liberi), NJPlastica_02/03 sovrapposti ~6 cm.
+     Testo originale del task:
      1. Import di `exports/pavimentazione/SM_Pav_FasciaPalme_8m.fbx`, `SM_Pav_FasciaPalme_Testa.fbx`, `exports/blocco2/SM_Pav_FasciaPalme_Fine_v2.fbx`
         (metodo `docs/uefn_arte.md` §12, collisione dagli UCX, materiali esistenti `M_Pav_Cubetti`/`M_Pav_Fascia` riassegnati, non duplicati).
      2. HISM ripopolati dai CSV v5 (UE = CSV): palme da `palme_posizioni_v5.csv` + `blocco2_palme_v5.csv`; aiuole, fascia, panchine, lampioni, tombini da

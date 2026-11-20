@@ -3043,3 +3043,72 @@ Sorgenti: `exports/marina/SM_Morin_Marina_Portale_v2{,_LOD1,_LOD2}.fbx`, `export
 ### F. Temporanei e problemi aperti
 - 4 temporanei nuovi `LaSpezia/_Temp/TMPV2_*` (nessun referencer), eliminabili con conferma dell'utente (si aggiungono ai 52 del §43).
 - **(qa-tester)** In sessione: passaggio dal portale (1,70 m), dehors con lavagna e cavalletto spostati, aspetto delle card della fioriera a distanza (LOD1/2).
+
+## 45. Layout v5 della passeggiata: palme a passo 8 m da X 20,4, 136 palme (2026-11-20, ~23:15-23:30 ora locale)
+
+Sorgenti: `exports/pavimentazione/SM_Pav_FasciaPalme_8m.fbx`, `SM_Pav_FasciaPalme_Testa.fbx`, `exports/blocco2/SM_Pav_FasciaPalme_Fine_v2.fbx`;
+CSV `pav_posizioni_v5.csv`, `palme_posizioni_v5.csv`, `blocco2_palme_v5.csv`, `blocco2_pav_v5.csv`, `blocco2_arredi_v5.csv`,
+`dettagli/dettagli_posizioni_v3.csv`, `imbarco/imbarco_posizioni_v3.csv`. Nessuna cancellazione, nessuna sessione, nessun commit.
+Trasformazioni di tutte le istanze PRIMA della modifica salvate (per tornare indietro) nello scratchpad della sessione (`hism_prima_v5.json`);
+in alternativa i CSV v3/v1 restano validi.
+
+### A. Import (`StaticMeshToolset.ImportFile`, materiali/texture off, combine on; nomi nuovi, nessun temporaneo)
+| Asset | Cartella | Tri | Bbox locale (uu) | UCX | Slot → MI |
+|---|---|---|---|---|---|
+| `SM_Pav_FasciaPalme_8m` | Arte/Pavimentazione | 36 | X 0..800 · Y −10200..−8915 · Z −15..15 | 1 | Cubetti → `MI_Pav_Cubetti`, Fascia → `MI_Pav_Fascia` |
+| `SM_Pav_FasciaPalme_Testa` | Arte/Pavimentazione | 16 | X 0..665 · Y −10200..−8915 · Z −15..15 | 1 | Cubetti → `MI_Pav_Cubetti` |
+| `SM_Pav_FasciaPalme_Fine_v2` | Arte/Blocco2 | 46 | X 0..635 · Y −10200..−8915 · Z −15..15 | 1 | Cubetti, Fascia (come sopra) |
+`RemoveLods` (solo LOD0, come la fascia 9 m), Nanite off, Use Simple Collision As Complex, MinLOD Low/Medium 0. UCX = box uguale alla bbox.
+
+### B. HISM e attori (UE = CSV; confronto istanza per istanza X/Y ±1 uu, Z ±0,5, yaw ±0,05°, scala ±0,002: 0 mancanti, 0 in più)
+| Attore | Prima | Dopo | Note |
+|---|---|---|---|
+| `Arte_Palme_PalmaA` | 54 | **60** | yaw/scala `random.Random(20261119)` in ordine di CSV (§12) |
+| `Arte_B2_Palme_Morin_PalmaA` | 68 | **76** | yaw/scala dal CSV |
+| `Arte_Pav_Aiuole` / `Arte_B2_Pav_Aiuola` | 54 / 68 | **60 / 76** | |
+| `Arte_Pav_Panchine` / `Arte_B2_Arredi_Morin_Panchina` | 13 / 17 | **14 / 19** | |
+| `Arte_Arredi_Lampioni` / `Arte_B2_Arredi_Morin_Lampione` | 7 / 8 | **7 / 10** | |
+| `Arte_Arredi_Tombini` / `Arte_B2_Arredi_Morin_Tombino` | 8 / 10 | 8 / 10 | posizioni nuove |
+| `Arte_Dettagli_Cestini_v2` / `Arte_B2_Arredi_Morin_Cestino` | 9 / 11 | 9 / 11 | posizioni nuove |
+| `Arte_Imbarco_Rastrelliere` | 3 | 3 | X 56,4 / 88,4 / 104,4 |
+| `Arte_Pav_FasciaPalme_8m` (nuovo HISM, dup. di `Arte_Pav_FasciaPalme`, Static) | — | **30** | `Arte/Pavimentazione` |
+| `Arte_B2_Pav_FasciaPalme_8m` (nuovo HISM, dup. di `Arte_B2_Pav_FasciaPalme_9m`) | — | **37** | `Arte/Blocco2/pav` |
+| `Arte_Pav_FasciaPalme_Testa` (FortStaticMeshActor, dup. di `Arte_B2_Fascia_33`) | — | (975, 0, 0) | |
+| `Arte_B2_Fascia_Fine_v2` (idem) | — | (55240, 0, 0) | |
+| `Arte_Arredi_Gazebo` | (2550, −9300, 15) | **(4040, −9320, 15)** | |
+| `Arte_Molo_Lampione2Globi_00` | (1300, −10600, 15) | **(1530, −10190, 15)** | |
+| `Arte_B2_Pav_Scritta_Morin` | (0, 0, 0) | **(420, 0, 0)** | |
+| Camminamento B1/B2 (58/77), cordolo B1/B2 (27/34) | | invariati | già identici al CSV v5 |
+
+**Nascosti, non cancellati** (metodo §14, spostati nelle cartelle `Arte/Pavimentazione/Sostituiti` e `Arte/Blocco2/pav/Sostituiti`):
+`Arte_Pav_FasciaPalme` (27 × `SM_Pav_FasciaPalme_9m`), `Arte_B2_Pav_FasciaPalme_9m` (33), `Arte_B2_Fascia_33` (`SM_Pav_FasciaPalme_Fine` v1).
+Istanze intatte: per riattivarli basta l'inverso del §14 (e nascondere i nuovi). Attori nel livello 375 → **379**.
+
+### C. Verifiche (in editor, canale Visibility)
+- **Conteggio:** palme 60 + 76 = **136**, aiuole 60 + 76 = **136**.
+- **Impronte** (bounds XY delle mesh ruotati per istanza; palma = tronco r 30 cm × scala; esclusa la coppia palma-propria aiuola): 371 impronte fra palme,
+  aiuole, panchine, lampioni (anche 2 globi), cestini, tombini, gazebo, Sirena, palo cartelli, new jersey, rastrelliere → **1 contatto**:
+  `NJPlastica_02`/`_03` (bbox AABB 6 cm, già segnalato da blender-artist, non toccato). Sotto 15 cm solo `NJPlastica_00`/`_01` (10 cm, preesistenti).
+- **Corsia Y 80-89** (25.323 trace verticali, X 9,75 → 560 m, passo 0,5 × 0,4 m): **nessun oggetto del v5**. Ostacoli preesistenti, non toccati:
+  `PaloCartelli_00` (X 19,25; Y 81,3), ancora monumento (X 224-227), `Arte_B2_Ancora_02` (X 279-281), cannone e scritta "La Spezia" (X 249-260, Y 81-83),
+  biglietteria v2 e portale marina sul ciglio, new jersey del parcheggio (X 60-67, Y 80,5), scalette sul ciglio. I 181 trace senza impatto a Y 80,1
+  (X 19-121 m) sono oltre il ciglio della banchina (filo dei moduli a Y 80,1-80,3 per lo yaw 0,1241°), non buchi.
+- **Suolo della fascia** (trace ogni 20 cm in X da 9,6 a 559 m su 9 linee Y 89,3-101,9, ignorando palme, aiuole e arredi): 0 buchi, superficie a Z +15 su
+  testa, moduli 8 m e Fine_v2, giunti 16,4 / 24,4 + 8k / 552,4 compresi. Altri primi impatti: `Arte_Pav_AngoloMolo` a X 9,6 (Z +15), panchine lunghe
+  dei Giardini sul bordo Y 101,9 (preesistenti), ombrelloni del chiosco, scritta Morin (+15,3), piazzale di fine.
+
+### D. Catture (`docs/qa/`, 1024 px, ombre, `r.Streaming.FullyLoadUsedTextures 1`, doppio render con 8 s di attesa)
+- `uefn_layout_v5_inizio.png`: punto S1 (UE 1440, −10260, 265; pitch −6; yaw 71; FOV 95), confronto con `ref/foto/vista/vista__statua.png`:
+  palo del lampione a 2 globi in primo piano, angolo in cubetti senza palme, Sirena, cestino, prima coppia di palme.
+- `uefn_layout_v5_alto.png`: (3300, −6900, 2300; pitch −58; yaw −90; FOV 90), dal mare: testa, Sirena, prime 6 coppie, gazebo fra 3ª e 4ª palma.
+
+### E. Salvataggio, validazione, log
+- `save_dirty_packages` 23:23:02 (3 mesh + OFPA degli attori toccati/nuovi). **0 pacchetti sporchi.**
+- Validazione `LaSpezia/`: **621/621 validi, 0 errori, 43 avvisi** (gli stessi del §44); le 3 mesh nuove senza avvisi.
+- Log: nessun errore; solo avvisi `LogEOSSDK`/`LogHttp` di rete e deprecazioni Python.
+
+### F. Problemi aperti
+- **(utente)** `PaloCartelli_00` dentro la corsia (7,47 m liberi a X 19,3) e `NJPlastica_02`/`_03` sovrapposti: fuori dal v5, lasciati come sono.
+- **(utente)** `Arte_Pav_FasciaPalme`, `Arte_B2_Pav_FasciaPalme_9m`, `Arte_B2_Fascia_33` nascosti: le mesh `SM_Pav_FasciaPalme_9m` e `_Fine` v1 restano in
+  cottura finché l'utente non conferma la cancellazione.
+- **(qa-tester)** Prova in sessione dell'inizio passeggiata (angolo senza palme, Sirena, lampione a 2 globi, gazebo a X 40,4) e memoria dopo il cook.
