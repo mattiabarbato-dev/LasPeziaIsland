@@ -443,7 +443,25 @@ def _leaf(g, M, lod):
         g.new_faces(disc, "EMBLEMA")
 
 
-def build_portale(coll, lod=0, name="SM_Morin_Marina_Portale"):
+def _ante_v1():
+    xi = UP_X - UP_W
+    return [Matrix.Translation((0.0, 0.0, 0.0)),
+            Matrix.Translation((-xi, 0.0, 0.0)) @ Matrix.Rotation(math.radians(-ANTA_APERTA), 4, "Z")]
+
+
+# v2 (2026-11-20, correzione da docs/uefn_arte.md par. 43.E): ENTRAMBE le ante aperte a 90 gradi verso il mare, cerniere 3,5 cm
+# dentro il filo dei montanti; ogni anta occupa x = +-(0,855..0,915) e lascia una luce libera di 1,71 m per tutta l'altezza.
+ANTA_V2 = 90.0
+HINGE_V2 = 0.035
+
+
+def _ante_v2():
+    xh = UP_X - UP_W - HINGE_V2
+    R = Matrix.Rotation(math.radians(-ANTA_V2), 4, "Z")     # +x dell'anta -> -Y (verso il mare)
+    return [Matrix.Translation((xh, 0.0, 0.0)) @ R, Matrix.Translation((-xh, 0.0, 0.0)) @ R]
+
+
+def build_portale(coll, lod=0, name="SM_Morin_Marina_Portale", ante=None):
     g = G()
     hw = UP_W / 2
     for x in (-UP_X + hw, UP_X - hw):
@@ -454,9 +472,8 @@ def build_portale(coll, lod=0, name="SM_Morin_Marina_Portale"):
     _text(g, NOME, 0.30, _front(0.0, 0.052, (ARCH[0] + ARCH[1]) / 2 - 0.02), "ARGENTO", F_BOLD,
           extrude=0.01 if lod == 0 else 0.0)
     # ante: +X chiusa, -X aperta verso il mare
-    xi = UP_X - UP_W
-    _leaf(g, Matrix.Translation((0.0, 0.0, 0.0)), lod)
-    _leaf(g, Matrix.Translation((-xi, 0.0, 0.0)) @ Matrix.Rotation(math.radians(-ANTA_APERTA), 4, "Z"), lod)
+    for M in (ante if ante is not None else _ante_v1()):
+        _leaf(g, M, lod)
     # pilastro +X con la scritta verticale, pannello con la foto d'epoca verso il mare
     x0, x1, d, h = PIL_P
     g.box(x0, x1, -d, d, 0.0, h, None, B_, faces=("xn", "xp", "yn", "top"))
@@ -505,6 +522,146 @@ def ucx_portale(coll, name="SM_Morin_Marina_Portale"):
     M = Matrix.Translation((-xi, 0.0, 0.0)) @ Matrix.Rotation(math.radians(-ANTA_APERTA), 4, "Z")
     pk._ucx_hull(name, i, [M @ Vector((x, y, z)) for x in (0.0, 0.9) for y in (-0.03, 0.03) for z in (0.0, 2.05)], coll)
     return i + 1
+
+
+def ucx_portale_v2(coll, name="SM_Morin_Marina_Portale_v2"):
+    """Come ucx_portale ma senza l'anta chiusa: un convesso per ciascuna anta aperta (stesse matrici della mesh)."""
+    hw = UP_W / 2
+    boxes = [(-UP_X, -UP_X + UP_W, -hw, hw, 0.0, UP_H), (UP_X - UP_W, UP_X, -hw, hw, 0.0, UP_H),
+             (-UP_X, UP_X, -0.06, 0.06, ARCH[0], UP_H),
+             (PIL_P[0], PIL_P[1], -PIL_P[2], PIL_P[2], 0.0, PIL_P[3]),
+             (PIL_P[1] - 0.06, PIL_P[1], FOTO_W[1], FOTO_W[0], 0.0, 2.25),
+             (PIL_M[0], PIL_M[1], -PIL_M[2], PIL_M[2], 0.0, PIL_M[3]),
+             (PIL_M[0], PIL_M[0] + 0.05, -1.15, -PIL_M[2], 0.0, PIL_M[3])]
+    pk._ucx(name, boxes, coll)
+    i = len(boxes)
+    for M in _ante_v2():
+        pk._ucx_hull(name, i, [M @ Vector((x, y, z)) for x in (0.0, 0.9) for y in (-0.03, 0.03) for z in (0.0, 2.05)], coll)
+        i += 1
+    return i
+
+
+def capsule_test(name="SM_Morin_Marina_Portale_v2", r=0.34, h=1.76, z0=0.02, xs=(-1.2, 1.2, 0.01), ys=(1.2, -1.6, 0.02)):
+    """Capsula (raggio r, altezza totale h, base a z0) spinta lungo -Y (citta' -> mare) attraverso il portale, per ogni X.
+    Collisione = distanza di un punto dell'asse della capsula (campionato ogni ~4 cm) da un convesso UCX < r.
+    Distanza esatta: 0 dentro il convesso, altrimenti minimo sui triangoli delle facce. Ritorna le X dei centri che passano
+    e la luce libera equivalente (estensione dei centri + 2 r)."""
+    from mathutils.geometry import closest_point_on_tri
+    hulls = []
+    for o in bpy.data.objects:
+        if not o.name.startswith(f"UCX_{name}_"):
+            continue
+        b = bmesh.new()
+        b.from_mesh(o.data)
+        b.transform(o.matrix_world)
+        b.normal_update()
+        planes = [(f.normal.copy(), f.normal.dot(f.verts[0].co)) for f in b.faces]
+        tris = []
+        for f in b.faces:
+            vs = [v.co.copy() for v in f.verts]
+            tris += [(vs[0], vs[k], vs[k + 1]) for k in range(1, len(vs) - 1)]
+        lo = Vector([min(v.co[i] for v in b.verts) for i in range(3)])
+        hi = Vector([max(v.co[i] for v in b.verts) for i in range(3)])
+        b.free()
+        hulls.append((o.name, planes, tris, lo, hi))
+
+    def dist_conv(p, planes, tris):
+        if max(n.dot(p) - d for n, d in planes) <= 0:
+            return 0.0
+        return min((closest_point_on_tri(p, *t) - p).length for t in tris)
+
+    nz = int((h - 2 * r) / 0.04) + 1
+    zc = [z0 + r + (h - 2 * r) * k / (nz - 1) for k in range(nz)]
+    ok, hit_by = [], {}
+    nx = int(round((xs[1] - xs[0]) / xs[2])) + 1
+    ny = int(round((ys[0] - ys[1]) / ys[2])) + 1
+    for ix in range(nx):
+        x = xs[0] + ix * xs[2]
+        blocked = None
+        for iy in range(ny):
+            y = ys[0] - iy * ys[2]
+            for z in zc:
+                p = Vector((x, y, z))
+                for nm, planes, tris, lo, hi in hulls:
+                    if any(p[i] < lo[i] - r or p[i] > hi[i] + r for i in range(3)):
+                        continue
+                    if dist_conv(p, planes, tris) < r:
+                        blocked = nm
+                        break
+                if blocked:
+                    break
+            if blocked:
+                break
+        if blocked:
+            hit_by[round(x, 3)] = blocked
+        else:
+            ok.append(round(x, 3))
+    if not ok:
+        return dict(passa=False, centri=None, luce=0.0)
+    return dict(passa=True, centri=(ok[0], ok[-1]), n=len(ok), luce=round(ok[-1] - ok[0] + 2 * r, 3),
+                bordo_sx=hit_by.get(round(ok[0] - xs[2], 3)), bordo_dx=hit_by.get(round(ok[-1] + xs[2], 3)))
+
+
+def build_portale_v2(lod_target=(1.0, 0.5, 0.15)):
+    """Costruisce SM_Morin_Marina_Portale_v2 (+LOD1/2, UCX) accanto alla v1, che resta intatta."""
+    nm = "SM_Morin_Marina_Portale_v2"
+    coll = pk._coll(KIT)
+    for o in list(bpy.data.objects):
+        if o.name.startswith(f"UCX_{nm}_"):
+            bpy.data.objects.remove(o)
+    o0 = build_portale(coll, 0, nm, ante=_ante_v2())
+    t0 = pk.tri_count(o0)
+    objs = [o0]
+    for lod in (1, 2):
+        o = build_portale(coll, lod, nm, ante=_ante_v2())
+        t = pk.tri_count(o)
+        want = t0 * lod_target[lod]
+        if t > want * 1.15:
+            ratio = max(0.05, want / t)
+            o = mi._decimate(o, ratio, o.name, coll)
+            while av.bbox_dev(o0, o) > 0.019:
+                o = build_portale(coll, lod, nm, ante=_ante_v2())
+                ratio *= 1.3
+                if ratio >= 0.95:
+                    break
+                o = mi._decimate(o, ratio, o.name, coll)
+        objs.append(o)
+    nucx = ucx_portale_v2(coll, nm)
+    for o in coll.objects:
+        if o.name.startswith(f"UCX_{nm}") or o.name.startswith(f"{nm}_LOD"):
+            o.hide_render = True
+            o.hide_viewport = True
+    lo, hi = av.vbox(o0)
+    return dict(tri=[pk.tri_count(o) for o in objs], ucx=nucx, dim=tuple(round(d, 2) for d in (hi - lo)),
+                bbox_dev_pct=[round(av.bbox_dev(o0, o) * 100, 2) for o in objs[1:]])
+
+
+def export_portale_v2(overwrite=False):
+    import importlib
+    import morin_export
+    importlib.reload(morin_export)
+    nm = "SM_Morin_Marina_Portale_v2"
+    reps = []
+    objs = [bpy.data.objects[nm + _sfx(l)] for l in range(3)] + \
+           [o for o in bpy.data.objects if o.name.startswith(f"UCX_{nm}_")]
+    state = {o.name: (o.hide_viewport, o.hide_get()) for o in objs}
+    for o in objs:
+        o.hide_viewport = False
+        o.hide_set(False)
+    bpy.context.view_layer.update()
+    try:
+        for lod in range(3):
+            on = nm + _sfx(lod)
+            reps.append(morin_export.export_fbx([bpy.data.objects[on]], f"{EXPDIR}/{on}.fbx", mode="asset",
+                                                overwrite=overwrite, include_ucx=(lod == 0), bake_rotation=(lod > 0),
+                                                verbose=False))
+    finally:
+        for n, (hv, hg) in state.items():
+            o = bpy.data.objects.get(n)
+            if o is not None:
+                o.hide_viewport = hv
+                o.hide_set(hg)
+    return reps
 
 
 # =================================================================================================================

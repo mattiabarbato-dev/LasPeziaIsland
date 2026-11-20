@@ -729,6 +729,74 @@ def ucx_fioriera(coll, name="SM_Molo_FiorieraAntracite"):
     pk._ucx(name, [(-hx, hx, -hy, hy, 0.0, hz), (-hx, hx, -hy - 0.05, hy + 0.05, hz, 1.30)], coll)
 
 
+# v2 (docs/uefn_arte.md par. 43, 2026-11-20): l'arbusto v1 sembrava una palla. In foto (R2) e' una siepe cespugliosa e
+# irregolare: 5 masse piccole e sfalsate lungo la fioriera (cime a quote diverse) + molte card piu' piccole (foglie ~meta'
+# della v1 a parita' di texture), inclinate a caso e sporgenti dalla massa, per un profilo frastagliato.
+# Stessa fioriera, stessa origine, stessi UCX e ingombro della v1 (X +-0,62, Y +-0,385, Z 0..~1,42): si sostituisce 1:1.
+FIO2_LUMPS = [(-0.40, 0.03, 0.22, 0.30, 0.30, 1.16), (-0.17, -0.06, 0.20, 0.32, 0.36, 1.40), (0.05, 0.05, 0.21, 0.30, 0.30, 1.24),
+              (0.26, -0.04, 0.20, 0.33, 0.34, 1.36), (0.41, 0.04, 0.21, 0.29, 0.26, 1.10)]   # cx, cy, rx, ry, rz, cima
+FIO2_BOX = (0.62, 0.385, 1.42)
+
+
+def build_fioriera_v2(coll, lod=0, name="SM_Molo_FiorieraAntracite_v2"):
+    g = G()
+    hx, hy, hz = FIO
+    g.box(-hx, hx, -hy, hy, 0.0, hz, "FIORIERA", faces=("xn", "xp", "yn", "yp"))
+    g.box(-hx, hx, -hy, hy, hz - 0.02, hz, "FIORIERA", faces=("top",))
+    g.box(-hx + 0.03, hx - 0.03, -hy + 0.03, hy - 0.03, hz - 0.06, hz - 0.02, "TERRA", faces=("top",))
+    BX, BY, BZ = FIO2_BOX
+    segs, rings = ((10, 6), (8, 4), (6, 3))[lod]
+    lumps = []
+    for i, (cx, cy, rx, ry, rz, top) in enumerate(FIO2_LUMPS):
+        cz = top - rz
+        _blob(g, (cx, cy, cz), (rx, ry, rz), None, AR_, segs, rings, jitter=0.14 if lod < 2 else 0.0, seed=31 + i,
+              flat_bottom=hz - 0.04)
+        lumps.append((Vector((cx, cy, cz)), Vector((rx, ry, rz))))
+    clamp = lambda p: (max(-BX, min(BX, p[0])), max(-BY, min(BY, p[1])), max(hz + 0.01, min(BZ, p[2])))
+    rng = np.random.default_rng(17)
+    n = (150, 64, 14)[lod]
+    smin, smax = ((0.13, 0.22), (0.17, 0.28), (0.30, 0.42))[lod]
+    w = np.array([l[1].x * l[1].y + l[1].x * l[1].z + l[1].y * l[1].z for l in lumps])
+    w = w / w.sum()
+    for _ in range(n):
+        c0, r = lumps[int(rng.choice(len(lumps), p=w))]
+        th = rng.uniform(0, 2 * math.pi)
+        ph = math.acos(rng.uniform(-0.15, 1.0))           # soprattutto calotta e fianchi, poco sotto
+        d = Vector((math.sin(ph) * math.cos(th), math.sin(ph) * math.sin(th), math.cos(ph)))
+        k = rng.uniform(0.88, 1.06)                        # alcune card dentro la massa, altre sporgenti
+        c = c0 + Vector((r.x * d.x, r.y * d.y, r.z * d.z)) * k
+        if c.z < hz + 0.04:
+            continue
+        nrm = Vector((d.x / r.x, d.y / r.y, d.z / r.z)).normalized()
+        nrm = (nrm + Vector(rng.normal(0, 0.45, 3))).normalized()     # inclinazione casuale (niente guscio regolare)
+        tang = nrm.cross(Vector((0, 0, 1)))
+        if tang.length < 1e-3:
+            tang = Vector((1, 0, 0))
+        tang.normalize()
+        tang = Matrix.Rotation(rng.uniform(-math.pi, math.pi), 3, nrm) @ tang
+        bit = nrm.cross(tang).normalized()
+        s = rng.uniform(smin, smax)
+        ar = rng.uniform(0.75, 1.3)                        # card un po' allungate: rametti
+        pts = [clamp(tuple(c + (tang * a * ar + bit * b / ar) * s / 2)) for a, b in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+        g.quad(pts, None, AC_, out=tuple(nrm))
+    # punti estremi della bbox (uguali in tutti i LOD): 4 card ai lati corti/lunghi e in cima
+    for p, nr in (((-BX + 0.06, 0.0, 1.0), (-1, 0, 0)), ((BX - 0.06, 0.0, 0.98), (1, 0, 0)),
+                  ((0.0, -BY + 0.06, 1.05), (0, -1, 0)), ((0.0, BY - 0.06, 1.02), (0, 1, 0)),
+                  ((-0.17, -0.06, BZ - 0.07), (0, 0, 1))):
+        nv = Vector(nr)
+        t = nv.cross(Vector((0, 0, 1))) if abs(nv.z) < 0.9 else Vector((1, 0, 0))
+        t.normalize()
+        b = nv.cross(t).normalized()
+        s = 0.16 if lod < 2 else 0.30
+        pts = [clamp(tuple(Vector(p) + (t * a + b * bb) * s / 2 + nv * 0.06)) for a, bb in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+        g.quad(pts, None, AC_, out=tuple(nv))
+    return _fin(g, name, lod, coll)
+
+
+def ucx_fioriera_v2(coll, name="SM_Molo_FiorieraAntracite_v2"):
+    ucx_fioriera(coll, name)
+
+
 def _aframe(g, w, h, spread, cell_front, cell_frame, lod, board=None):
     """Cavalletto A: due pannelli incernierati in cima (z h), piedi a +-spread lungo X; fronte verso +X."""
     ang = math.degrees(math.atan2(spread, h))
@@ -1347,6 +1415,7 @@ ASSETS = {
     "SM_Molo_TavoloNero": (build_tavolo, ucx_tavolo),
     "SM_Molo_SediaNera": (build_sedia, ucx_sedia),
     "SM_Molo_FiorieraAntracite": (build_fioriera, ucx_fioriera),
+    "SM_Molo_FiorieraAntracite_v2": (build_fioriera_v2, ucx_fioriera_v2),
     "SM_Molo_Lavagna": (build_lavagna, lambda c: ucx_aframe(c, "SM_Molo_Lavagna", 1.08)),
     "SM_Molo_CavallettoPescheria": (build_cavalletto, lambda c: ucx_aframe(c, "SM_Molo_CavallettoPescheria", 1.10)),
     "SM_Molo_Insegna_PescatoriPigri": (build_insegna_scudo, _ins_ucx("SM_Molo_Insegna_PescatoriPigri", 1.0, 1.2, 0.04)),
@@ -1465,13 +1534,13 @@ def insegne_pose():
     return c, math.degrees(math.atan2(nrm.y, nrm.x)) - 90.0
 
 
-def layout():
+def layout(v2=False):
     rng = np.random.default_rng(20261120)
     rows = []
     for i, (t, x, y, sez) in enumerate(OMBRELLONI):
         rows.append((f"SM_Molo_Ombrellone{t}", f"Ombrellone_{i:02d}", x, y, Z_MOLO, float(rng.uniform(-4, 4)), sez))
     for i, (x, y, sez) in enumerate(FIORIERE):
-        rows.append(("SM_Molo_FiorieraAntracite", f"FiorieraA_{i:02d}", x, y, Z_MOLO, 90.0, sez))
+        rows.append(("SM_Molo_FiorieraAntracite" + ("_v2" if v2 else ""), f"FiorieraA_{i:02d}", x, y, Z_MOLO, 90.0, sez))
     k = 0
     for i, (x, y, pat, sez) in enumerate(TAVOLI):
         rows.append(("SM_Molo_TavoloNero", f"TavoloNero_{i:02d}", x, y, Z_MOLO, float(rng.uniform(-6, 6)), sez))
@@ -1481,8 +1550,14 @@ def layout():
             rows.append(("SM_Molo_SediaNera", f"SediaNera_{k:02d}", x + dx + j[0], y + dy + j[1], Z_MOLO,
                          rz + float(rng.uniform(-10, 10)), sez))
             k += 1
-    rows.append(("SM_Molo_Lavagna", "Lavagna_00", 5.7, 92.8, Z_MOLO, 55.0, "A3"))
-    rows.append(("SM_Molo_CavallettoPescheria", "Cavalletto_RistoLischeria", 5.1, 100.4, Z_MOLO, 45.0, "A2"))
+    if v2:
+        # v2 (docs/uefn_arte.md par. 43.E): fuori dalla corsia X 4,2-9,55, dentro la fascia del dehors accanto alle fioriere,
+        # fronte verso la corsia (+X); ingombro X 3,52..3,98 (lavagna) e 3,07..3,53 (cavalletto).
+        rows.append(("SM_Molo_Lavagna", "Lavagna_00", 3.75, 90.7, Z_MOLO, 0.0, "A3"))
+        rows.append(("SM_Molo_CavallettoPescheria", "Cavalletto_RistoLischeria", 3.3, 98.6, Z_MOLO, 0.0, "A2"))
+    else:
+        rows.append(("SM_Molo_Lavagna", "Lavagna_00", 5.7, 92.8, Z_MOLO, 55.0, "A3"))
+        rows.append(("SM_Molo_CavallettoPescheria", "Cavalletto_RistoLischeria", 5.1, 100.4, Z_MOLO, 45.0, "A2"))
     for a, n, x, y, z, rz in INSEGNE:
         rows.append((a, n, x, y, z, rz, "facciata"))
     for i, x in enumerate(CESTINI_X):
@@ -1503,7 +1578,9 @@ def check_layout(rows=None, verbose=True):
     """Ingombri in pianta del dehors: nessuna sovrapposizione, niente oltre X 4,2 (salvo lavagna e cavalletto), facciata."""
     rows = rows or layout()
     fp = {"SM_Molo_TavoloNero": (0.35, 0.35), "SM_Molo_SediaNera": (0.20, 0.20), "SM_Molo_FiorieraAntracite": (0.5, 0.225),
-          "SM_Molo_Ombrellone3x3": (0.30, 0.30), "SM_Molo_Ombrellone4x4": (0.40, 0.40)}
+          "SM_Molo_Ombrellone3x3": (0.30, 0.30), "SM_Molo_Ombrellone4x4": (0.40, 0.40),
+          "SM_Molo_FiorieraAntracite_v2": (0.5, 0.225), "SM_Molo_Lavagna": (0.23, 0.28),
+          "SM_Molo_CavallettoPescheria": (0.23, 0.31)}
     boxes = []
     for a, n, x, y, z, rz, v in rows:
         if a in fp:
@@ -1534,15 +1611,19 @@ def check_layout(rows=None, verbose=True):
 
 
 def write_csv(path="exports/dettagli/dettagli_posizioni_v1.csv",
-              path_cest="exports/dettagli/dettagli_cestini_sostituzione_v1.csv"):
+              path_cest="exports/dettagli/dettagli_cestini_sostituzione_v1.csv", v2=False):
+    """v2=True: write_csv("exports/dettagli/dettagli_posizioni_v2.csv", None, v2=True) (lavagna e cavalletto spostati,
+    fioriere -> SM_Molo_FiorieraAntracite_v2); il CSV dei cestini non cambia e non viene riscritto."""
     os.makedirs(f"{PROJ}/exports/dettagli", exist_ok=True)
-    rows = layout()
+    rows = layout(v2)
     lines = ["asset,nome,x,y,z,yaw,pitch,roll,variante"]
     for a, n, x, y, z, rz, v in rows:
         yaw = -rz if rz else 0.0
         lines.append(f"{a},{n},{x * 100:.1f},{-y * 100:.1f},{z * 100:.1f},{yaw:.2f},0.00,0.00,{v}")
     with open(f"{PROJ}/{path}", "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(lines) + "\n")
+    if not path_cest:
+        return len(lines) - 1, 0
     cl = ["attore_vecchio,asset_vecchio,azione,asset_nuovo,nome_nuovo,x,y,z,yaw,pitch,roll"]
     for i, x in enumerate(CESTINI_X):
         cl.append(f"Cestino_{i:02d},SM_Morin_Cestino,nascondere,SM_Morin_Cestino_v2,Cestino_v2_{i:02d},{x * 100:.1f},-9210.0,"
@@ -1564,7 +1645,7 @@ def build_context():
     return len(coll.objects)
 
 
-def export_all(overwrite=False):
+def export_all(overwrite=False, only=None):
     import importlib
     import morin_export
     importlib.reload(morin_export)
@@ -1577,6 +1658,8 @@ def export_all(overwrite=False):
     reps = []
     try:
         for nm in ASSETS:
+            if only and nm not in only:
+                continue
             for lod in range(3):
                 on = nm + _sfx(lod)
                 reps.append(morin_export.export_fbx([bpy.data.objects[on]], f"{EXPDIR}/{on}.fbx", mode="asset",

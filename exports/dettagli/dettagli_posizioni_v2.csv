@@ -1,0 +1,120 @@
+asset,nome,x,y,z,yaw,pitch,roll,variante
+SM_Molo_Ombrellone4x4,Ombrellone_00,260.0,-10370.0,1.0,-1.90,0.00,0.00,A1
+SM_Molo_Ombrellone3x3,Ombrellone_01,240.0,-9860.0,1.0,2.80,0.00,0.00,A2
+SM_Molo_Ombrellone3x3,Ombrellone_02,270.0,-9450.0,1.0,-2.67,0.00,0.00,A3
+SM_Molo_Ombrellone3x3,Ombrellone_03,270.0,-9000.0,1.0,-0.72,0.00,0.00,A3
+SM_Molo_Ombrellone3x3,Ombrellone_04,270.0,-8550.0,1.0,-1.22,0.00,0.00,A3
+SM_Molo_Ombrellone3x3,Ombrellone_05,270.0,-8150.0,1.0,0.71,0.00,0.00,A3
+SM_Molo_Ombrellone3x3,Ombrellone_06,285.0,-7600.0,1.0,-3.40,0.00,0.00,A3giallo
+SM_Molo_Ombrellone3x3,Ombrellone_07,285.0,-7150.0,1.0,0.81,0.00,0.00,A3giallo
+SM_Molo_FiorieraAntracite_v2,FiorieraA_00,220.0,-10560.0,1.0,-90.00,0.00,0.00,A1
+SM_Molo_FiorieraAntracite_v2,FiorieraA_01,100.0,-10800.0,1.0,-90.00,0.00,0.00,A1
+SM_Molo_FiorieraAntracite_v2,FiorieraA_02,330.0,-9970.0,1.0,-90.00,0.00,0.00,A2
+SM_Molo_FiorieraAntracite_v2,FiorieraA_03,330.0,-10090.0,1.0,-90.00,0.00,0.00,A2
+SM_Molo_FiorieraAntracite_v2,FiorieraA_04,330.0,-10210.0,1.0,-90.00,0.00,0.00,A2
+SM_Molo_FiorieraAntracite_v2,FiorieraA_05,380.0,-8400.0,1.0,-90.00,0.00,0.00,A3
+SM_Molo_FiorieraAntracite_v2,FiorieraA_06,380.0,-8520.0,1.0,-90.00,0.00,0.00,A3
+SM_Molo_FiorieraAntracite_v2,FiorieraA_07,380.0,-8640.0,1.0,-90.00,0.00,0.00,A3
+SM_Molo_FiorieraAntracite_v2,FiorieraA_08,380.0,-9180.0,1.0,-90.00,0.00,0.00,A3
+SM_Molo_FiorieraAntracite_v2,FiorieraA_09,380.0,-9300.0,1.0,-90.00,0.00,0.00,A3
+SM_Molo_FiorieraAntracite_v2,FiorieraA_10,380.0,-9420.0,1.0,-90.00,0.00,0.00,A3
+SM_Molo_FiorieraAntracite_v2,FiorieraA_11,380.0,-6900.0,1.0,-90.00,0.00,0.00,A3giallo
+SM_Molo_FiorieraAntracite_v2,FiorieraA_12,380.0,-7380.0,1.0,-90.00,0.00,0.00,A3giallo
+SM_Molo_FiorieraAntracite_v2,FiorieraA_13,380.0,-7860.0,1.0,-90.00,0.00,0.00,A3giallo
+SM_Molo_FiorieraAntracite_v2,FiorieraA_14,380.0,-6300.0,1.0,-90.00,0.00,0.00,A4
+SM_Molo_FiorieraAntracite_v2,FiorieraA_15,380.0,-6650.0,1.0,-90.00,0.00,0.00,A4
+SM_Molo_TavoloNero,TavoloNero_00,130.0,-10490.0,1.0,5.37,0.00,0.00,A1
+SM_Molo_SediaNera,SediaNera_00,74.6,-10488.7,1.0,1.85,0.00,0.00,A1
+SM_Molo_SediaNera,SediaNera_01,133.6,-10432.1,1.0,-95.09,0.00,0.00,A1
+SM_Molo_SediaNera,SediaNera_02,126.8,-10548.7,1.0,83.87,0.00,0.00,A1
+SM_Molo_TavoloNero,TavoloNero_01,345.0,-10460.0,1.0,-2.44,0.00,0.00,A1
+SM_Molo_SediaNera,SediaNera_03,340.1,-10407.9,1.0,-99.07,0.00,0.00,A1
+SM_Molo_SediaNera,SediaNera_04,346.6,-10518.8,1.0,86.78,0.00,0.00,A1
+SM_Molo_TavoloNero,TavoloNero_02,270.0,-10690.0,1.0,-2.88,0.00,0.00,A1
+SM_Molo_SediaNera,SediaNera_05,218.6,-10692.6,1.0,6.08,0.00,0.00,A1
+SM_Molo_SediaNera,SediaNera_06,328.8,-10692.6,1.0,-171.72,0.00,0.00,A1
+SM_Molo_TavoloNero,TavoloNero_03,150.0,-9990.0,1.0,-0.28,0.00,0.00,A2
+SM_Molo_SediaNera,SediaNera_07,96.4,-9994.8,1.0,4.34,0.00,0.00,A2
+SM_Molo_SediaNera,SediaNera_08,146.9,-9933.6,1.0,-96.96,0.00,0.00,A2
+SM_Molo_SediaNera,SediaNera_09,205.1,-9990.8,1.0,-188.89,0.00,0.00,A2
+SM_Molo_TavoloNero,TavoloNero_04,150.0,-10180.0,1.0,-5.32,0.00,0.00,A2
+SM_Molo_SediaNera,SediaNera_10,93.9,-10176.6,1.0,8.72,0.00,0.00,A2
+SM_Molo_SediaNera,SediaNera_11,200.6,-10180.7,1.0,-187.38,0.00,0.00,A2
+SM_Molo_SediaNera,SediaNera_12,152.1,-10236.4,1.0,80.22,0.00,0.00,A2
+SM_Molo_TavoloNero,TavoloNero_05,160.0,-8070.0,1.0,-4.67,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_13,107.7,-8069.2,1.0,-8.57,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_14,157.9,-8015.8,1.0,-80.40,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_15,211.5,-8069.0,1.0,-186.71,0.00,0.00,A3
+SM_Molo_TavoloNero,TavoloNero_06,160.0,-8290.0,1.0,1.13,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_16,108.4,-8289.1,1.0,4.89,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_17,216.3,-8288.6,1.0,-175.57,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_18,164.2,-8342.5,1.0,93.53,0.00,0.00,A3
+SM_Molo_TavoloNero,TavoloNero_07,160.0,-8470.0,1.0,-3.92,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_19,100.6,-8474.4,1.0,0.69,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_20,157.7,-8415.2,1.0,-99.06,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_21,214.2,-8466.9,1.0,-183.30,0.00,0.00,A3
+SM_Molo_TavoloNero,TavoloNero_08,160.0,-8670.0,1.0,1.49,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_22,106.2,-8665.2,1.0,9.50,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_23,215.0,-8668.4,1.0,-172.26,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_24,157.3,-8725.5,1.0,86.28,0.00,0.00,A3
+SM_Molo_TavoloNero,TavoloNero_09,160.0,-8880.0,1.0,-3.45,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_25,104.9,-8883.7,1.0,9.08,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_26,158.3,-8827.6,1.0,-89.16,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_27,218.3,-8879.4,1.0,-184.32,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_28,163.1,-8934.5,1.0,89.68,0.00,0.00,A3
+SM_Molo_TavoloNero,TavoloNero_10,160.0,-9100.0,1.0,-3.33,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_29,107.2,-9095.2,1.0,-6.64,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_30,164.3,-9047.7,1.0,-88.41,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_31,164.2,-9157.4,1.0,99.85,0.00,0.00,A3
+SM_Molo_TavoloNero,TavoloNero_11,160.0,-9320.0,1.0,2.67,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_32,106.2,-9318.7,1.0,6.08,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_33,220.0,-9320.9,1.0,-177.70,0.00,0.00,A3
+SM_Molo_TavoloNero,TavoloNero_12,160.0,-9660.0,1.0,1.94,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_34,103.5,-9663.1,1.0,-8.87,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_35,162.5,-9600.6,1.0,-80.65,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_36,211.4,-9658.9,1.0,-188.52,0.00,0.00,A3
+SM_Molo_SediaNera,SediaNera_37,155.1,-9710.5,1.0,94.25,0.00,0.00,A3
+SM_Molo_TavoloNero,TavoloNero_13,230.0,-6960.0,1.0,0.26,0.00,0.00,A3giallo
+SM_Molo_SediaNera,SediaNera_38,174.0,-6958.4,1.0,-4.31,0.00,0.00,A3giallo
+SM_Molo_SediaNera,SediaNera_39,234.1,-6902.6,1.0,-93.87,0.00,0.00,A3giallo
+SM_Molo_SediaNera,SediaNera_40,286.0,-6960.3,1.0,-179.40,0.00,0.00,A3giallo
+SM_Molo_TavoloNero,TavoloNero_14,230.0,-7260.0,1.0,1.17,0.00,0.00,A3giallo
+SM_Molo_SediaNera,SediaNera_41,174.1,-7259.3,1.0,9.20,0.00,0.00,A3giallo
+SM_Molo_SediaNera,SediaNera_42,283.9,-7255.7,1.0,-181.58,0.00,0.00,A3giallo
+SM_Molo_SediaNera,SediaNera_43,234.9,-7311.6,1.0,92.40,0.00,0.00,A3giallo
+SM_Molo_TavoloNero,TavoloNero_15,230.0,-7480.0,1.0,-1.55,0.00,0.00,A3giallo
+SM_Molo_SediaNera,SediaNera_44,177.6,-7475.2,1.0,-0.33,0.00,0.00,A3giallo
+SM_Molo_SediaNera,SediaNera_45,225.4,-7423.7,1.0,-84.10,0.00,0.00,A3giallo
+SM_Molo_SediaNera,SediaNera_46,288.5,-7480.4,1.0,-174.00,0.00,0.00,A3giallo
+SM_Molo_TavoloNero,TavoloNero_16,230.0,-7760.0,1.0,-1.47,0.00,0.00,A3giallo
+SM_Molo_SediaNera,SediaNera_47,175.9,-7761.6,1.0,4.62,0.00,0.00,A3giallo
+SM_Molo_SediaNera,SediaNera_48,282.8,-7758.8,1.0,-175.87,0.00,0.00,A3giallo
+SM_Molo_SediaNera,SediaNera_49,233.4,-7817.0,1.0,95.61,0.00,0.00,A3giallo
+SM_Molo_TavoloNero,TavoloNero_17,140.0,-6480.0,1.0,4.80,0.00,0.00,A4
+SM_Molo_SediaNera,SediaNera_50,82.8,-6481.3,1.0,-3.05,0.00,0.00,A4
+SM_Molo_SediaNera,SediaNera_51,141.2,-6421.6,1.0,-98.54,0.00,0.00,A4
+SM_Molo_SediaNera,SediaNera_52,143.0,-6530.6,1.0,81.26,0.00,0.00,A4
+SM_Molo_Lavagna,Lavagna_00,375.0,-9070.0,1.0,0.00,0.00,0.00,A3
+SM_Molo_CavallettoPescheria,Cavalletto_RistoLischeria,330.0,-9860.0,1.0,0.00,0.00,0.00,A2
+SM_Molo_Insegna_PescatoriPigri,Insegna_PescatoriPigri,16.2,-10444.5,202.5,62.90,0.00,0.00,facciata
+SM_Molo_Insegna_RetiBucate,Insegna_RetiBucate,59.0,-10080.0,315.0,90.76,0.00,0.00,facciata
+SM_Morin_Cestino_v2,Cestino_v2_00,1855.0,-9210.0,15.0,0.00,0.00,0.00,sostituisce Cestino_00
+SM_Morin_Cestino_v2,Cestino_v2_01,3655.0,-9210.0,15.0,0.00,0.00,0.00,sostituisce Cestino_01
+SM_Morin_Cestino_v2,Cestino_v2_02,7255.0,-9210.0,15.0,0.00,0.00,0.00,sostituisce Cestino_02
+SM_Morin_Cestino_v2,Cestino_v2_03,9055.0,-9210.0,15.0,0.00,0.00,0.00,sostituisce Cestino_03
+SM_Morin_Cestino_v2,Cestino_v2_04,12655.0,-9210.0,15.0,0.00,0.00,0.00,sostituisce Cestino_04
+SM_Morin_Cestino_v2,Cestino_v2_05,14455.0,-9210.0,15.0,0.00,0.00,0.00,sostituisce Cestino_05
+SM_Morin_Cestino_v2,Cestino_v2_06,18055.0,-9210.0,15.0,0.00,0.00,0.00,sostituisce Cestino_06
+SM_Morin_Cestino_v2,Cestino_v2_07,19855.0,-9210.0,15.0,0.00,0.00,0.00,sostituisce Cestino_07
+SM_Morin_Cestino_v2,Cestino_v2_08,23455.0,-9210.0,15.0,0.00,0.00,0.00,sostituisce Cestino_08
+SM_Morin_PaloCartelli,PaloCartelli_00,1920.0,-8110.0,0.0,120.00,0.00,0.00,
+SM_Morin_NJPlastica_Blu,NJPlastica_00,2040.0,-8065.0,0.0,0.00,0.00,0.00,Blu
+SM_Morin_NJPlastica_Bianca,NJPlastica_01,2170.0,-8065.0,0.0,0.00,0.00,0.00,Bianca
+SM_Morin_NJPlastica_Blu,NJPlastica_02,1760.0,-7930.0,0.0,-45.30,0.00,0.00,Blu
+SM_Morin_NJPlastica_Bianca,NJPlastica_03,1650.0,-7820.0,0.0,-45.30,0.00,0.00,Bianca
+SM_Molo_Sirena,Sirena_GolfoPoeti,1380.0,-9190.0,15.0,-170.00,0.00,0.00,
+SM_Molo_Peschereccio14,Peschereccio_A_MugugnoII,1390.0,-2800.0,-100.0,-90.00,0.00,0.00,senza collisione
+SM_Molo_Peschereccio11,Peschereccio_B_AcciugaFelice,1220.0,-4200.0,-100.0,-90.00,0.00,0.00,senza collisione
+SM_Molo_GozzoTuga,Gozzo_C_NonCeNe,1360.0,-1500.0,-100.0,-90.00,0.00,0.00,senza collisione
+SM_Molo_Pontiletto_Nord,Pontiletto_Nord,0.0,-0.0,0.0,0.00,0.00,0.00,vertici in posizione mondo
+SM_Molo_Pontiletto_Sud,Pontiletto_Sud,0.0,-0.0,0.0,0.00,0.00,0.00,vertici in posizione mondo
