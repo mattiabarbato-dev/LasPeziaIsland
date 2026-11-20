@@ -13,6 +13,30 @@ Coordinate di progetto: X lungo la passeggiata verso NE, Y verso la città. [V] 
 | `ref/foto/vista/chiosco_con_ombrelloni_e_tavolini_2.png` | Dehors del chiosco: ombrelloni quadrati, fioriere |
 | `ref/foto/vista/prato con alberelli.png` | Giardini a Mare verso Viale Italia: prato, oleandri ad alberello, panchina lunga, palazzi del viale |
 
+## Incrocio con Viale Italia (foto `ref/foto/vista/vissta_entrata_parcheggio_e_passeggiata_da_viale_italia.png`, aggiunta il 2026-11-20)
+Vista dall'imbocco della strada di servizio vicino ai ristoranti (X ≈ 9, Y ≈ 115-120 [S]) verso la città. Le frecce
+dell'utente indicano: a SO il ponte/Mirabello, al centro la passeggiata, a destra il parcheggio.
+- In primo piano a sinistra c'è il **dehors vetrato** del ristorante d'angolo, con tettoia, ombrellone e tavoli bianchi.
+  L'insegna reale non si riproduce: nel gioco va un nome inventato.
+- **Dissuasori** (paracarri) cilindrici in pietra/cemento grigio con testa arrotondata, alti ~0,6-0,7 m, lungo il bordo
+  del marciapiede.
+- **Incrocio** con Viale Italia:
+  - semafori su pali verde scuro;
+  - cartello di dare precedenza;
+  - cartello blu di direzione obbligatoria a destra;
+  - strisce pedonali sul viale e sull'imbocco del parcheggio;
+  - frecce di corsia a terra.
+- Su Viale Italia:
+  - spartitraffico centrale basso con **aiuole di fiori rossi** (begonie/gerani) e cordolo bianco;
+  - cartelli "P" blu;
+  - scooter e moto parcheggiati sul marciapiede verso i ristoranti.
+- Oltre il viale:
+  - Giardini pubblici con **grandi platani** e oleandri fioriti;
+  - a destra un edificio pubblico basso in mattoni/cemento, con grandi vetrate;
+  - più in là, palazzi chiari di 5-8 piani.
+- **Correzione dell'utente (2026-11-20):** nel parcheggio, le auto sul lato città, sotto i pini, sono **a pettine**
+  (non in linea).
+
 ## Struttura della zona (da SO a NE)
 1. **Parcheggio iniziale** (X ≈ 9-90 [S], tra la passeggiata e Viale Italia, Y ≈ 102-120 [S])
    - Strada di servizio in asfalto scuro e consumato, con crepe e rattoppi [F]: continua il "ramo verso il parcheggio"

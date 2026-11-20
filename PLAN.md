@@ -159,9 +159,9 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      (risolto 2026-11-20: le 13 auto del viale davanti al parcheggio spostate negli HISM `_Col_v2`, ora solide; §20)
    - [x] (uefn-builder, risolto: LODBias 1 → 0 sulle texture auto v2, §20) Auto v2 in scena: tetti e cofani molto chiari/lattiginosi con la luce delle 18 (riflesso del cielo?), mentre la
      miniatura dell'asset è corretta; valutare `Roughness_Mult` di `MI_Morin_Auto_v2`.
-   - [ ] (**utente**, decisione) LODBias 0 sulle texture "vicine" (pavimentazione, banchina, palme, chiosco, giardini, arredi, molo,
-     parcheggio, alberi): **NON applicato** perché la stima supera la soglia di 220 MiB: texture del progetto ~110-133 MiB oggi,
-     ~273-325 MiB dopo (60 texture, +162-192 MiB). Elenco, stime e sottoinsiemi possibili in `docs/uefn_arte.md` §21.
+   - [x] (uefn-builder, 2026-11-20 05:25) LODBias 0 sulla selezione dell'utente (~100 MiB): 30 texture `T_Pav_*`, `T_Banchina_Ghisa/Paramento_*`,
+     palme, chiosco e dehors. Le altre 30 restano a 1 (Ciglio v1, oleandro chioma, prato, fregio, molo, asfalto parcheggio, chiome alberi).
+     Totale stimato texture del progetto **192-233 MiB** (prima 110-133), sotto la soglia di 245. Salvato, validazione 393/393. §21.
    - [ ] (utente/geo-scout) Verificare [S] del parcheggio: larghezza corsia (6,25), seconda fila a pettine dietro gli alberi, senso unico,
      posizione dei cartelli e dei new jersey, lampione a due globi affiancati (non modellato).
    - [ ] (utente/geo-scout) Verificare [S]: sezione del viale (sosta lato giardini, spartitraffico, sosta lato città, strisce bianche o blu),
@@ -425,7 +425,8 @@ Ordine per impatto visivo:
             `Arte_Banchina_Testata`, `_Testata_Fine`, `_AncoraMonumento`. **Nascosti, non cancellati:** `Arte_Banchina_Moduli`, `_Bitte`, `_Scalette`.
             Line trace: ciglio continuo X 19,0-251,4 m (testata/Mod_00 senza buchi), scalette nelle nicchie con collisione, ancora solida.
             Render `docs/qa/uefn_banchina_v2.png`. Validazione 393/393, 0 errori.
-      - [ ] (utente/geo-scout) L'ancora monumentale (Y 81,8-84,9 m) occupa 3,2 m dei 9 m del camminamento e lo divide:
+      - [x] (utente, 2026-11-20) DECISO: l'ancora resta dov'è, deroga alla corsia di 8 m in `docs/decisioni.md` (gioco rimandato).
+            L'ancora monumentale (Y 81,8-84,9 m) occupa 3,2 m dei 9 m del camminamento e lo divide:
             1,8 m lato mare e 4,1 m lato palme, sotto gli 8 m di corsia libera (§3) per ~2,7 m di lunghezza. Nella foto
             `banchina_vista_montagne_verso_ponte.jpg` sta davvero sul camminamento: accettare la deroga o spostarla verso la fascia palme.
       - [x] (orchestratore + utente) quota dell'acqua: DECISO 2026-11-19, acqua a −1,0 m. Applicato da uefn-builder: device

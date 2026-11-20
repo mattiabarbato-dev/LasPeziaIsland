@@ -1011,7 +1011,16 @@ MinLOD 2 (avviso "non rientra nell'intervallo 0..0"): portati a 0 e risalvati. N
 
 ### Temporanei e problemi aperti
 - 14 `LaSpezia/_Temp/TMPB2_<asset>_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente.
-- **(utente)** Ancora sul camminamento: corsia libera 4,1 m per ~2,7 m (§3 chiede ≥ 8 m). Nella foto è sul camminamento: deroga o spostamento.
-- **(utente)** LODBias delle texture vicine: scegliere il sottoinsieme (stime sopra).
+- ~~Ancora sul camminamento~~: **decisione dell'utente**, resta dov'è (deroga alla corsia di 8 m in `docs/decisioni.md`, gioco rimandato).
 - Top della collisione dei moduli a Z −0,5 (UCX da Blender), visivo a 0..0,1: gradino di 5 mm, ininfluente.
 - **(qa-tester)** In sessione: moduli e ancora solidi, nessun inciampo al giunto testata/modulo, bitte v1 davvero assenti.
+
+### LODBias applicato: selezione dell'utente da ~100 MiB (05:25)
+La stima "vicine" qui sopra era la prima proposta (non applicata). Applicata la selezione dell'utente:
+- **A 0 (30 texture, D/N/ORM):** `T_Pav_Lastre/Cubetti/Fascia/Terra_*`, `T_Banchina_Ghisa_*`, `T_Banchina_Paramento_*`,
+  `T_Morin_PalmaA_Fronde/Tronco_*`, `T_Morin_Chiosco_*`, `T_Morin_Dehors_*` (oltre a quelle già a 0).
+- **Restano a 1 (30):** `T_Banchina_Ciglio_*` (solo moduli v1 nascosti), `T_Morin_Oleandro_Chioma_*`, `T_Morin_Prato_*`, `T_Morin_Gazebo_Fregio_*`,
+  `T_Molo_Asfalto/Facciate/Masselli_*`, `T_Parcheggio_Asfalto_*`, `T_Albero_Latifoglia_Chioma_*`, `T_Morin_PinoDomestico_Chioma_*`.
+- Stima ricalcolata prima di applicare: totale texture del progetto **192,3-232,7 MiB** (prima 110,3-132,7), sotto la soglia di 245 MiB.
+- Transazione con `modify()`; `save_dirty_packages` 05:25:31 (30 texture), nessun pacchetto sporco; validazione `LaSpezia/` 393/393 validi,
+  0 errori, 13 avvisi (gli stessi di sopra). Decisione in `docs/decisioni.md`.
