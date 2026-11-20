@@ -2138,3 +2138,81 @@ macchie si ripetono a ogni modulo).
 - **(blender-artist)** colline NE sopra l'acqua del Blocco 2 (§35.A); normali del chiosco v2 (§35.B); materiali dell'audit (§35.D).
 - **(geo-scout → uefn-builder)** posizione reale della nave da crociera (§35.C).
 - **(utente)** scegliere se e quali proposte di luce e nebbia applicare (§35.E).
+
+## 36. Luce e atmosfera v1 (2026-11-20, ~16:40 ora locale)
+
+### A. Valori PRIMA della modifica (per tornare indietro)
+Device `Luce_OraDelGiorno` (`BP_DaySequenceModifier_Device_C_UAID_F068E322B343471603_1565984562`, Outliner `Luci`), letti con `ListClassicDeviceOptions`:
+- Abilita durante la fase TUTTO · Modalità ORARIO FISSO · Tempo 18,0 · Priorità 2000 · Velocità dissolvenza 1 · Usa volume NO · Sequenza giorno utente nessuna.
+- **Override luce sole: NO** (valori inattivi: intensità 10, colore (1; 1; 1; 0), rotazione Z 0, rotazione X 0, componente sole SÌ, brillamento SÌ).
+- **Override nebbia: SÌ** · componente SÌ · densità **0,004** · colore (0,30; 0,38; 0,52; 1) · diminuzione altezza 0,02 ·
+  dispersione direzionale (0,666667; 0,481005; 0,302083; 1) · nebbia secondaria densità 0, diminuzione 0,65, sfalsamento 0 ·
+  dispersione volumetrica sole 1 · opacità massima 1.
+- **Override luce cielo: NO** (inattivi: intensità 1, colore (1; 1; 1; 1)).
+- **Override cielo: NO** (inattivi: sfumatura gradiente 0, basso (0,408; 0,719; 0,880), medio (0,068; 0,338; 0,948), alto (0,0037; 0,039; 0,141),
+  dimensione sole 2, intensità sole 1, colore sole (0,906; 0,924; 1), sfumatura colore sole 0; luna 0,1 / 0,2; stelle 0).
+- **Override nuvole: NO** (inattivi: colore chiaro (0,255; 0,255; 0,255), luminosità 5, copertura 0,4, opacità 1, colore ombra (0,151; 0,281; 0,5),
+  velocità 1, direzione (1; 0), dimensione 1).
+
+Valori effettivi letti sui componenti della Day Sequence del livello (`DSA_UEFN_Ch5S1_C_0`, generata da Fortnite, non salvata nel livello) alle 18,0:
+- Sole: rotazione (pitch −27,2; yaw 41,9; roll −14,9) → luce che viaggia verso yaw UE 41,9: **sole da azimut geografico ~263° (ovest), elevazione 27°**
+  (X UE = azimut 41,3°); intensità 12,96; colore (255; 219; 168); angolo sorgente 1,5; ombre dinamiche 3 cascate fino a 45 m.
+- Luce cielo: intensità 4,37, cubemap specificata, colore bianco.
+- Nebbia: come l'override sopra.
+- Post process della Day Sequence (non modificabili dal device): `PostProcess` (priorità −10, unbound): esposizione istogramma, bias 0,15,
+  luminosità min 0,06 / max 1,5, saturazione e contrasto 1, bloom 0,2, film toe 0,55, white temp non sovrascritta (6500).
+  `ExposureLowEndPostProcess` (−8, solo low end): esposizione base 0,8-1,0. `BloomConvoutionHighEndPostProcess` (−6): bloom 0,4.
+- `IslandSettings0`: orario, luce, nebbia = Predefinito. Nessun Post Process Volume nel livello.
+
+### B. Come funzionano gli override (verificato leggendo il sole della Day Sequence dopo ogni modifica)
+- Con *Override luce sole* = SÌ, **Rotazione Z luce solare = yaw assoluto della luce** (direzione in cui viaggia, in coordinate UE). Azimut geografico
+  del sole = Z + 180° + 41,3° (X UE = azimut 41,3°). **Rotazione X fa ruotare attorno all'asse X (rollio/inclinazione laterale), non alza o abbassa il sole.**
+- L'**elevazione** dipende solo dall'orario: 18,0 → 28°, 18,5 → 23°, 18,8 → 20°, 19,0 → 18°, 19,2 → 16° (~10°/h).
+- *Intensità luce cielo* in override è **assoluta**: la Day Sequence di default alle 18 dà 4,37; 0,8 la riduce di ~5,5 volte (ombre più scure e meno blu).
+- Esposizione, contrasto, saturazione e temperatura colore **non sono esposti** dal device. Stanno nei Post Process della Day Sequence (§36.A),
+  non modificabili. Il *Post Process device* di Creative (`PID_CP_Devices_PostProcess`) offre solo effetti preimpostati, non l'esposizione:
+  non usato. Non è stato piazzato nessun Post Process Volume.
+
+### C. Valori DOPO (applicati con `SetClassicDeviceOption` sullo stesso device; nessun secondo modifier)
+| Opzione | Prima | Dopo |
+|---|---|---|
+| Tempo ciclo giorno-notte | 18,0 | **18,5** (sole a 23° di elevazione) |
+| Override luce sole | NO | **SÌ** |
+| Intensità luce solare | (10) | **8** |
+| Colore luce solare | (1; 1; 1; 0) | **(1,0; 0,86; 0,70; 1)** |
+| Rotazione Z / X luce solare | (0 / 0) | **20 / 0** → sole da azimut **~241°** (OSO) |
+| Override luce cielo | NO | **SÌ** |
+| Intensità / colore luce cielo | (1; bianco) → effettiva 4,37 | **0,8 / (1,0; 0,97; 0,93; 1)** |
+| Densità nebbia | 0,004 | **0,007** |
+| Colore nebbia | (0,30; 0,38; 0,52) | **(0,45; 0,52; 0,62)** |
+| Diminuzione altezza nebbia | 0,02 | **0,04** |
+| Opacità massima nebbia | 1 | **0,9** |
+| Dispersione direzionale nebbia | (0,667; 0,481; 0,302) | **(0,85; 0,62; 0,40)** |
+| Override nuvole | NO | **SÌ**, copertura **0,3** (altri valori di nuvole = default del device) |
+| Override cielo | NO | NO (invariato) |
+
+Per tornare indietro: rimettere i valori della colonna "Prima" (§36.A); gli override a NO bastano per sole, cielo e nuvole.
+
+**Taratura del sole (catture zenitali sulla passeggiata a X 150 m, scartate):** con l'azimut proposto 250° (Z 28,7) e 15-20° di elevazione le
+ombre dei due filari di palme, lunghe ~3 volte l'altezza e spostate di ~15 m verso il mare, coprono **tutto** il camminamento e finiscono in acqua:
+camminamento uniformemente in ombra, nessuna striscia leggibile. Anche la luce originale (azimut ~263°, 27°) lo copriva quasi tutto.
+Con il sole più a sud (Z 20 → 241°) e 23° di elevazione le ombre corrono in diagonale e lasciano lame di sole verso il ciglio: scelto questo.
+Deroga dalla proposta: azimut 241° invece di 250° ed elevazione 23° invece di 15-20°.
+
+### D. Catture dopo (`docs/qa/realismo_luce_00..09.png`, stessi punti, FOV e risoluzione del §35.D, ombre attive) e confronto
+`docs/qa/realismo_luce_confronto.png`: prima a sinistra, dopo a destra, per partenza (00), Giardini (03), ponte (06).
+- **Migliora:** il cielo ha cumuli e un blu più profondo, l'orizzonte non è più bianco; luce calda e radente con **ombre lunghe e diagonali**
+  di palme, panchine e lampioni sul camminamento (00, 01, 02, 03, 07); i bianchi non bruciano più (acciaio del ponte con chiaroscuro e stralli leggibili
+  in 06, cemento del Molo Italia in 09, ciglio della banchina); grigi e cubetti meno viola; l'acqua riflette un cielo più blu e prende colore;
+  foschia leggibile su colline e fondale (prospettiva aerea).
+- **Non migliora o peggiora:** dove la vista è tutta in ombra (incrocio 05, scritta LA SPEZIA 08, parte del parcheggio 04) l'immagine è più scura
+  e piatta; le chiome delle latifoglie in controluce sono quasi nere; le antenne del ponte dalla partenza (00) restano poco leggibili (ora per la
+  foschia, prima per il cielo bianco); i difetti di materiale del §35.D (ripetizione delle lastre, corten, scogliera, prato lime) restano tutti:
+  la luce non li corregge.
+- **Attenzione:** le catture sono `RenderLevelPOVs` dell'editor, con la Day Sequence in anteprima. In gioco esposizione automatica (istogramma,
+  0,06-1,5), bloom, scalabilità delle ombre e nuvole possono dare un risultato diverso: va controllato in sessione.
+
+### E. Salvataggio e validazione
+- Salvato l'unico pacchetto sporco (attore esterno del device `.../__ExternalActors__/LasPezia_Island/4/I8/YS7RUD2FV4XAJUCMZN3Z7R`); dopo il salvataggio
+  nessun pacchetto sporco (contenuti e mappe). `ValidateAssets` sul livello: 1 controllato, 0 errori, 0 avvisi.
+- Nessun attore creato o cancellato, nessuna sessione di gioco, nessun commit. Prove intermedie solo nella scratchpad.
