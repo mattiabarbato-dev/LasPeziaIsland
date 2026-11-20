@@ -2574,3 +2574,177 @@ Dopo: sul galleggiamento resta la riga scura, il rosso si vede solo nel riflesso
 - Temporanei `_Temp/TMPMA_*` ora 46 (+2 del raccordo) e `Arte_Marina_Pontili_Raccordi` nascosto: eliminabili con conferma dell'utente.
 - `marina_barche_v2.csv` ha ancora Z −103 per le 4 famiglie nuove: va allineato a −110 al prossimo giro (blender-artist).
 - (qa-tester) In sessione: gomiti e radici raccordati, colonnine, barche senza collisione.
+
+## 41. Pulizia di attori e asset superati v2 (2026-11-20, autorizzata dall'utente)
+
+Conferma dell'utente (2026-11-20): "Confermo cancellazione e continua con le migliorie possibili", riferita alla proposta di cancellare
+le versioni vecchie nascoste e i temporanei di `LaSpezia/_Temp` senza utilizzatori, con l'avvertenza di non rompere dipendenze.
+
+### Metodo (come §15)
+- Attori nascosti: tutti gli attori con *Actor Hidden In Game* = sì o con tutti i componenti primitivi `Visible` = falso: **48**.
+  Tenuti 4 che non sono versioni vecchie: `Audio_Viale_BrusioTraffico` (AmbientSound, nascosto in gioco per natura, è l'audio attivo),
+  `IslandSettings0`, `WorldDataLayers`, `WorldPartitionMiniMap`. Da cancellare **44**.
+- Per ogni attore: referencer del pacchetto OFPA nell'asset registry (riferimenti hard/soft/management) = solo la mappa `LasPezia_Island`;
+  nessun genitore né figlio; ricerca testuale dell'ID oggetto (`UAID_...`) nei 1289 `.uasset`/`.umap` del progetto: compare solo nel proprio OFPA.
+  Unico asset fuori da `__ExternalActors__` con ID di attori: `LS_Viale_Traffico`, i cui 21 binding sono `Arte_Viale_Traffico_00..20` (visibili, non toccati).
+- Asset: grafo dei referencer di tutti gli 859 asset di `LaSpezia/` dall'asset registry; si cancella un asset solo se tutti i suoi referencer sono
+  nella lista (cancellazione a cascata dagli OFPA sopra). Nessun file Verse. Ricerca testuale di `/LaSpezia/_Temp/` fuori da `_Temp`: nessun risultato.
+- Controllo incrociato con gli attori caricati: nessun componente StaticMesh visibile usa le mesh in lista (le v1 hanno tutte un successore usato:
+  `_v2`/`_v3`, `ScrittaLaSpezia` al posto di `Redamare`, texture `Texture_v2/*_v2` al posto delle v1).
+- Cancellazione con `AssetToolset.Delete` / `EditorAssetLibrary`, mai force delete né replace references. Ordine: attori, mesh, materiali, `_Temp`,
+  poi `MI_Morin_Auto` e le sue texture `T_Morin_Auto_*` v1 (dopo `_Temp` perché i 6 `TMPV_SM_Morin_Auto_*_LOD1/2` la referenziano), poi le altre texture.
+
+### Attori (44, tutti nascosti con il metodo del §14)
+Blockout: `Blockout_Fondale_v2`, `_v3`, `_v4`, `Blockout_Passeggiata_v2`, `_v3`, `_v4`, `Blockout_Ponte`, `Blockout_Mirabello`,
+`Blockout_Palme_HISM` (segnaposto delle palme, cartella `Blockout/Sostituiti`).
+Arte: `Arte_Banchina_Moduli`, `_Bitte`, `_Scalette` (v1), `Arte_Banchina_Testata_Fine`; `Arte_Fondale_Citta_NO_01..03`, `_N_01..02`
+(v1 sostituiti dal colle v2, `uefn_fondale.md` §10.4); `Arte_Incrocio_DehorsVetrato` (v1), `Arte_Incrocio_Marciapiede`, `_v2`;
+`Arte_Molo_Tendone`, `Arte_Molo_Pav_Strada`; `Arte_Parcheggio_Asfalto`, `_v2`, `_v3`; `Arte_Parcheggio_AutoA/B/C_Col`,
+`Arte_Parcheggio_LatifogliaA/B`; `Arte_Viale_AutoA/B/C`; `Arte_Viale_Auto{A,B,C}_v2_<Colore>` (9); `Arte_Marina_Pontili_Raccordi`.
+
+### Asset (412)
+`LaSpezia/_Temp`: **298 StaticMesh** (`TMPMA` 46, `TMPB3` 42, `TMPA2` 36, `TMPB3V2` 26, `TMPX` 26, `TMPB2` 24, `TMPP` 20, `TMPC` 18,
+`TMPV` 16, `TMPI` 12, `TMPB2V2` 10, `TMPMB` 10, `TMPG` 6, `TMPF3`/`TMPB3V3`/`TMPB2V3` 2), nessun referencer (i LOD copiati con
+`set_lod_from_static_mesh` non creano riferimenti, confermato dall'asset registry). ~12 MB su disco.
+
+Fuori da `_Temp` (percorsi relativi a `LaSpezia/`, referencer verificati):
+#### StaticMesh (57)
+- `Arte/Banchina/SM_Banchina_Bitta` - referencer: OFPA Arte_Banchina_Bitte
+- `Arte/Banchina/SM_Banchina_Mod4m` - referencer: OFPA Arte_Banchina_Moduli
+- `Arte/Banchina/SM_Banchina_Scaletta` - referencer: OFPA Arte_Banchina_Scalette
+- `Arte/Banchina/SM_Banchina_Testata_Fine` - referencer: OFPA Arte_Banchina_Testata_Fine
+- `Arte/Blocco2/SM_Morin_ChioscoOttagonale` - referencer: nessuno
+- `Arte/Blocco2/SM_Morin_ChioscoOttagonale_v2` - referencer: nessuno
+- `Arte/Blocco2/SM_Morin_Redamare` - referencer: nessuno
+- `Arte/Blocco2/SM_Pav_Piazzale_Fine_B2` - referencer: nessuno
+- `Arte/Fondale/SM_Fondale_Citta_NO_01` - referencer: OFPA Arte_Fondale_Citta_NO_01
+- `Arte/Fondale/SM_Fondale_Citta_NO_02` - referencer: OFPA Arte_Fondale_Citta_NO_02
+- `Arte/Fondale/SM_Fondale_Citta_NO_03` - referencer: OFPA Arte_Fondale_Citta_NO_03
+- `Arte/Fondale/SM_Fondale_Citta_N_01` - referencer: OFPA Arte_Fondale_Citta_N_01
+- `Arte/Fondale/SM_Fondale_Citta_N_02` - referencer: OFPA Arte_Fondale_Citta_N_02
+- `Arte/Fondale/SM_Fondale_Colline_NE` - referencer: nessuno
+- `Arte/Fondale/SM_Fondale_Colline_NE_v2` - referencer: nessuno
+- `Arte/Incrocio/SM_Molo_DehorsVetrato` - referencer: OFPA Arte_Incrocio_DehorsVetrato
+- `Arte/Incrocio/SM_Viale_Incrocio_Marciapiede` - referencer: OFPA Arte_Incrocio_Marciapiede
+- `Arte/Incrocio/SM_Viale_Incrocio_Marciapiede_v2` - referencer: OFPA Arte_Incrocio_Marciapiede_v2
+- `Arte/Incrocio/SM_Viale_Italia_Incrocio` - referencer: nessuno
+- `Arte/Mirabello/SM_Mirabello_Fondale` - referencer: nessuno
+- `Arte/Mirabello/SM_Mirabello_Pianerottolo` - referencer: nessuno
+- `Arte/Mirabello/SM_Mirabello_YachtB` - referencer: nessuno
+- `Arte/Molo/SM_Molo_Pav_Strada` - referencer: OFPA Arte_Molo_Pav_Strada
+- `Arte/Molo/SM_Molo_Tendone` - referencer: OFPA Arte_Molo_Tendone
+- `Arte/MoloItalia/SM_MoloItalia_Capitaneria` - referencer: nessuno
+- `Arte/MoloItalia/SM_MoloItalia_Dito` - referencer: nessuno
+- `Arte/MoloItalia/SM_MoloItalia_Edificio4P` - referencer: nessuno
+- `Arte/MoloItalia/SM_MoloItalia_Faro` - referencer: nessuno
+- `Arte/MoloItalia/SM_MoloItalia_Motovedetta` - referencer: nessuno
+- `Arte/MoloItalia/SM_MoloItalia_NaveCrociera` - referencer: nessuno
+- `Arte/MoloItalia/SM_MoloItalia_Rimorchiatore_Ostinato` - referencer: nessuno
+- `Arte/MoloItalia/SM_MoloItalia_Rimorchiatore_Spingitutto` - referencer: nessuno
+- `Arte/MoloItalia/SM_MoloItalia_Rimorchiatore_Tiramolla` - referencer: nessuno
+- `Arte/MoloItalia/SM_MoloItalia_RistorantePiccioni` - referencer: nessuno
+- `Arte/MoloItalia/SM_Molo_Scogliera_A` - referencer: nessuno
+- `Arte/MoloItalia/SM_Molo_Scogliera_B` - referencer: nessuno
+- `Arte/MoloItalia/SM_Molo_Scogliera_C` - referencer: nessuno
+- `Arte/MoloItalia/SM_Morin_LampionePastorale` - referencer: nessuno
+- `Arte/Parcheggio/SM_Morin_Auto_A_Col` - referencer: OFPA Arte_Parcheggio_AutoA_Col
+- `Arte/Parcheggio/SM_Morin_Auto_B_Col` - referencer: OFPA Arte_Parcheggio_AutoB_Col
+- `Arte/Parcheggio/SM_Morin_Auto_C_Col` - referencer: OFPA Arte_Parcheggio_AutoC_Col
+- `Arte/Parcheggio/SM_Parcheggio_Asfalto` - referencer: OFPA Arte_Parcheggio_Asfalto
+- `Arte/Parcheggio/SM_Parcheggio_Asfalto_v2` - referencer: OFPA Arte_Parcheggio_Asfalto_v2
+- `Arte/Parcheggio/SM_Parcheggio_Asfalto_v3` - referencer: OFPA Arte_Parcheggio_Asfalto_v3
+- `Arte/Viale/SM_Morin_Auto_A` - referencer: OFPA Arte_Viale_AutoA
+- `Arte/Viale/SM_Morin_Auto_B` - referencer: OFPA Arte_Viale_AutoB
+- `Arte/Viale/SM_Morin_Auto_C` - referencer: OFPA Arte_Viale_AutoC
+- `Arte/Viale/SM_Viale_Italia_Strada` - referencer: nessuno
+- `Blockout/SM_Blockout_Fondale_v2` - referencer: OFPA Blockout_Fondale_v2
+- `Blockout/SM_Blockout_Fondale_v3` - referencer: OFPA Blockout_Fondale_v3
+- `Blockout/SM_Blockout_Fondale_v4` - referencer: OFPA Blockout_Fondale_v4
+- `Blockout/SM_Blockout_Mirabello` - referencer: OFPA Blockout_Mirabello
+- `Blockout/SM_Blockout_PalmaSegnaposto` - referencer: OFPA Blockout_Palme_HISM
+- `Blockout/SM_Blockout_Passeggiata_Pav_v2` - referencer: OFPA Blockout_Passeggiata_v2
+- `Blockout/SM_Blockout_Passeggiata_Pav_v3` - referencer: OFPA Blockout_Passeggiata_v3
+- `Blockout/SM_Blockout_Passeggiata_Pav_v4` - referencer: OFPA Blockout_Passeggiata_v4
+- `Blockout/SM_Blockout_Ponte` - referencer: OFPA Blockout_Ponte
+#### Material (2)
+- `Blockout/M_Blockout_Pietra` - referencer: SM_Blockout_Mirabello, SM_Blockout_PalmaSegnaposto
+- `Blockout/M_Blockout_Ponte` - referencer: SM_Blockout_Mirabello, SM_Blockout_Ponte
+#### MaterialInstanceConstant (2)
+- `Arte/Banchina/MI_Banchina_Ciglio` - referencer: SM_Banchina_Mod4m
+- `Arte/Viale/MI_Morin_Auto` - referencer: TMPV_SM_Morin_Auto_A_LOD1, TMPV_SM_Morin_Auto_A_LOD2, TMPV_SM_Morin_Auto_B_LOD1, TMPV_SM_Morin_Auto_B_LOD2, TMPV_SM_Morin_Auto_C_LOD1, TMPV_SM_Morin_Auto_C_LOD2, SM_Morin_Auto_A_Col, SM_Morin_Auto_B_Col, SM_Morin_Auto_C_Col, SM_Morin_Auto_A, SM_Morin_Auto_B, SM_Morin_Auto_C
+#### Texture2D (53)
+- `Arte/Alberi/T_Albero_Latifoglia_Chioma_D` - referencer: nessuno
+- `Arte/Alberi/T_Albero_Latifoglia_Chioma_N` - referencer: nessuno
+- `Arte/Alberi/T_Albero_Latifoglia_Chioma_ORM` - referencer: nessuno
+- `Arte/Alberi/T_Morin_PinoDomestico_Corteccia_D` - referencer: nessuno
+- `Arte/Alberi/T_Morin_PinoDomestico_Corteccia_N` - referencer: nessuno
+- `Arte/Alberi/T_Morin_PinoDomestico_Corteccia_ORM` - referencer: nessuno
+- `Arte/Auto/T_Morin_Auto_v2_D` - referencer: nessuno
+- `Arte/Auto/T_Morin_Auto_v2_ORM` - referencer: nessuno
+- `Arte/Banchina/T_Banchina_Blocchi_D` - referencer: nessuno
+- `Arte/Banchina/T_Banchina_Blocchi_N` - referencer: nessuno
+- `Arte/Banchina/T_Banchina_Blocchi_ORM` - referencer: nessuno
+- `Arte/Banchina/T_Banchina_Paramento_D` - referencer: nessuno
+- `Arte/Banchina/T_Banchina_Paramento_N` - referencer: nessuno
+- `Arte/Banchina/T_Banchina_Paramento_ORM` - referencer: nessuno
+- `Arte/Blocco2/T_Morin_Corten_D` - referencer: nessuno
+- `Arte/Blocco2/T_Morin_Corten_N` - referencer: nessuno
+- `Arte/Blocco2/T_Morin_Corten_ORM` - referencer: nessuno
+- `Arte/Molo/T_Molo_Asfalto_D` - referencer: nessuno
+- `Arte/Molo/T_Molo_Asfalto_N` - referencer: nessuno
+- `Arte/Molo/T_Molo_Asfalto_ORM` - referencer: nessuno
+- `Arte/MoloItalia/T_MoloItalia_Cemento_D` - referencer: nessuno
+- `Arte/MoloItalia/T_MoloItalia_Cemento_N` - referencer: nessuno
+- `Arte/MoloItalia/T_MoloItalia_Cemento_ORM` - referencer: nessuno
+- `Arte/MoloItalia/T_Molo_Scogliera_D` - referencer: nessuno
+- `Arte/MoloItalia/T_Molo_Scogliera_N` - referencer: nessuno
+- `Arte/MoloItalia/T_Molo_Scogliera_ORM` - referencer: nessuno
+- `Arte/Palme/T_Morin_PalmaA_Tronco_D` - referencer: nessuno
+- `Arte/Palme/T_Morin_PalmaA_Tronco_N` - referencer: nessuno
+- `Arte/Palme/T_Morin_PalmaA_Tronco_ORM` - referencer: nessuno
+- `Arte/Parcheggio/T_Morin_NewJersey_D` - referencer: nessuno
+- `Arte/Parcheggio/T_Morin_NewJersey_N` - referencer: nessuno
+- `Arte/Parcheggio/T_Morin_NewJersey_ORM` - referencer: nessuno
+- `Arte/Parcheggio/T_Parcheggio_Asfalto_D` - referencer: nessuno
+- `Arte/Parcheggio/T_Parcheggio_Asfalto_N` - referencer: nessuno
+- `Arte/Parcheggio/T_Parcheggio_Asfalto_ORM` - referencer: nessuno
+- `Arte/Pavimentazione/T_Pav_Cubetti_D` - referencer: nessuno
+- `Arte/Pavimentazione/T_Pav_Cubetti_N` - referencer: nessuno
+- `Arte/Pavimentazione/T_Pav_Cubetti_ORM` - referencer: nessuno
+- `Arte/Pavimentazione/T_Pav_Fascia_D` - referencer: nessuno
+- `Arte/Pavimentazione/T_Pav_Fascia_N` - referencer: nessuno
+- `Arte/Pavimentazione/T_Pav_Fascia_ORM` - referencer: nessuno
+- `Arte/Ponte/T_Ponte_Acciaio_D` - referencer: nessuno
+- `Arte/Ponte/T_Ponte_Acciaio_N` - referencer: nessuno
+- `Arte/Ponte/T_Ponte_Acciaio_ORM` - referencer: nessuno
+- `Arte/Ponte/T_Ponte_Legno_D` - referencer: nessuno
+- `Arte/Ponte/T_Ponte_Legno_N` - referencer: nessuno
+- `Arte/Ponte/T_Ponte_Legno_ORM` - referencer: nessuno
+- `Arte/Viale/T_Morin_Auto_D` - referencer: MI_Morin_Auto
+- `Arte/Viale/T_Morin_Auto_N` - referencer: MI_Morin_Auto
+- `Arte/Viale/T_Morin_Auto_ORM` - referencer: MI_Morin_Auto
+- `Arte/Viale/T_Morin_Prato_D` - referencer: nessuno
+- `Arte/Viale/T_Morin_Prato_N` - referencer: nessuno
+- `Arte/Viale/T_Morin_Prato_ORM` - referencer: nessuno
+### Tenuti (senza referencer ma non versioni superate)
+- `Arte/Chiosco/SM_Morin_Sedia`, `SM_Morin_Tavolino`: pezzi singoli mai posati (si usa `SM_Morin_TavoloSet`, §16); non sono versioni vecchie.
+- `Arte/Blocco2/T_Morin_ChioscoOtt_v3_Vetro_D`: texture della generazione attuale, non collegata perché il master vetro ha solo parametri scalari (§37).
+- `Audio/A_Viale_Clacson_02`, `_05`: audio, fuori dal perimetro (mesh/materiali/texture).
+- `M_Blockout_Verde`, `M_Blockout_Fondale`, `T_Banchina_Ciglio_*` e ogni altro asset con almeno un referencer vivo.
+
+### Esito
+- **Cancellati:** 44 attori (OFPA rimossi dal disco al salvataggio, controllato), 57 StaticMesh, 2 Material, 2 MaterialInstanceConstant,
+  53 Texture2D, 298 temporanei di `_Temp` (cartella ora vuota, resta per i prossimi import). Totale **412 asset**, 0 saltati: subito prima
+  di ogni cancellazione i referencer letti dall'asset registry erano zero. `MI_Morin_Auto` è stata saltata al primo giro (referenziata dai 6
+  `TMPV_*`) e cancellata dopo `_Temp`, come previsto. Nessun force delete, nessun replace references, nulla fuori da `LaSpezia/`.
+- **Numeri:** attori nel livello 380 → **336**; asset in `LaSpezia/` 859 → **447**; `_Temp` ~12 MB liberati, più le mesh/texture v1.
+- **Salvataggio:** `save_dirty_packages` dopo gli attori e dopo gli asset; **0 pacchetti sporchi**.
+- **Validazione** di tutti i 447 asset di `LaSpezia/`: **447 validi, 0 errori, 15 avvisi già noti** ("un solo LOD" su colline, marina
+  circolo/pontile largo, Mirabello, `SM_Blockout_Fondale_v5`; vertici di `SM_Ponte_Parapetti`).
+- **Ricaricamento della mappa** (`load_map`): 336 attori, **MapCheck 0 errori, 0 avvisi**; nel log nessun "Failed to load"/"missing"
+  legato al progetto (solo messaggi generici del motore: sottosistemi Verse/Mass, cvar Athena, voice chat, rete EOS).
+- **Catture** (1024 × 576, `Lit`, stessa telecamera prima e dopo): `docs/qa/uefn_pulizia2_partenza_prima/_dopo.png`
+  (UE 24000, −8450, 300; yaw 180), `uefn_pulizia2_marina_*` (15000, −11000, 1800; pitch −25, yaw 75),
+  `uefn_pulizia2_moloitalia_*` (48000, −12000, 2500; pitch −18, yaw 45). **Geometria identica** (barche, pontili, palme, edifici, nave,
+  faro). Dopo il ricaricamento il cielo è più blu e senza nuvole e l'esposizione più chiara: è lo stato di luce dell'editor ricaricato
+  (nessun asset cancellato era usato da cielo o luci: tutti erano senza referencer), da ricontrollare in sessione.
