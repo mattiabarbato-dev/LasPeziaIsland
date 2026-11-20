@@ -776,9 +776,21 @@ Ordine per impatto visivo:
             spina), 4 gomiti (spina ×2, pontile esterno 2 ×2: lì la capsula cadeva in acqua), angolo del pontile a L. Verifiche: percorribile da
             banchina a fondo di ogni finger, 0 cadute di capsula, gradini ≤ 3 cm, corsie ±60 cm libere; barche 0 colpi; scalette e battello liberi;
             barriere invariate (perimetro a Y 30800). Validazione 856/856, 0 errori. Catture `docs/qa/uefn_marina_{banchina,finger,alto}.png`.
-      - [ ] (blender-artist) Marina: correggere nel CSV/generatore le radici dei fingers F1-F5 (staccate 17-57 cm dalla spina) e i gomiti
-            (spina X 150/Y −86 e X 195/Y −132; pontile esterno 2 due gomiti con 41-52 cm di distacco), angolo del pontile a L; poi togliere
-            `Arte_Marina_Pontili_Raccordi`. Facoltativo: un pezzo "giunto" dedicato invece del Pontile12 scalato.
+      - [x] (blender-artist, 2026-11-20) **Layout pontili v3** (`exports/marina/marina_pontili_v3.csv`, 111 righe: 22 `Pontile_Col`,
+            50 `Pontile12`, **7 `SM_Morin_Marina_Raccordo`**, 27 colonnine, 3 passerelle, largo, circolo; v2 intatta). Generatore
+            `morin_marina.pontili_rows_v3()` / `write_csv_v3()`: radici dei rami sul bordo reale della spina (F1-F5 spostate di 59/49/40/26/22 cm,
+            F7/F8 di 81 cm), segmenti coperti fino in fondo, raccordo tondo nei 7 gomiti/nodi, angolo della L chiuso; quote −0,45/−0,455/−0,46/−0,47
+            (log decisioni). Asset nuovo `SM_Morin_Marina_Raccordo` (galleggiante 16-gono Ø 3,0 m con bottazzo, apotema 1,42 m, Z −0,55..0)
+            **110 / 78 / 22 tri**, 1 UCX convesso, FBX `exports/marina/SM_Morin_Marina_Raccordo{,_LOD1,_LOD2}.fbx`, slot `M_Morin_Imbarco` /
+            `M_Morin_Imbarco_Legno`. **Ray test** (griglia 10 cm, 426.425 punti dalla passerella alle punte di tutti i 15 pontili + largo):
+            UCX 0 buchi, 0 gradini > 5 cm (max 2,2 cm); calpestio visibile 0 buchi, max 2,5 cm (gli unici 2 "buchi" sono campioni esattamente sul
+            bordo delle punte NE e L_Ramo, a 5 mm dentro c'è calpestio). Stesso test sul CSV v2: 1.462 buchi. Barche v2: 544/544 uguali, distanza
+            minima dai pezzi v3 0,40 m. `CAM_Mar_Banchina` a X 300.
+      - [ ] (uefn-builder) **Posa dei pontili v3**: import `SM_Morin_Marina_Raccordo` (LOD0 col nome finale + LOD1/2 come temporanei, metodo §39,
+            slot → `MI_Morin_Imbarco(_Legno)`); riempire di nuovo `Arte_Marina_Pontili_PontileCol` / `_Pontile12` / `Arte_Marina_Arredi_Colonnine`
+            dal CSV v3 (36 righe spostate, 4 moduli nuovi, 2 colonnine in meno, 1 in più) + HISM nuovo `Arte_Marina_Pontili_Raccordo` (7);
+            passerelle, largo e circolo invariati. Poi **nascondere** (non cancellare) `Arte_Marina_Pontili_Raccordi` e rifare line trace +
+            caduta di capsula. Facoltativo: se il fondo rosso delle barche emerge troppo, barche nuove a Z −110 (log decisioni).
       - [ ] (qa-tester) Marina in sessione: passerelle, radici e gomiti raccordati, colonnine sui pontili, barche senza collisione.
       - [ ] (geo-scout) Dati [S] da confermare con foto (§7 della scheda): larghezze, galleggianti/fissi, verso delle barche, circolo.
 

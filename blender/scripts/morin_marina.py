@@ -16,6 +16,10 @@ Asset nuovi
   SM_Morin_Marina_Circolo       sede del circolo su palafitta ~16 x 10 m + terrazza, insegna inventata. UCX.
   SM_Mirabello_Pontile_Col      il modulo da 48 m di Mirabello (geometria identica, morin_mirabello.build_pontile)
                                 con UCX sul calpestio e sulle colonnine.
+  SM_Morin_Marina_Raccordo      galleggiante tondo di giunzione (16-gono, apotema 1,42 m) per gomiti e nodi. UCX. LOD.
+
+Layout pontili v3 (radici sul bordo reale della spina, raccordi, segmenti coperti fino in fondo):
+    mr.write_csv_v3(); prow, info = mr.pontili_rows_v3(); mr.verify_v3(prow); mr.boats_clearance_v3(prow)
 
 Esegui dentro blender/arte_marina.blend:
     import sys, importlib; sys.path.append(r".../blender/scripts")
@@ -1234,8 +1238,64 @@ def build_circolo(coll, name="SM_Morin_Marina_Circolo"):
     return o
 
 
+RACC_R = 1.42          # apotema del raccordo: copre il giunto tondo (raggio 1,40 = mezza larghezza del calpestio)
+RACC_BOTT = 0.08
+
+
+def _ngon(n, apothem, z, phase=None):
+    """Vertici CCW di un n-gono regolare con l'apotema dato (un lato piatto verso -Y)."""
+    R = apothem / math.cos(math.pi / n)
+    ph = -math.pi / 2 + math.pi / n if phase is None else phase
+    return [(R * math.cos(ph + 2 * math.pi * k / n), R * math.sin(ph + 2 * math.pi * k / n), z) for k in range(n)]
+
+
+def build_raccordo(coll, lod=0, name="SM_Morin_Marina_Raccordo"):
+    """Galleggiante di giunzione tondo (16-gono, apotema 1,42 m) per i gomiti e i nodi dei pontili (layout v3).
+    Origine al centro sul calpestio (Z 0 locale), posa 2 cm sotto il calpestio dei moduli (Z -0,47): resta sotto le
+    teste dei moduli e riempie la tacca sul lato esterno del gomito. Stessa sezione di SM_Morin_Marina_Pontile12."""
+    n = 16 if lod < 2 else 8
+    g = mb.Geo(ref=(0, 0, -0.3))
+    top = _ngon(n, RACC_R if lod < 2 else RACC_R + RACC_BOTT, 0.0)     # LOD2: senza bottazzo, stessa impronta
+    bot = [(x, y, -0.55) for x, y, _ in top]
+
+    def body(bm):
+        vt = [bm.verts.new(p) for p in top]
+        vb = [bm.verts.new(p) for p in bot]
+        for k in range(n):
+            k1 = (k + 1) % n
+            bm.faces.new([vb[k], vb[k1], vt[k1], vt[k]])
+    g.new_faces(body, "GRIGIO")
+    g.new_faces(lambda bm: bm.faces.new([bm.verts.new(p) for p in top]), None, mi=1)
+    if lod < 2:
+        bi = _ngon(n, RACC_R, -0.05)
+        bo = _ngon(n, RACC_R + RACC_BOTT, -0.05)
+        bl = [(x, y, -0.35) for x, y, _ in bo]
+
+        def bott(bm):
+            vi = [bm.verts.new(p) for p in bi]
+            vo = [bm.verts.new(p) for p in bo]
+            vl = [bm.verts.new(p) for p in bl]
+            for k in range(n):
+                k1 = (k + 1) % n
+                bm.faces.new([vl[k], vl[k1], vo[k1], vo[k]])          # fianco esterno
+                if lod == 0:
+                    bm.faces.new([vi[k], vo[k], vo[k1], vi[k1]][::-1])  # anello superiore (normale in alto)
+        g.new_faces(bott, "GOMMA")
+    o = g.finish(name + mi._sfx(lod), coll)
+    for f in o.data.polygons:                       # normali: tutte verso l'esterno / l'alto
+        c = f.center
+        out = Vector((c.x, c.y, 0.0)) if abs(f.normal.z) < 0.5 else Vector((0, 0, 1))
+        if f.normal.dot(out) < 0:
+            f.flip()
+    o.data.update()
+    if lod == 0:
+        pk._ucx_hull(name, 0, top + bot, coll)
+    return mb._localize(o)
+
+
 ASSETS_LOD = {"SM_Morin_Marina_Pontile12": build_pontile12, "SM_Morin_Marina_Passerella": build_passerella,
-              "SM_Morin_Marina_Colonnina": build_colonnina, "SM_Mirabello_Pontile_Col": build_mirabello_col}
+              "SM_Morin_Marina_Colonnina": build_colonnina, "SM_Mirabello_Pontile_Col": build_mirabello_col,
+              "SM_Morin_Marina_Raccordo": build_raccordo}
 ASSETS_ONE = {"SM_Morin_Marina_PontileLargo": build_largo, "SM_Morin_Marina_Circolo": build_circolo}
 
 
@@ -1720,7 +1780,9 @@ def build_context(seed=20261120):
 
 CAMS = {
     # nome: (posizione, punto guardato, FOV orizzontale)
-    "CAM_Mar_Banchina": ((282.0, 81.0, 1.70), (150.0, 66.0, 1.2), 64.0),     # come banchina_vista_montagne_verso_ponte.jpg
+    # come banchina_vista_montagne_verso_ponte.jpg; X 300 (non 282) come la cattura UEFN di confronto (uefn_arte §39),
+    # stessa direzione di prima (yaw UE 173,5, pitch -0,2)
+    "CAM_Mar_Banchina": ((300.0, 81.0, 1.70), (168.0, 66.0, 1.2), 64.0),
     "CAM_Mar_Alto": ((75.0, 175.0, 110.0), (185.0, 10.0, 0.0), 62.0),       # vista aerea obliqua (vista_dall_alto_2)
     "CAM_Mar_Finger": ((156.0, 18.8, Z_DECK + 1.65), (215.0, 18.0, -0.4), 70.0),   # sul finger F3 verso la punta
     "CAM_Mar_Passeggiata": ((140.0, 86.0, 1.70), (175.0, 30.0, 0.0), 75.0),        # dalla passeggiata verso la marina
@@ -1806,3 +1868,314 @@ def export_all(overwrite=False):
                 o.hide_viewport = hv
                 o.hide_set(hg)
     return reps
+
+
+# =================================================================================================================
+# layout pontili v3 (2026-11-20): radici dei fingers sull'asse reale della spina, raccordi nei gomiti e nei nodi,
+# angolo del pontile a L chiuso, segmenti coperti fino in fondo. La v2 (pontili_rows/write_csv) resta com'e'.
+# Quote: moduli -0,45 · radici dei rami -0,455 · ultimo modulo prima di un gomito/nodo -0,46 · raccordi -0,47
+# (le parti sovrapposte non sono mai complanari; gradino massimo 2 cm).
+# =================================================================================================================
+Z_ROOT, Z_ELB, Z_RACC = Z_DECK - 0.005, Z_DECK - 0.01, Z_DECK - 0.02
+HW = PONT_W / 2
+TRUNKS_V3 = ("Spina", "Esterno2", "L_Gamba", "NE")                 # partono dalla passerella o da un nodo, in ordine
+BRANCHES_V3 = ("Esterno", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "L_Testa", "L_Ramo")
+EXT_END_V3 = {"L_Gamba": HW + 0.05}                                  # la gamba della L arriva al bordo sud della testa
+
+
+def _raw_start(k):
+    """Partenza OSM del ramo (sull'asse del tronco), prima dello spostamento di 1,4 m della v2."""
+    p = PONTILI[k]
+    d, _ = _unit(p[0], p[1])
+    return (p[0][0] - d[0] * 1.4, p[0][1] - d[1] * 1.4)
+
+
+def _axis_v3():
+    """Polilinee dei calpestii v3 (tronchi con eventuale prolungamento in fondo, rami dalla partenza OSM)."""
+    ax = {}
+    for k in TRUNKS_V3:
+        pts = list(PONTILI[k])
+        if k in EXT_END_V3:
+            d, _ = _unit(pts[-2], pts[-1])
+            e = EXT_END_V3[k]
+            pts[-1] = (pts[-1][0] + d[0] * e, pts[-1][1] + d[1] * e)
+        ax[k] = pts
+    for k in BRANCHES_V3:
+        ax[k] = [_raw_start(k)] + list(PONTILI[k][1:])
+    return ax
+
+
+def _joints_v3():
+    """Raccordi: ogni vertice interno dei tronchi + il nodo in fondo alla spina (Esterno / Esterno 2)."""
+    out = []
+    for k in TRUNKS_V3:
+        pts = PONTILI[k]
+        for i in range(1, len(pts) - 1):
+            d0, _ = _unit(pts[i - 1], pts[i])
+            d1, _ = _unit(pts[i], pts[i + 1])
+            ang = math.degrees(math.acos(max(-1.0, min(1.0, d0[0] * d1[0] + d0[1] * d1[1]))))
+            out.append((f"{k}_v{i}", pts[i], ang))
+    out.append(("Spina_fine", PONTILI["Spina"][-1], None))
+    return out
+
+
+def _shape_exit(shape, p, d):
+    """Parametro t>=0 a cui il raggio p + t d esce dalla forma (None se p e' fuori)."""
+    if shape[0] == "rect":
+        _, c, u, hl, hw = shape
+        n = (-u[1], u[0])
+        t_out = 1e9
+        for ax, h in ((u, hl), (n, hw)):
+            o = (p[0] - c[0]) * ax[0] + (p[1] - c[1]) * ax[1]
+            v = d[0] * ax[0] + d[1] * ax[1]
+            if abs(o) > h + 1e-9:
+                return None
+            if abs(v) > 1e-12:
+                t_out = min(t_out, ((h if v > 0 else -h) - o) / v)
+        return max(t_out, 0.0)
+    _, c, r = shape
+    ox, oy = p[0] - c[0], p[1] - c[1]
+    if ox * ox + oy * oy > r * r + 1e-12:
+        return None
+    b = ox * d[0] + oy * d[1]
+    cc = ox * ox + oy * oy - r * r
+    return -b + math.sqrt(max(b * b - cc, 0.0))
+
+
+def _union_exit(shapes, p, d):
+    t = 0.0
+    for _ in range(200):
+        q = (p[0] + d[0] * t, p[1] + d[1] * t)
+        best = None
+        for s in shapes:
+            e = _shape_exit(s, q, d)
+            if e is not None and e > 1e-7 and (best is None or e > best):
+                best = e
+        if best is None:
+            return t
+        t += best + 1e-7
+    return t
+
+
+def _seg_modules(L):
+    """Moduli (asset, s, z) che coprono tutto il segmento: 48 m + 12 m, l'ultimo arretrato 1 cm piu' basso."""
+    n48 = int((L + 0.02) // 48)
+    rem = L - 48 * n48
+    mods = [["SM_Mirabello_Pontile_Col", 48.0 * k, Z_DECK] for k in range(n48)]
+    if rem > 0.02:
+        n12 = max(1, math.ceil((rem - 0.02) / 12.0))
+        for k in range(n12):
+            s, z = 48.0 * n48 + 12.0 * k, Z_DECK
+            if s + 12.0 > L + 0.02:
+                s, z = max(L - 12.0, 0.0), Z_DECK - 0.01
+            mods.append(["SM_Morin_Marina_Pontile12", s, z])
+    return mods
+
+
+def pontili_rows_v3():
+    """Righe come pontili_rows() (coordinate di progetto) + info per le verifiche."""
+    ax = _axis_v3()
+    joints = _joints_v3()
+    shapes = []                    # calpestio dei tronchi (per le radici dei rami)
+    rows, col_rows, info = [], [], dict(radici={}, raccordi=[])
+    junction_end = {"Spina", "L_Gamba"}
+
+    def emit(name, pts, root_z=None):
+        for i in range(len(pts) - 1):
+            a, b = pts[i], pts[i + 1]
+            d, L = _unit(a, b)
+            rz = math.degrees(math.atan2(d[1], d[0]))
+            mods = _seg_modules(L)
+            if i == 0 and root_z is not None:
+                mods[0][2] = min(mods[0][2], root_z)
+            if i < len(pts) - 2 or name in junction_end:
+                mods[-1][2] = min(mods[-1][2], Z_ELB)
+            for j, (asset, s, z) in enumerate(mods):
+                x, y = a[0] + d[0] * s, a[1] + d[1] * s
+                rows.append((asset, f"Marina_{name}_s{i}_m{j:02d}", x, y, round(z, 4), rz, 0.0, "base"))
+                if asset == "SM_Morin_Marina_Pontile12" and abs(z - Z_DECK) < 1e-6:
+                    col_rows.append(("SM_Morin_Marina_Colonnina", f"Marina_Colonnina_{name}_s{i}_m{j:02d}",
+                                     x + d[0] * 6.0, y + d[1] * 6.0, Z_DECK, rz, 0.0, "base"))
+            shapes.append(("rect", ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2), d, L / 2, HW))
+
+    for k in TRUNKS_V3:
+        emit(k, ax[k])
+    for nm, c, ang in joints:
+        shapes.append(("circle", c, RACC_R))
+        rows.append(("SM_Morin_Marina_Raccordo", f"Marina_Raccordo_{nm}", c[0], c[1], Z_RACC, 0.0, 0.0, "base"))
+        info["raccordi"].append((nm, c, ang))
+    for k in BRANCHES_V3:
+        p0 = ax[k][0]
+        d, _ = _unit(p0, ax[k][1])
+        n = (-d[1], d[0])
+        ex = [_union_exit(shapes, (p0[0] + n[0] * l, p0[1] + n[1] * l), d) for l in np.linspace(-HW, HW, 57)]
+        s0 = min(ex) - 0.01
+        root = (p0[0] + d[0] * s0, p0[1] + d[1] * s0)
+        old = PONTILI[k][0]
+        info["radici"][k] = dict(root=root, s_min=min(ex), s_max=max(ex), gap_v2=1.4 - min(ex),
+                                 sposta=math.hypot(root[0] - old[0], root[1] - old[1]))
+        emit(k, [root] + ax[k][1:], root_z=Z_ROOT)
+    a, b = LARGO
+    d, L = _unit(a, b)
+    rows.append(("SM_Morin_Marina_PontileLargo", "Marina_Largo_m00", a[0], a[1], 0.0,
+                 math.degrees(math.atan2(d[1], d[0])), 0.0, "base"))
+    for nm, x in PASSERELLE:
+        rows.append(("SM_Morin_Marina_Passerella", f"Marina_Passerella_{nm}", x, yq(x), 0.0, -90.0, 0.0, "base"))
+    rows.append(("SM_Morin_Marina_Circolo", "Marina_Circolo", CIRC_C[0], CIRC_C[1], 0.0, 0.0, 0.0, "base"))
+    return rows + col_rows, info
+
+
+def write_csv_v3(path=None):
+    prow, info = pontili_rows_v3()
+    path = path or f"{PROJ}/exports/marina/marina_pontili_v3.csv"
+    if os.path.exists(path):
+        raise RuntimeError(f"esiste gia': {path}")
+    with open(path, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write("asset,nome,x,y,z,yaw,pitch,roll,variante\n")
+        for a, n, x, y, z, rz, pitch, var in prow:
+            fh.write(f"{a},{n},{x * 100:.1f},{-y * 100:.1f},{z * 100:.1f},{_yaw(rz):.2f},{pitch:.2f},0.00,{var}\n")
+    return path, prow, info
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# verifica v3: ray test su griglia di 10 cm (collisioni UCX e calpestio visibile) + distanza delle barche v2
+# ---------------------------------------------------------------------------------------------------------------
+def _placed_bvh(prow, mode):
+    """BVH dei pezzi posati. mode 'ucx': solo gli UCX di calpestio (zmax locale <= 3 cm, niente colonnine/corrimano);
+    'vis': facce LOD0 rivolte in alto con z locale <= 6 cm (niente gallocce, bitte, colonnine)."""
+    verts, polys = [], []
+    for a, n, x, y, z, rz, pitch, var in prow:
+        if a in ("SM_Morin_Marina_Colonnina", "SM_Morin_Marina_Circolo"):
+            continue
+        M = Matrix.Translation((x, y, z)) @ Matrix.Rotation(math.radians(rz), 4, "Z") @ \
+            Matrix.Rotation(math.radians(-pitch), 4, "Y")
+        if mode == "ucx":
+            srcs = [o for o in bpy.data.objects if o.name.startswith(f"UCX_{a}_")]
+            srcs = [o for o in srcs if max(v.co.z for v in o.data.vertices) <= 0.03]
+        else:
+            srcs = [bpy.data.objects[a]]
+        for o in srcs:
+            me = o.data
+            base = len(verts)
+            verts += [M @ v.co for v in me.vertices]
+            for p in me.polygons:
+                if mode == "vis" and (p.normal.z < 0.5 or p.center.z > 0.06):
+                    continue
+                polys.append([base + i for i in p.vertices])
+    return BVHTree.FromPolygons(verts, polys)
+
+
+def _region_v3(step=0.10, inset=0.05, inset_vis=0.15):
+    """Punti della griglia globale (passo 10 cm) dentro i calpestii attesi, con l'etichetta della catena.
+    Ritorna dict (ix, iy) -> [x, y, catena, bordo]: bordo = True se il punto e' entro inset_vis dal bordo."""
+    ax = _axis_v3()
+    segs = []           # (catena, a, b, hw, giunto tondo in a, giunto tondo in b)
+    for k, pts in ax.items():
+        for i in range(len(pts) - 1):
+            segs.append((k, pts[i], pts[i + 1], HW, i > 0, i < len(pts) - 2 or k == "Spina"))
+    for nm, x in PASSERELLE:
+        segs.append((f"Passerella_{nm}", (x, yq(x)), (x, yq(x) - GANG), HW, False, False))
+    a, b = LARGO
+    segs.append(("Largo", a, b, LARGO_W / 2, False, False))
+    pts = {}
+    for k, a, b, hw, ca, cb in segs:
+        d, L = _unit(a, b)
+        n = (-d[1], d[0])
+        lim = hw - inset
+        x0, x1 = min(a[0], b[0]) - hw, max(a[0], b[0]) + hw
+        y0, y1 = min(a[1], b[1]) - hw, max(a[1], b[1]) + hw
+        gx = np.arange(math.floor(x0 / step), math.ceil(x1 / step) + 1)
+        gy = np.arange(math.floor(y0 / step), math.ceil(y1 / step) + 1)
+        GX, GY = np.meshgrid(gx, gy)
+        X, Y = GX * step, GY * step
+        u = (X - a[0]) * d[0] + (Y - a[1]) * d[1]
+        v = (X - a[0]) * n[0] + (Y - a[1]) * n[1]
+        ins = (np.abs(v) <= lim) & (u >= 0) & (u <= L)
+        if ca:
+            ins |= np.hypot(X - a[0], Y - a[1]) <= lim
+        if cb:
+            ins |= np.hypot(X - b[0], Y - b[1]) <= lim
+        edge = (np.abs(v) > hw - inset_vis) | (u < 0) | (u > L)
+        for ix, iy, e in zip(GX[ins], GY[ins], edge[ins]):
+            key = (int(ix), int(iy))
+            if key not in pts:
+                pts[key] = [float(ix) * step, float(iy) * step, k, bool(e)]
+            elif not e:
+                pts[key][3] = False
+    return pts
+
+
+def verify_v3(prow, step=0.10, max_step=0.05):
+    pts = _region_v3(step)
+    res = {}
+    for mode in ("ucx", "vis"):
+        bvh = _placed_bvh(prow, mode)
+        Z = {}
+        holes = []
+        for key, (x, y, k, edge) in pts.items():
+            if mode == "vis" and edge:
+                continue
+            hit = bvh.ray_cast(Vector((x, y, 2.0)), Vector((0, 0, -1)), 4.0)
+            if hit[0] is None or hit[0].z < -0.60:
+                holes.append((round(x, 2), round(y, 2), k))
+            else:
+                Z[key] = hit[0].z
+        steps = []
+        dzmax = 0.0
+        for (ix, iy), z in Z.items():
+            for nb in ((ix + 1, iy), (ix, iy + 1)):
+                if nb in Z:
+                    dz = abs(Z[nb] - z)
+                    dzmax = max(dzmax, dz)
+                    if dz > max_step:
+                        steps.append((round(ix * step, 2), round(iy * step, 2), round(dz, 3), pts[(ix, iy)][2]))
+        zs = np.array(list(Z.values()))
+        per = {}
+        for key in Z:
+            per[pts[key][2]] = per.get(pts[key][2], 0) + 1
+        res[mode] = dict(punti=len(Z) + len(holes), buchi=len(holes), buchi_es=holes[:12], gradini=len(steps),
+                         gradini_es=steps[:12], dz_max=round(dzmax, 4), z_min=round(float(zs.min()), 3),
+                         z_max=round(float(zs.max()), 3), per_catena=per)
+    return res
+
+
+def _deck_rects_v3(prow):
+    """Impronte (con bottazzo) dei pezzi posati v3: rettangoli orientati e cerchi."""
+    out = []
+    for a, n, x, y, z, rz, pitch, var in prow:
+        d = (math.cos(math.radians(rz)), math.sin(math.radians(rz)))
+        if a in ("SM_Mirabello_Pontile_Col", "SM_Morin_Marina_Pontile12"):
+            L = 48.0 if a == "SM_Mirabello_Pontile_Col" else 12.0
+            out.append(("r", ((x + d[0] * L / 2, y + d[1] * L / 2), d, L / 2, HW + BOTT)))
+        elif a == "SM_Morin_Marina_Raccordo":
+            out.append(("c", ((x, y), RACC_R + RACC_BOTT)))
+    return out
+
+
+def boats_clearance_v3(prow, seed=20261120):
+    """Distanza minima fra le barche v2 (stesso seme: stesso layout del CSV v2) e i pezzi v3."""
+    boats, _ = layout_v2(seed)
+    deck = _deck_rects_v3(prow)
+    worst = (1e9, None)
+    under = []
+    for b in boats:
+        r = b["rect"]
+        for kind, s in deck:
+            if kind == "r":
+                if math.hypot(r[0][0] - s[0][0], r[0][1] - s[0][1]) > 40:
+                    continue
+                dd = _poly_dist(r, s)
+            else:
+                c, rad = s
+                if math.hypot(r[0][0] - c[0], r[0][1] - c[1]) > 20:
+                    continue
+                cs = _corners(r)
+                inside = _sat(r, ((c[0], c[1]), (1.0, 0.0), 1e-6, 1e-6))
+                dd = 0.0 if inside else min(_dist_pt_seg(c, cs[i], cs[(i + 1) % 4]) for i in range(4)) - rad
+                dd = max(dd, 0.0)
+            if dd < worst[0]:
+                worst = (dd, b["pontile"])
+            if dd < MARGIN - 1e-6:
+                under.append((b["pontile"], round(dd, 3)))
+    return dict(barche=len(boats), min_dist=round(worst[0], 3), pontile=worst[1], sotto_margine=under[:10],
+                n_sotto=len(under))
