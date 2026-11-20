@@ -259,3 +259,17 @@ al campione esatto con il modulo `wave` (il mixdown arrotonda al blocco). Picco 
   e nome "PICCIONISSIMA" inventati, nessuna compagnia reale. Forma e posizione da OSM (© OpenStreetMap contributors, ODbL): coastline 137121074
   e nodo 3701128402 "Molo Garibaldi" (estratto dall'API OSM il 2026-11-20); proporzioni confrontate con `ref/foto/vista/faro_2.png` (solo riferimento).
 - `SM_Fondale_Colline_NE_v3`: stessa origine della v2 (DEM e texture già elencati), solo geometria modificata.
+
+## Texture v2, passaggio realismo (2026-11-20)
+Texture in `blender/textures/v2/` (`blender/scripts/morin_texture_v2.py`, elenco in `docs/texture_v2.md`). Sorgenti **Poly Haven, CC0**
+(licenza verificata su polyhaven.com/license il 2026-11-20: "Our assets are all licensed as CC0", attribuzione non richiesta),
+scaricate in `blender/textures/src/<asset>/`:
+- `patterned_cobblestone` → `T_Pav_Cubetti_v2`; `rock_surface` → `T_Pav_Lastre_v2` (grana per lastra);
+- `rock_boulder_dry` → `T_Pav_Fascia_v2`, `T_Banchina_Blocchi_v2`; `seaside_rock` → `T_Molo_Scogliera_v2`, `T_Banchina_Paramento_v2`;
+- `asphalt_04` → `T_Parcheggio_Asfalto_v2`, `T_Molo_Asfalto_v2` (`asphalt_02` scaricato e scartato); `dirty_concrete` → `T_MoloItalia_Cemento_v2`,
+  `T_Morin_NewJersey_v2`; `rust_coarse_01` → `T_Morin_Corten_v2`; `wood_planks_grey` → `T_Ponte_Legno_v2`; `pine_bark` →
+  `T_Morin_PinoDomestico_Corteccia_v2`; `leafy_grass` → `T_Morin_Prato_v2`.
+- Procedurali o ritarature delle v1 (nessuna sorgente nuova): `T_Ponte_Acciaio_v2`, `T_Morin_PalmaA_Tronco_v2`, `T_Albero_Latifoglia_Chioma_v2`,
+  `T_Morin_Auto_v3`, `T_Morin_MacroVar`.
+- Foto dell'utente (`ref/foto/pavimentazione/*`, `ref/foto/ponte/*`, `ref/foto/arredi/giardini.webp`) usate **solo per tarare colore e scala**:
+  nessun pixel copiato, nessuna texture [SV].

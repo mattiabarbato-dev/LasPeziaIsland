@@ -1,3 +1,6 @@
 *.blend@
 __pycache__/
 .claude/settings.local.json
+
+# sorgenti CC0 riscaricabili (Poly Haven), elenco in docs/CREDITS.md
+blender/textures/src/

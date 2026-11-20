@@ -743,10 +743,38 @@ Ordine per impatto visivo:
 - [~] (uefn-builder) Luce del tardo pomeriggio, cielo, nebbia leggera sul golfo (v1 applicata il 2026-11-20, §36; da confermare in sessione)
 - [ ] (uefn-builder) Audio ambientale: gabbiani, acqua, sartie
 - [ ] (qa-tester) Dopo ogni sostituzione importante: collisioni e percorrenza invariati
+- [~] **Marina: pontili e barche** (richiesta dell'utente: "c'è da fare al blocco uno il pontile con le barchette").
+      Sequenza geo-scout → blender-artist → uefn-builder. Scheda `ref/marina_blocco1.md`.
+      - [x] (geo-scout, 2026-11-20) Dati OSM di tutti i pontili X 75-316 (spina 373,7 m con 8 fingers da 65-110 m, pontile a L 50,7 + 17,3
+            + 17,4 m, pontile largo 34,7 m, pontile NE 86,3 m, pontile esterno 2 163,5 m), stime dalle foto, layout di riempimento.
+            CSV `exports/marina/marina_pontili_v1.csv` (73 righe: 22 `SM_Mirabello_Pontile`, 46 `SM_Morin_Marina_Pontile12`,
+            3 passerelle, pontile largo, circolo) e `exports/marina/marina_barche_v1.csv` (475 barche: 159 motoscafi, 103 gozzi,
+            70 gommoni, 70 vele 9 m, 40 `YachtB_v2`, 33 `YachtA`). Generatore `exports/marina/gen_marina_v1.py`.
+      - [ ] (utente) Collisione dei pontili della marina: a Mirabello niente collisione, qui i pontili partono dal ciglio e si raggiungono
+            a piedi. Dare UCX ai moduli o lasciarli senza (si cade in acqua)?
+      - [ ] (blender-artist) Asset nuovi (§6 della scheda): `SM_Morin_Barca_Gommone`, `_Gozzo`, `_Motoscafo`, `_Vela9` con varianti di colore;
+            `SM_Morin_Marina_Pontile12`, `_PontileLargo`, `_Passerella`, `_Circolo` (+ `_Colonnina` opzionale). 2 LOD, origine al
+            galleggiamento, +X prua.
+      - [ ] (uefn-builder) Posa da CSV: un HISM per asset e variante, barche e pontili No Collision salvo decisione dell'utente;
+            nel frattempo si può posare la parte con asset esistenti (`SM_Mirabello_Pontile`, anche in scala X 0,25 al posto di
+            `Pontile12`; `YachtA`, `YachtB_v2`). Controllare z delle barche (−103) e memoria dopo l'import.
+      - [ ] (geo-scout) Dati [S] da confermare con foto (§7 della scheda): larghezze, galleggianti/fissi, verso delle barche, circolo.
 
 **Cancello 3:** nessun volume grigio visibile nel Blocco 1; il ponte è riconoscibile dalla partenza.
 
 ---
+
+- [x] (blender-artist, 2026-11-20) **Texture v2, passaggio realismo** (`docs/texture_v2.md`, script `blender/scripts/morin_texture_v2.py`):
+      18 set D/N/ORM in `blender/textures/v2/` con nomi nuovi (`_v2`, auto `_v3`) da sorgenti Poly Haven CC0 + `T_Morin_MacroVar` (32 m).
+      4096: lastre (`Tile_m` 4,8, lastre 40 × 60), cubetti (porfido reale, `Tile_m` 2,8, cubetto ~9 cm), asfalti, cemento Molo Italia, legno e
+      acciaio del ponte; 2048: fascia (`Tile_m` 2), blocchi, paramento, prato, scogliera, corten, New Jersey, palma, pino, chioma latifoglie, auto.
+      Bianchi ≤ 0,75 sRGB, pietre grigio-calde, roughness variata e tarata (acciaio 0,32, vernice auto 0,13). Render prima/dopo dei 6 materiali
+      più visibili: `docs/qa/arte_texture_v2_confronto.png` (`blender/arte_texture_v2.blend`). Nessun import in UEFN, nessun commit.
+- [ ] (uefn-builder) **Import texture v2**: PNG in `Arte/Texture_v2` (impostazioni in `docs/texture_v2.md`), ricollegare le 17 MI della tabella
+      (+ `MI_Morin_Auto_v2_Luci`), `Tile_m` 4,8 / 2,8 / 2,0 per lastre / cubetti / fascia, `Roughness_Mult` (acciaio 0,9); aggiungere `Macro_Int`
+      e `T_Morin_MacroVar` (coordinate mondo, 32 m) a `M_Morin_Master_PBR` e `M_Morin_Master_Pav` con le intensità consigliate;
+      controllare la memoria del progetto; catture agli stessi 10 punti del §35.D. Nessun reimport sulle texture v1.
+- [ ] (utente) Dopo l'import: giudizio sulle catture (variazione per lastra, tinta dei cubetti, verde del prato).
 
 ## Fase 4 — Ottimizzazione
 - [ ] (blender-artist) Collisioni UCX_ su tutti gli asset; verifica budget triangoli
@@ -935,7 +963,18 @@ Ordine per impatto visivo:
             **Colline** (`morin_fondale_colline_v3.py`, `arte_fondale.blend`): tagli lungo la costa dei volumi Acqua V2 (banchina, smusso, X 555,
             Y 1,3, X 725, Y −60,1, X 971) + secondo taglio 0,5 m dentro terra; lato mare a min(z, −5). Griglia 2 m sul lato mare (110.785 punti):
             superficie max −5,00 m in LOD0/1/2; vertici a terra invariati (scarto 0,1 mm). Tri 7652/4082/1457 (v2 7005/3571/1084).
-      - [ ] (uefn-builder) **Import chiosco v3, nave v2, colline NE v3** (LOD0 + `_LOD1` + `_LOD2`, metodo §32/§33, nuovi nomi, le vecchie mesh restano):
+      - [x] (uefn-builder, 2026-11-20 ~16:40-16:55, `docs/uefn_arte.md` §37) **Fatto:** chiosco v3 (428/376/218 tri, 4 UCX, sezioni LOD rimappate,
+            MI opaca + MI vetro traslucida non two-sided su `M_Morin_Master_Vetro`, opacità 0,28 scalare: la alpha della texture non è campionata),
+            8 pareti visibili da fuori e interni dietro i vetri (`docs/qa/uefn_chiosco_ott_v3_*.png`); nave v2 (2170/1350/1281, UCX rimossi) su
+            `Arte_B3_NaveCrociera` alla posa del CSV (`docs/qa/uefn_nave_v2_faro.png`); nuovo `Acqua_Golfo_Device_B3_Garibaldi` X 97076..131380 ·
+            Y 6014..55678 a filo con `_B3_Est`/`_B3_Mare` (esteso a 1314 m per chiudere il bacino del Molo Garibaldi), barriere invariate; colline NE v3
+            (7652/4082/1457): macchie verdi del Blocco 2 sparite (`docs/qa/uefn_b2_acqua_fix*.png`). Salvato (0 sporchi), 730/730 validi, 57 avvisi noti.
+      - [ ] (blender-artist) Conflitto acqua/fondale: un blocco di `Arte_Fondale_Citta_E_01` a X 1000-1014 m, Y Blender −478..−492 m sta sulla scarpata
+            a mare con la base sotto −1 m, dentro il nuovo volume Acqua V2 (non ritagliabile: lì serve acqua fino a X ~1008 m). Spostarlo/ritagliarlo o
+            alzare la terra sotto (§37).
+      - [ ] (facoltativo) Opacità del vetro del chiosco dalla texture: serve un parametro texture in `M_Morin_Master_Vetro` (tocca anche `MI_Molo_Vetro`).
+      - [ ] (qa-tester) In sessione: vetro del chiosco v3, nave e bordo dell'acqua a X 1314 m visti dal faro.
+      - [x] (uefn-builder) ~~Import chiosco v3, nave v2, colline NE v3~~ (brief originale):
             1. `exports/blocco2/SM_Morin_ChioscoOttagonale_v3{,_LOD1,_LOD2}.fbx` (4 UCX nel LOD0): cambio di mesh su `Arte_B2_ChioscoOttagonale`
                (stessa trasformazione, `exports/blocco2/blocco2_chiosco_ott_v3.csv`: 55206, −10872, 15, yaw 0). Slot 0 atlante opaco, slot 1 **vetro
                traslucido** (MI traslucida, opacità dalla alpha di `T_Morin_ChioscoOtt_v3_Vetro_D`, ~0,2-0,35); **non** two-sided. Verificare da fuori
