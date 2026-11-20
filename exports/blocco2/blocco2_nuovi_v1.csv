@@ -1,0 +1,16 @@
+asset,nome,x,y,z,yaw,scala
+SM_Morin_Cannone,B2_Cannone_01,24908.0,-8205.0,0.0,-4.0000,1.000
+SM_Morin_Cannone,B2_Cannone_02,25933.0,-8231.0,0.0,6.0000,1.000
+SM_Morin_Redamare,B2_Redamare,25420.0,-8255.0,0.0,0.1241,1.000
+SM_Morin_Prato_Giardini_B2,B2_Morin_Prato_Giardini_B2,0.0,0.0,0.0,0.0000,1.000
+SM_Pav_Vialetti_B2,B2_Pav_Vialetti_B2,0.0,0.0,0.0,0.0000,1.000
+SM_Blockout_Passeggiata_B2,B2_Blockout_Passeggiata_B2,0.0,0.0,0.0,0.0000,1.000
+SM_Blockout_Fondale_B2_Terreno,B2_Blockout_Fondale_B2_Terreno,0.0,0.0,0.0,0.0000,1.000
+SM_Banchina_Angolo_MoloItalia,B2_Angolo_MoloItalia,54720.0,-7917.61,0.0,0.1241,1.000
+SM_Pav_Piazzale_Fine_B2,B2_Pav_Piazzale_Fine_B2,0.0,0.0,0.0,0.0000,1.000
+SM_Pav_Piazzetta_Chiosco_B2,B2_Pav_Piazzetta_Chiosco_B2,0.0,0.0,0.0,0.0000,1.000
+SM_Pav_Scritta_Morin,B2_Pav_Scritta_Morin,0.0,0.0,0.0,0.0000,1.000
+SM_Morin_ChioscoOttagonale,B2_ChioscoOttagonale,55206.0,-10872.0,15.0,0.0000,1.000
+SM_Morin_AstaBandiera,B2_Asta_00,55301.61,-6736.47,0.0,0.0000,1.000
+SM_Morin_AstaBandiera,B2_Asta_01,55360.45,-6386.47,0.0,0.0000,1.000
+SM_Morin_AstaBandiera,B2_Asta_02,55419.29,-6036.47,0.0,0.0000,1.000

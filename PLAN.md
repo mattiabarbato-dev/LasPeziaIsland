@@ -783,6 +783,9 @@ Ordine per impatto visivo:
             Estratto OSM nuovo `ref/osm/morin_blocchi23.osm` (il vecchio non copre X > ~330). **Correzione:** cannoni OSM a X 249,0 e 259,3,
             REDAMARE **fra i due** (X ≈ 250,5-258, articolo 2022), non a ~275 m; ancora 2 a X 279,9.
       - [ ] (utente) Foto F1-F10 di `ref/blocco2.md` §10; soprattutto F7, il passo delle palme: le panchine OSM sono ogni ~16 m, quindi il passo potrebbe essere 8 m.
+            (2026-11-20: F9 coperta, F4 e F8 in parte; per B2.4 manca il chiosco visto dal viale.)
+      - [x] (geo-scout, 2026-11-20) `ref/blocco2.md` §4.5 aggiornato con le foto del raccordo: smusso a blocchi fino a ~Y 47, poi lunetta del monumento
+            e scogliera; 3 aste portabandiera, monumento con busto, cartello e fioriere; nuovi elementi 22-24 nella tabella di produzione.
       - [ ] (blender-artist → uefn-builder) B2.1 Banchina X 251,4-548,7 (kit v2 + nicchie ogni ~50 m, niente bitte finché F4 non lo dice),
             `SM_Banchina_Angolo_MoloItalia`, pavimentazione e cordolo fino a X 560, suolo/blockout; nascondere `Arte_Banchina_Testata_Fine`,
             spostare `Barriera_FineBlocco` a X ≈ 560.
@@ -794,6 +797,24 @@ Ordine per impatto visivo:
             `exports/giardini/giardini_posizioni_v1_blocco2.csv`, vialetti.
       - [ ] (blender-artist → uefn-builder) B2.6 Viale Italia X 326-560 (moduli e incroci X 506/520, isola X 396-483), cortina con `SM_Fondale_Palazzo_A/B/C`, traffico finto allungato.
       - [ ] (blender-artist) B2.7 Dettagli: aiuole di rose, agave (facoltativa, ≈ 2,7 MiB), panchina curva, memoriale Aviatori, pannelli, fontanella.
+      - [x] (blender-artist, 2026-11-20) **Blocco 2 v1 in Blender** (B2.1-B2.6 lato Blender; sorgente `blender/arte_blocco2.blend`, script
+            `blender/scripts/morin_blocco2.py`, kit dei Blocchi 1 collegati in sola lettura). Asset nuovi in `exports/blocco2/` (tri LOD0/1/2, UCX):
+            `SM_Morin_Cannone` 1208/840/280, 2 UCX · `SM_Morin_Redamare` 612/540/468, 2 UCX, corten 1024 nuovo `T_Morin_Corten_*` (Poly Haven
+            rusty_metal_02, CC0) · `SM_Banchina_Angolo_MoloItalia` 1311/731/31, 2 UCX (smusso fino a Y 47) · `SM_Morin_ChioscoOttagonale` 138/122/106,
+            2 UCX (atlanti chiosco/dehors esistenti) · `SM_Morin_AstaBandiera` 140/112/70 ×3 (senza bandiere) · pezzi unici a (0,0,0):
+            `SM_Pav_Camminamento_4m_B2` 2 (modulo, fino a 9,40 m dal ciglio), `SM_Pav_FasciaPalme_Fine` 36, `SM_Morin_Prato_Giardini_B2` 105 (3 UCX),
+            `SM_Pav_Vialetti_B2` 26 (9 UCX), `SM_Pav_Piazzetta_Chiosco_B2` 18, `SM_Pav_Piazzale_Fine_B2` 10 (3 UCX), `SM_Pav_Scritta_Morin` 265;
+            blockout in `exports/blockout/`: `SM_Blockout_Passeggiata_B2` 19 (X 250-559, Z −0,15), `SM_Blockout_Fondale_B2_Terreno` 10 (X 330-580, Y 120,85-300).
+            CSV UE in `exports/blocco2/blocco2_{banchina,pav,palme,arredi,giardini,viale,fondale,chiosco,nuovi}_v1.csv` (654 righe, colonna `scala`).
+            Catture `docs/qa/arte_blocco2_v1_{redamare,infilata,fine,chiosco}.png`. Decisioni in `docs/decisioni.md` (2026-11-20, 8 voci).
+      - [ ] (uefn-builder) Import Blocco 2 (metodo §12 di `docs/uefn_arte.md`): 12 mesh nuove + 2 blockout, MI `MI_Morin_Corten` (texture nuove) e
+            `MI_Morin_Cannone_Legno` (= `T_Morin_Imbarco_Legno` tinta scura 0,30/0,22/0,16); kit esistenti come istanze HISM dai CSV.
+            **Nascondere** `Arte_Banchina_Testata_Fine`. **Barriere:** `Barriera_FineBlocco` da X 25130 a **X 56700** (stessa Y e profondità);
+            nuova `Barriera_LatoCitta_B2` (dup. di `Barriera_LatoCitta`) centro (43872, −11930, −700), 51 × 0,5 unità (X 30816..56928);
+            nuova `Barriera_Acqua_LatoMare_B2` centro (42700, 30928, −700), 56 × 0,5 (X 28364..57036); allungare `Acqua_Golfo_Device` fino a X ≥ 57000.
+      - [ ] (utente) Foto F7 (passo delle palme 8 o 9 m) e conferma della forma di REDAMARE come elemento urbano (nota in decisioni.md).
+      - [ ] (blender-artist) Blocco 3 / raccordo: lunetta del monumento (~553; 46), scogliera del fianco ovest, Largo Fiorillo, fioriere nere,
+            cartello ZTL, bandiere sulle 3 aste, botti-tavolo del dehors, strisce pedonali su Viale Italia (X 300,7 / 506,4 / 520).
 - [ ] Blocco 1, dettagli da fare: ~~ancora monumentale~~ e ~~ciglio a grandi blocchi bianchi~~ fatti in Blender il 2026-11-20 (banchina v2,
       da importare; l'ancora è all'OSM X 226, non all'imbocco del ponte); fascia longitudinale di lastre a ~1/3 del camminamento dal mare [S];
       Giardini a Mare (prato, aiuole di rose bordate in metallo, agavi, panchine bianche a schienale curvo); ponte con le foto in `ref/foto/ponte/`.
@@ -804,10 +825,19 @@ Ordine per impatto visivo:
             - ristorante galleggiante = chiatta "I Gabbiani" (`building=houseboat`), 19,5 × 10,3 m, lato est a (583,9; −51,5), passerella e cancello, 2 livelli;
             - faro: torre tonda rossa di ~8 m con ballatoio e lanterna, Fl R 4 s (1+3), a (678,6; −327,1);
             - memoria texture ≈ 0-2,7 MiB; 10 foto da chiedere.
-      - [ ] (utente) Foto M1-M10 di `ref/molo_italia.md` §10: nessuna foto del molo è ancora in `ref/foto/`.
-      - [ ] (blender-artist → uefn-builder) B3.1 `SM_MoloItalia_Suolo` + ciglio con il kit banchina v2; Acqua V2 estesa fino a X ~720, Y −350; barriere.
+      - [x] (utente, 2026-11-20) 17 foto in `ref/foto/vista/` (molo, faro, ristorante, Capitaneria, raccordo, chiosco 2): 16 catture
+            Street View (texture ammesse con marca [SV]) + 1 vista satellitare Google Maps (solo riferimento). Coprono M1, M5, M7-M10, F9 e in parte M2-M4, M6, F4, F8.
+      - [x] (geo-scout, 2026-11-20) Schede aggiornate con le foto ([F]): `ref/molo_italia.md` (sezione del molo: ciglio d'ormeggio + carreggiata
+            in asfalto ~10 m + marciapiede ~4 m + **scogliera** sul lato esterno, non banchina; lampioni a pastorale a un globo; New Jersey e
+            ringhiere solo verso la testata; ristorante = chiatta blu e gialla con terrazza bianca e **2 accessi**; faro ~8 m con proporzioni
+            misurate; Capitaneria 2 piani + edificio a 4 piani in mattoni; chioschetti info point a facce piane, non tondi; rimorchiatori,
+            navi da crociera e gru come fondale) e `ref/blocco2.md` §4.5 (piazzale in cubetti, 3 aste h ~11-12 m, monumento con busto
+            nella lunetta ~(553; 46), lampioni a pastorale nel raccordo, chiosco con tetto in lamiera e tende crema, dehors).
+      - [ ] (utente) Integrazioni di `ref/molo_italia.md` §10 (8 richieste, prima il chiosco dal lato del viale per B2.4 e la sezione del molo a passi).
+      - [ ] (blender-artist → uefn-builder) B3.1 `SM_MoloItalia_Suolo` con la sezione di `molo_italia.md` §2.2 + ciglio d'ormeggio con il kit
+            banchina v2 (solo lato bacino e dita) + **scogliera** sul lato esterno (kit massi nuovo); Acqua V2 estesa fino a X ~720, Y −350; barriere.
       - [ ] (blender-artist) B3.2 `SM_MoloItalia_Faro`, pezzo unico, nessuna texture nuova, luce rossa a lampo di 4 s.
-      - [ ] (blender-artist) B3.3 `SM_MoloItalia_RistoranteGalleggiante` + passerella (dopo le foto M5-M6).
+      - [ ] (blender-artist) B3.3 `SM_MoloItalia_RistoranteGalleggiante` + 2 accessi (rampa blu e passerella ad arco): le foto bastano, nome inventato.
       - [ ] (blender-artist → uefn-builder) B3.4 Arredi del molo: lampioni, panchine in cemento, cestino, bitte solo nelle zone d'ormeggio; battelli ai moli a dito.
       - [ ] (blender-artist) B3.5 Radice e fondale: Capitaneria, chioschetti tondi, fontana del Palio, terminal, circoli nautici.
       - [ ] (utente) Memoria: con B2 + B3 la stima sale a 242-244 MiB su 245. Decidere se usare le alternative a 0 MiB (agave, ristorante)

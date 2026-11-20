@@ -21,11 +21,12 @@
 | Large Sandstone Blocks (texture) | https://polyhaven.com/a/large_sandstone_blocks | Rob Tuytel / Poly Haven | CC0 | `T_Banchina_Paramento_D/N/ORM` (luminanza; colore campionato dalle foto, fascia bagnata e alghe aggiunte) |
 | Rusty Painted Metal (texture) | https://polyhaven.com/a/rusty_painted_metal | Poly Haven | CC0 | `T_Banchina_Ghisa_D/N/ORM` (ricolorata come vernice nera consumata) |
 | Palm Tree Bark (texture) | https://polyhaven.com/a/palm_tree_bark | Poly Haven | CC0 | grana fine (high-pass) in `T_Morin_PalmaA_Tronco_D/N` |
+| Rusty Metal 02 (texture) | https://polyhaven.com/a/rusty_metal_02 | Poly Haven | CC0 | `T_Morin_Corten_D/N/ORM` 1024 (Blocco 2, scultura REDAMARE): maschera della ruggine ricolorata come corten, normal e AO ridotti a 1024 (2026-11-20) |
 
 Poly Haven: CC0, citazione facoltativa ma gradita. Poly Pizza: verificare la licenza di ogni modello;
 se CC-BY, l'autore va citato qui.
 
-Scaricate ma non usate negli asset (in `blender/textures/src/`): palm_bark, rusty_metal_02, seaworn_sandstone_brick,
+Scaricate ma non usate negli asset (in `blender/textures/src/`): palm_bark, seaworn_sandstone_brick,
 granite_wall (Poly Haven, CC0).
 
 ## Texture derivate dalle foto dell'utente (v2, 2026-11-19)
@@ -220,3 +221,13 @@ al campione esatto con il modulo `wave` (il mixdown arrotonda al blocco). Picco 
   175935420/421/422 (prati), node 1327347935 (fanale).
 - Nessuna texture nuova: riusate `T_Parcheggio_Asfalto`, `T_Viale_Segnaletica`, `T_Molo_Masselli`, `T_Morin_Bosso`, `T_Morin_Prato`,
   `T_Ponte_Legno`, `T_Ponte_Acciaio`, `T_Banchina_Paramento`, `T_Pav_Fascia`, `T_Morin_Imbarco`, `T_Morin_Imbarco_Legno` (già elencate sopra).
+
+## Blocco 2 (2026-11-20)
+- Estratto OSM `ref/osm/morin_blocchi23.osm` (© OpenStreetMap contributors, ODbL): posizioni di cannoni, ancora 2, vialetti, prato,
+  chiosco ottagonale, coastline dello smusso, Viale Italia (`blender/scripts/morin_blocco2.py`).
+- `SM_Morin_Redamare`: riproduce solo la **forma** della scultura "REDAMARE" di Sabrina D'Alessandro (2022) come elemento urbano
+  riconoscibile; lettere generate col font incorporato in Blender (licenza libera), proporzioni dalla foto
+  `ref/foto/arredi/scultura_caratteri_cubitali_affianco_cannone.png`. Vedi `docs/decisioni.md` 2026-11-20.
+- `SM_Pav_Scritta_Morin`: testo "PASSEGGIATA / MORIN" (nome del luogo, non un marchio) col font incorporato in Blender.
+- Nessuna texture nuova derivata da foto o da Street View nel Blocco 2: il chiosco ottagonale usa gli atlanti esistenti
+  `T_Morin_Chiosco` e `T_Morin_Dehors`; l'affusto dei cannoni usa `T_Morin_Imbarco_Legno` (tinta scura nel materiale).
