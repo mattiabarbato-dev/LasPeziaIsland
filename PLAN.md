@@ -1083,6 +1083,19 @@ Ordine per impatto visivo:
       (uefn-builder) **Import texture v3** e MI secondo `docs/texture_v3.md` ("Cosa fare in UEFN"): `MI_Ponte_Legno` (macro 0,15),
       `MI_Viale_Segnaletica` (`UV_Tiling` 0,5), `MI_Pav_Cubetti` (`Tile_m` 5,6, macro 0,35), `MI_Morin_Prato`/`_Mondo` (`UV_Tiling` 0,5 / `Tile_m` 8,
       `MacroVar` = `T_Morin_Prato_MacroVar`, macro 0,6). Annotare prima i valori attuali; catture agli stessi punti del §35.D.
+- [x] (uefn-builder, 2026-11-21 ~00:30) **NPC: prova di fattibilità** (`docs/uefn_arte.md` §46). Piazzati in Outliner `NPC`, **spenti/nascosti in gioco**:
+      `NPC_Prova_00` (dispositivo Personaggio, (300, −9700, 1) sui masselli del dehors, yaw 90 verso il mare, costume MATCH POINT, idle animato
+      Standing_A, inizio casuale) e `NPC_Prova_Generatore_00` (Generatore di PNG a (700, −9700, 1), disabilitato, solo per leggerne le opzioni).
+      Senza Verse: 18 idle animati in loop (in piedi A/B, appoggiato A/B, seduto A/B, seduto al banco che beve A/B/C, in piedi al banco, seduto per terra,
+      in attesa, richiamo, applauso…), un idle per device, 12 emote singole da evento (saluta, cenno della testa, indica, telefono…), 1316 costumi
+      (tutti stilizzati Fortnite; credibili: tennista, bagnino, golfista, cuoco). In editor l'idle **non si anima** (catture identiche): movimento solo in gioco.
+      Passanti che camminano: Generatore di PNG + asset NPC Character Definition + Percorso di pattuglia o `npc_behavior` in Verse.
+      Anomalia: `PlaceDevice` non rispetta lo yaw (155 / −180 invece di 90), corretto a mano. 0 sporchi, validazione 622/622 (43 avvisi noti). Attori 381.
+- [ ] (utente) Decidere: tenere i personaggi fermi-animati (idle) e quanti/dove; provare i passanti (serve verse-dev); scegliere i costumi.
+      Fino ad allora `NPC_Prova_00` e `NPC_Prova_Generatore_00` restano nascosti/spenti (non cancellati).
+- [ ] (qa-tester) In sessione: accendere `NPC_Prova_00` (`VisibleDuringGame` SÌ), verificare che Standing_A si muova, provare 2-3 idle
+      (StandingLeaning, SeatedCounterDrinking su una sedia del dehors), memoria del costume. Verificare se c'è navmesh sul camminamento:
+      i 133 HISM hanno `CanEverAffectNavigation = false` (§46.E), rischio per i passanti.
 
 ## Fase 4 — Ottimizzazione
 - [ ] (blender-artist) Collisioni UCX_ su tutti gli asset; verifica budget triangoli

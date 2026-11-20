@@ -3112,3 +3112,89 @@ Istanze intatte: per riattivarli basta l'inverso del §14 (e nascondere i nuovi)
 - **(utente)** `Arte_Pav_FasciaPalme`, `Arte_B2_Pav_FasciaPalme_9m`, `Arte_B2_Fascia_33` nascosti: le mesh `SM_Pav_FasciaPalme_9m` e `_Fine` v1 restano in
   cottura finché l'utente non conferma la cancellazione.
 - **(qa-tester)** Prova in sessione dell'inizio passeggiata (angolo senza palme, Sirena, lampione a 2 globi, gazebo a X 40,4) e memoria dopo il cook.
+
+## 46. NPC: prova di fattibilità (2026-11-21, ~00:00-00:30 ora locale)
+
+Richiesta dell'utente: persone sulla scena, ma "ferme immobili non ne vale la pena": serve almeno un minimo di movimento.
+Prova approvata con **un solo personaggio**. Niente sessioni di gioco, niente Blender, nessuna cancellazione, nessun commit.
+
+### A. Attori piazzati (Outliner `NPC`, entrambi **nascosti/spenti in gioco** finché l'utente non decide)
+| Etichetta | Dispositivo | Posizione UE | Yaw | Stato in gioco |
+|---|---|---|---|---|
+| `NPC_Prova_00` | `PID_Device_Character` (`Device_Character_V2_C_UAID_F068E322B343D61603_1438725036`) | (300, −9700, 1), masselli del dehors (trace: `Arte_Molo_Pav_Masselli_01`, Z 1), 1,6 m dal cavalletto | 90 (guarda il mare, verificato in cattura) | `VisibleDuringGame` NO, `EnableCharacterCollision` NO |
+| `NPC_Prova_Generatore_00` | `PID_Device_AISpawner_Character` (`Device_CharacterSpawner_C_UAID_F068E322B343D61603_1686651037`) | (700, −9700, 1) | 90 | `EnabledAtGameStart` NO, `SpawnOnEnabled` NO, `SpawnOnTimer` NO, `AllowInfiniteSpawn` NO (1 in totale) |
+
+- **Anomalia di `PlaceDevice`:** chiesto yaw 90, il Personaggio è arrivato a yaw **155** e il Generatore a **−180**. Corretti a 90 a mano
+  (`set_actor_rotation` in transazione). Dopo ogni `PlaceDevice` va riletta la rotazione.
+- Il personaggio guarda lungo l'asse avanti (+X) dell'attore: yaw attore 90 = sguardo verso +Y UE (il mare).
+- Per riattivarlo: `VisibleDuringGame` SÌ e, se serve, `EnableCharacterCollision` SÌ con `SetClassicDeviceOption`.
+- Ogni device crea un attore figlio `Character_Mannequin_C` (anteprima, ChildActor), che non conta fra gli attori di livello. Attori nel livello 379 → **381**.
+
+### B. Opzioni del Personaggio (`ListClassicDeviceOptions`, 21 opzioni)
+| Opzione | Valori | Note |
+|---|---|---|
+| `Character` (Personaggio) | **1316** costumi (1311 letti con filtri a 2 lettere; elenco nello scratchpad di sessione, non nel repo) | "Modificare quest'opzione avrà effetto sul consumo di memoria". Impostato **MATCH POINT** (`CID_468_Athena_Commando_F_TennisWhite`) |
+| `UseAnimatedIdle` | SÌ/NO | **SÌ**. Con NO usa la posa statica |
+| `Idle (Pose)` (statica, 25) | Gran fanfara 1/2, Afflitto, Balzo, Pollice in su, A testa alta, Dita a pistola, Corsa, Corsa con determinazione, Calcia la palla, Attenti!, Flessione, Mani a cuore, In ginocchio, Guarda lontano (Survey), Mani sui fianchi 1/2, Decolla, Pronto a lottare, Passo spavaldo, Fluttuante (+ guardando indietro), Saluta, Mani a stop, Segno della pace | pose ferme: escluse per richiesta dell'utente |
+| `Idle (Animated)` (18, **in loop**) | Grido (Cry), Evviva, Applauso, **Richiamo** (Hailing), **In attesa** (Waiting), **Standing_A**, **Standing_B**, **StandingLeaning_A/B** (appoggiato), **Seated_A/B** (seduto), **SeatedSleeping**, **SeatedCounter_A**, **SeatedCounterDrinking_A/B/C** (seduto al banco che beve), **Idle_SeatedFloor_A** (seduto per terra), **Idle_StandingCounter_A** (in piedi al banco) | impostato **Standing_A**. Una sola animazione per device: **nessuna rotazione o sequenza** fra più idle |
+| `RandomIdleStart` / `InitialIdleAnimationPosition` (0-100) | | **SÌ**: più personaggi con lo stesso idle non vanno a tempo |
+| `Synchronise Animation` | SÌ/NO | NO |
+| `Emote` (12, **non in loop**, parte con `PlayEmote`) | Siedi sulla sedia, Chitarra invisibile, Schianto terrestre, Cenno, Trombetta, Evviva, Applauso, **Cenno della testa**, **L'onda telefonica**, **Punto** (indica), **Scuoti la testa**, **Saluta** | da evento (binding o Verse), poi torna all'idle |
+| `CustomIdle` / `CustomEmote` | solo "Senza override" | nessuna emote del Locker selezionabile qui |
+| `InteractType` / `InteractText` / `InteractTime` | Non interagire / Invia solo evento | evento `OnInteractedWith` |
+| `VisibleDuringGame` | SÌ/NO | "influisce sulle proprietà di collisione" |
+| `EnableCharacterCollision`, `GenerateOverlapEvents` | SÌ/NO | |
+| `CharacterSlot` (0-19) | | lega il personaggio al Telecomando (D) |
+| `AutoRegisterWithBudgetAllocator`, `OnlyTickAnimationPoseWhenRendered` | SÌ/NO | budget di animazione: lasciati ai default (SÌ / NO) |
+| `UseLiveLink`, `Live Link Subject` | | solo editor, non utile |
+
+Binding del Personaggio: evento `OnInteractedWith`; funzioni `TurnOnVisibility`, `TurnOffVisibility`, `Enable`, `Disable`, `PlayEmote`.
+Verse (`character_device`): solo `Enable/Disable/Show/Hide/PlayEmote` e `InteractedWithEvent`: **da Verse non si cambia idle o costume**
+e il personaggio non si sposta (è fermo sul posto).
+
+**Costumi "civili" credibili** fra i 1316 (4 verificati in cattura, gli altri dal nome): MATCH POINT (tennista in bianco, scelto), OPAL
+(`Character_CasualCherie`, giovane in giacca verde, molto "Fortnite"), SPECIALISTA DELL'ABBRONZATURA (bagnino in costume, `CID_176`), MAESTRO DI SUSHI
+(cuoco, stilizzato), BIRDIE e varianti golf, SOCCORSO IN CORSA (bagnina), RECLUTA (16 varianti `rebirthdefault`; la A maschile è in tenuta militare
+con zaino, scartata), REYETTA (`cid_578 fisherman`). Nessun costume è "realistico": sono tutti personaggi stilizzati di Fortnite.
+
+### C. Movimento in editor
+- **In editor l'idle NON si anima.** 3 catture a ~1,3 s e 3 a ~2,7 s (`npc_prova_00..02`, `npc_prova_fronte_00..02`): fotogrammi identici;
+  posizione dell'osso `hand_r` identica in tutte. In editor si vede solo la posa di partenza: **il movimento si vede solo in gioco**
+  (da verificare in sessione).
+- Il costume si carica in modo asincrono: la prima cattura dopo il cambio (`npc_prova_00`) è vuota.
+- Le catture fuori schermo rispettano `VisibleDuringGame`: con NO il personaggio sparisce anche dalle catture (`npc_prova_finale_vicino`).
+
+### D. Telecomando dispositivi Personaggio (`PID_CP_Character_Device_Controller` e `_V2`, non piazzato)
+"Controlla gruppi di dispositivi Personaggio in base allo slot": opzioni Outfit, Pose, Backbling, EmoteIndex, AnimatedIdleIndex, CustomizationSlot
+(lette dall'asset `Character_Device_Controller_UserOptions`). Applica **lo stesso costume/idle/emote a tutti** i Personaggi con lo stesso
+`CharacterSlot` quando riceve un evento. Serve a cambiare in blocco (a un evento o a un timer); con più telecomandi e un timer si può simulare
+un cambio d'idle, ma **non è un sequencer di animazioni**.
+
+### E. Generatore di PNG (`PID_Device_AISpawner_Character`, piazzato per leggerne le opzioni)
+Opzioni classiche (13): `SpawnCount` 1-200, `SpawnThroughWalls`, `AllowInfiniteSpawn`, `TotalSpawnLimit` 1-100, `AllowExceedRecommendedSpawnLimit`,
+`SpawnOnTimer` / `SpawnTimer` 0-300 s, `ShowSpawnRadius` / `SpawnRadius` 1-50, `UseDeviceSpawnLocation`, `EnabledAtGameStart`, `DespawnAIsWhenDisabled`,
+`SpawnOnEnabled`. Binding: eventi `OnSpawnedWithRequestID`, `On Spawned`, `On Eliminated`; funzioni `Enable`, `Disable`, `Spawn`, `Despawn`, `Reset Total Spawn Count`.
+- **Aspetto e comportamento NON sono opzioni classiche**: stanno nei componenti `NPCCharacterDefinitionComponent.NPCCharacterDefinition` (vuoto)
+  e `NPCBehaviorScriptComponent.NPCBehaviorScript` (vuoto). Serve un asset **NPC Character Definition** (tipo Personalizzato / Guardia / Fauna;
+  modificatori in `/CRD_AISpawner/SpawnDefinitions/Modifiers/`: Cosmetic, Emotes, Movement, Navigation, PatrolPath, VerseBehavior…), da creare nel Content Browser.
+- Device collegati nel catalogo: `PID_CP_Devices_AIPatrolPath` (Percorso di pattuglia IA: nodi, `NodeReachedEvent`, `Assign(agent)`),
+  `PID_Device_GuardSpawner_V2`, `PID_Device_WildlifeSpawner(V2)`, `PID_CP_Devices_CrowdVolume` (folla da stadio), `PID_Device_Conversation`.
+- Verse (`Fortnite.digest.verse`): `npc_behavior` (OnBegin/OnEnd), `npc_actions_component.NavigateTo / Idle / Focus / MovementSpeedMultiplier`,
+  `guard_actions_component.RoamAround`, `play_animation_controller.PlayAndAwait(animation_sequence)` su `fort_character`, `npc_spawner_device.SpawnAt`.
+  Per un passante che cammina, si ferma, guarda il mare e riparte serve **un `npc_behavior` in Verse** (verse-dev); in alternativa il Percorso
+  di pattuglia senza Verse, ma il comportamento base del PNG personalizzato va verificato in sessione.
+- Le AgentSkill dell'editor (`ListSkills`, 33) non hanno nulla su NPC, navigazione o device Personaggio.
+- **Mesh di navigazione:** in editor non c'è un `NavigationSystem` (nessun dato nav: si genera in gioco), quindi non è verificabile da qui.
+  **Rischio trovato:** tutti i **133 HISM** del livello (camminamento, fascia palme, pontili, aiuole, arredi…) hanno `CanEverAffectNavigation = false`;
+  i 78 `FortStaticMeshComponent` (edifici, masselli, vialetti) e i device/barriere sì. Se la navmesh di UEFN rispetta il flag, sul
+  camminamento a lastre e sulla fascia palme **non ci sarebbe navigazione**: da verificare in sessione con un PNG prima di qualsiasi lavoro sui passanti.
+  Non modificato.
+
+### F. Catture (`docs/qa/`)
+`npc_prova_00..02.png` (lato mare, yaw iniziale 155: di profilo; la 00 vuota per il caricamento), `npc_prova_fronte_00..02.png` (di fronte, Recluta, identiche),
+`npc_prova_aspetto_{OPAL,MATCH_POINT,MAESTRO_DI_SUSHI,SPECIALISTA_DELLABBRONZATURA}.png`, `npc_prova_finale_vicino.png` (dopo `VisibleDuringGame` NO: vuoto),
+`npc_prova_finale_contesto.png` (dal camminamento: si vede l'anteprima del Generatore, solo editor).
+
+### G. Salvataggio e validazione
+- `save_dirty_packages` 00:28 (2 OFPA degli attori + 1 oggetto esterno). **0 pacchetti sporchi.**
+- `ValidateAssets` su `LaSpezia/` + mappa: **622/622 validi, 0 errori, 43 avvisi** (gli stessi del §45). `EditorValidatorSubsystem` sui 2 device: VALID.
