@@ -66,6 +66,11 @@ BUDGETS = (
     ("Palma", 10000),
     ("Bitta", 4000),       # prop
     ("Scaletta", 4000),    # prop
+    ("Parabordo", 1000),   # arredi minori imbarco (2026-11-20)
+    ("Cestino", 1000),
+    ("Rastrelliera", 1000),
+    ("Pontile", 4000),
+    ("Biglietteria", 4000),
     ("Banchina", 2000),    # modulo banchina
     ("Aiuola", 4000),      # prop (2026-11-19, kit pavimentazione)
     ("Panchina", 4000),    # prop

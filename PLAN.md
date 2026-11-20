@@ -510,7 +510,15 @@ Ordine per impatto visivo:
             (utente) conferma per eliminare i 33 temporanei di `LaSpezia/_Temp`
 - [~] (blender-artist) Arredi: lampione, panchina, cestino, parapetto
       2026-11-19: lampione, panchina v2, tombino e pensilina fatti (vedi kit pavimentazione v2). Restano cestino, rastrelliere, parapetto
-- [ ] (blender-artist) Battello turistico stilizzato, senza marchi reali
+      2026-11-20: cestino (252/126/37 tri), rastrelliera (768/346/114) e parabordo (58/28/8) fatti in `exports/imbarco/` (vedi sotto). Resta il parapetto
+- [x] (blender-artist) Battello turistico stilizzato, senza marchi reali — imbarco v1 2026-11-20, in Blender (da importare)
+      `blender/arte_imbarco.blend`, `blender/scripts/morin_imbarco.py`, texture `blender/textures/imbarco/` (atlante + legno 2048),
+      FBX `exports/imbarco/` (LOD0 con UCX, LOD1/2 con rotazione nei vertici), CSV `exports/imbarco/imbarco_posizioni_v1.csv` (22 righe).
+      `SM_Morin_Battello` 3.351/1.675/501 tri, 32,0 × 7,5 × 8,3 m, origine sulla linea di galleggiamento (Z −100), 19 UCX;
+      `SM_Morin_PontileImbarco` 1.240/620/185 tri, 7,1 × 28,6 m, 18 UCX; `SM_Morin_Biglietteria` 324/162/48 tri, 3,4 × 2,6 × 3,1 m.
+      Confronto `docs/qa/arte_imbarco_v1_confronto.png`
+      - [ ] (uefn-builder) import e posa da CSV (yaw 90 battello, 0,1241 pontile/biglietteria/parabordi), poi verifica in sessione
+      - [ ] (utente) conferma [S]: dimensioni del battello, quota impalcato −0,34, pali e non galleggianti, posizione della biglietteria
 - [~] (blender-artist) Pini, oleandri, aiuole della fascia verde (2026-11-19: oleandri ad alberello e panchina lunga fatti, vedi Giardini a Mare v1; pino domestico nel kit molo)
 - [x] (geo-scout) Scheda del fondale `ref/fondale.md` + dati `ref/dem/` (2026-11-19): Copernicus DEM GLO-30 (licenza verificata),
       griglia locale 30 m ±10 km, profili d'orizzonte da 4 punti, cime OSM, copertura CORINE per azimut, edifici OSM entro 1,2 km,

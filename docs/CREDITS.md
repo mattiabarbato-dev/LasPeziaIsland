@@ -158,3 +158,9 @@ Pianta del parcheggio e della corsia da OSM (© OpenStreetMap contributors, ODbL
 - `T_Banchina_Blocchi_N/ORM`: copie di `T_Banchina_Ciglio_N/ORM` (Poly Haven CC0, vedi sopra).
 - Ancora, scaletta v2, testate: nessuna texture nuova (riusano `T_Banchina_Ghisa_*`, `T_Banchina_Paramento_*`, `T_Banchina_Blocchi_*`).
 - `docs/qa/arte_banchina_v3_confronto_*.png` contengono la foto di riferimento accanto al render: file di QA, non vanno pubblicati.
+
+### Imbarco v1: battello, pontile, biglietteria, cestino, rastrelliera, parabordo (blender-artist, 2026-11-20) — `blender/textures/imbarco/`, `blender/scripts/morin_imbarco.py`
+- `T_Morin_Imbarco_{D,N,ORM}` (atlante 2048) e `T_Morin_Imbarco_Legno_{D,N,ORM}` (2048): **interamente procedurali** (numpy), nessuna foto né texture esterna.
+- Colori della livrea solo ispirati a `ref/foto/vista/parcheggio_iniziale.png` [SV] (bianco con fascia blu): nessun pixel copiato. Nome del battello di fantasia ("STELLA DEL GOLFO"), nessun marchio o livrea reale.
+- Scritte in geometria con il font predefinito di Blender (libero, incluso in Blender).
+- `docs/qa/arte_imbarco_v1_confronto.png` contiene una cattura Street View: file di QA, non va pubblicato.
