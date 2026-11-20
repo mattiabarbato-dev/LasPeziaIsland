@@ -164,3 +164,10 @@ Pianta del parcheggio e della corsia da OSM (© OpenStreetMap contributors, ODbL
 - Colori della livrea solo ispirati a `ref/foto/vista/parcheggio_iniziale.png` [SV] (bianco con fascia blu): nessun pixel copiato. Nome del battello di fantasia ("STELLA DEL GOLFO"), nessun marchio o livrea reale.
 - Scritte in geometria con il font predefinito di Blender (libero, incluso in Blender).
 - `docs/qa/arte_imbarco_v1_confronto.png` contiene una cattura Street View: file di QA, non va pubblicato.
+
+### Incrocio Viale Italia v1 e parcheggio v3 (blender-artist, 2026-11-20) — `blender/textures/incrocio/`, `blender/scripts/morin_incrocio.py`
+- `T_Incrocio_Props_{D,N,ORM}`, `T_Viale_Fiori_{D,N,ORM}`, `T_Fondale_EdificioVetrate_{D,N,ORM}` (1024): **interamente procedurali** (numpy), nessun pixel da foto.
+  Forme, colori e posizioni da `ref/foto/vista/vissta_entrata_parcheggio_e_passeggiata_da_viale_italia.png` [SV] e `parcheggio_iniziale.png` [SV] (solo riferimento).
+- Segnali stradali generici (Codice della strada, simboli pubblici); nessun nome o insegna del ristorante reale.
+- Planimetria dell'incrocio: © OpenStreetMap contributors (ODbL).
+- `docs/qa/arte_incrocio_v1_confronto.png` e `arte_parcheggio_v3_confronto.png` contengono catture Street View: file di QA, non vanno pubblicati.

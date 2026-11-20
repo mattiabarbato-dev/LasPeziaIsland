@@ -164,6 +164,21 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      Totale stimato texture del progetto **192-233 MiB** (prima 110-133), sotto la soglia di 245. Salvato, validazione 393/393. §21.
    - [ ] (utente/geo-scout) Verificare [S] del parcheggio: larghezza corsia (6,25), seconda fila a pettine dietro gli alberi, senso unico,
      posizione dei cartelli e dei new jersey, lampione a due globi affiancati (non modellato).
+   - [x] (blender-artist, 2026-11-20) **Incrocio Viale Italia / strada del molo / parcheggio v1 + parcheggio a pettine v3**
+     (foto `vissta_entrata_parcheggio_e_passeggiata_da_viale_italia.png`): `blender/arte_incrocio.blend` (copia di arte_parcheggio, molo
+     collegato), script `blender/scripts/morin_incrocio.py`, texture `blender/textures/incrocio/` (atlante prop 1024, fiori 1024 RGBA, edificio 1024,
+     procedurali). 28 FBX in `exports/incrocio/` + `exports/parcheggio/SM_Parcheggio_Asfalto_v2.fbx`. Tri LOD0/1/2: Dissuasore 182/130/54 (1 UCX),
+     Semaforo 214/104/54 (2 UCX), CartelloPrecedenza 56/50/14 (1), CartelloObbligoDestra 100/70/28 (1), Scooter 440/276/180 (2),
+     Viale_Spartitraffico_Fiori 82/58/46, Viale_Italia_Incrocio 256/254/128, Molo_DehorsVetrato 2.496/1.579/246 (7 UCX),
+     Fondale_EdificioVetrate 44/44/10; Viale_Incrocio_Marciapiede 27 (2 UCX); Parcheggio_Asfalto_v2 173 (6 UCX). CSV nuovi:
+     `exports/incrocio/incrocio_posizioni_v1.csv` (56), `exports/viale/viale_posizioni_v4.csv`, `exports/parcheggio/parcheggio_posizioni_v3.csv`
+     (fila lato città a pettine 60°, 18 auto; pini a Y 116,35). Confronti `docs/qa/arte_incrocio_v1_confronto.png`, `arte_parcheggio_v3_confronto.png`.
+     Risolve la nota "cordolo che attraversa l'innesto" e il primo piano a lastre X 10-20 / Y 114-118 (ora marciapiede in masselli).
+   - [ ] (uefn-builder) Import incrocio v1 + parcheggio v3: `Viale_Strada_SO_00` → mesh `SM_Viale_Italia_Incrocio`; nuovo `Viale_Strada_SO_m1`
+     (X −16); nascondere `Auto_065` del viale, `Molo_Tendone` (→ `SM_Molo_DehorsVetrato`), `Parcheggio_Asfalto` (→ `_v2`), le 9 auto
+     `ParkAuto_010`-`018` (→ `ParkAuto_Pettine_00-17`); spostare i 7 pini e `Cartello_P_01` come da CSV v3. `MI_Viale_Fiori` masked two-sided.
+   - [ ] (utente/geo-scout) Verificare [S] dell'incrocio: posizione del semaforo grande e dei cartelli (spartitraffico di fronte allo sbocco),
+     varco dello spartitraffico, dissuasori, angolo dei posti a pettine (60° o 90°), edificio con vetrate (area OSM 205843492).
    - [ ] (utente/geo-scout) Verificare [S]: sezione del viale (sosta lato giardini, spartitraffico, sosta lato città, strisce bianche o blu),
      senso di marcia, disegno delle aiuole di bosso, densità degli alberi dei Giardini pubblici.
    - [ ] (blender-artist → uefn-builder) Layout fascia palme **v4**: filari da X 20,4 (via le palme a X 12), tutto il resto −0,6 m,
