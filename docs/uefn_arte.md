@@ -2290,3 +2290,121 @@ e il suo `BP_FortWaterBodyCubeVolume_C`).
 - **(blender-artist)** blocco di `Arte_Fondale_Citta_E_01` con la base in acqua a X 1000-1014 m, Y Blender −478..−492 m.
 - **(blender-artist / utente, facoltativo)** opacità del vetro da texture: serve un parametro texture in `M_Morin_Master_Vetro`.
 - **(qa-tester)** In sessione: vetro del chiosco (traslucenza, interno visibile), nave e bordo dell'acqua a X 1314 m visti dal faro.
+
+## 38. Texture v2 realistiche e macro-variazione (2026-11-20, ~17:40 ora locale)
+
+Istruzioni: `docs/texture_v2.md`. Sorgenti `blender/textures/v2/*.png`. Nessuna texture v1 sovrascritta: cambiano solo i riferimenti nelle MI.
+
+### A. Valori PRIMA della modifica (per tornare indietro)
+Percorso radice `LaSpezia/Arte/`. Tutte le MI usano i parametri texture `BaseColor`, `Normal`, `ORM` (+ `Emissive` per le luci delle auto) con le
+texture `<cartella>/<nome>_D/_N/_ORM` indicate. Nessuna MI aveva override di `Roughness_Mult` (default del master 1,0) né di `UV_Tiling` (default 1,0).
+
+| MI (cartella) | Master | Texture v1 (prefisso) | Scalari / vettori con override |
+|---|---|---|---|
+| `MI_Pav_Lastre` (Pavimentazione) | Pav | `Pavimentazione/T_Pav_Lastre` | `Tile_m` 3,2 · `Tinta` (0,60; 0,56; 0,48; 1) |
+| `MI_Pav_Cubetti` (Pavimentazione) | Pav | `Pavimentazione/T_Pav_Cubetti` | `Tile_m` 3,2 · `Tinta` (0,62; 0,58; 0,52; 1) |
+| `MI_Pav_Fascia` (Pavimentazione) | Pav | `Pavimentazione/T_Pav_Fascia` | `Tile_m` 1,0 |
+| `MI_Banchina_Blocchi` (Banchina) | PBR | `Banchina/T_Banchina_Blocchi` | — |
+| `MI_Morin_Prato` (Viale) | PBR | `Viale/T_Morin_Prato` | — |
+| `MI_Morin_Prato_Mondo` (Viale) | Pav | `Viale/T_Morin_Prato` | `Tile_m` 4,0 |
+| `MI_Parcheggio_Asfalto` (Parcheggio) | PBR | `Parcheggio/T_Parcheggio_Asfalto` | — |
+| `MI_Molo_Asfalto` (Molo) | PBR | `Molo/T_Molo_Asfalto` | — |
+| `MI_MoloItalia_Cemento` (MoloItalia) | PBR | `MoloItalia/T_MoloItalia_Cemento` | — |
+| `MI_Molo_Scogliera` (MoloItalia) | PBR | `MoloItalia/T_Molo_Scogliera` | — |
+| `MI_Morin_Corten` (Blocco2) | PBR | `Blocco2/T_Morin_Corten` | — |
+| `MI_Ponte_Legno` (Ponte) | PBR | `Ponte/T_Ponte_Legno` | — |
+| `MI_Ponte_Acciaio` (Ponte) | PBR | `Ponte/T_Ponte_Acciaio` | — |
+| `MI_Morin_NewJersey` (Parcheggio) | PBR | `Parcheggio/T_Morin_NewJersey` | — |
+| `MI_Banchina_Paramento` (Banchina) | PBR | `Banchina/T_Banchina_Paramento` | — |
+| `MI_Morin_PalmaA_Tronco` (Palme) | PBR | `Palme/T_Morin_PalmaA_Tronco` | — |
+| `MI_Morin_PinoDomestico_Corteccia` (Alberi) | PBR | `Alberi/T_Morin_PinoDomestico_Corteccia` | — |
+| `MI_Albero_Latifoglia_Chioma` (Alberi) | PBR_Masked | `Alberi/T_Albero_Latifoglia_Chioma` | — |
+| `MI_Morin_Auto_v2` (Auto) | PBR | `Auto/T_Morin_Auto_v2` (D, N, ORM) | — |
+| `MI_Morin_Auto_v2_Luci` (Auto) | PBR_Emissive | `Auto/T_Morin_Auto_v2` (D, N, ORM) + `Auto/T_Morin_Auto_v2_E` | `Emissive_Intensita` 4,0 |
+
+Master prima della modifica: `M_Morin_Master_PBR` 10 espressioni (UV0 × `UV_Tiling` → BaseColor/Normal/ORM; BaseColor × `Tinta`; ORM.G × `Roughness_Mult`;
+ORM.R → AO, ORM.B → Metallic). `M_Morin_Master_Pav` 33 espressioni (UV da posizione mondo / `Tile_m`·100 con proiezione verticale, BaseColor × `Tinta`,
+ORM.G × `Roughness_Mult`; 8 nodi orfani non collegati, lasciati). Default: `UV_Tiling` 1, `Tile_m` 3,2, `Roughness_Mult` 1, `Tinta` bianco.
+Per tornare indietro: rimettere nelle MI i riferimenti e i valori della tabella e portare `Macro_Int` a 0 (il default).
+
+### B. Import (`LaSpezia/Arte/Texture_v2`, 54 texture, nomi nuovi, nessun reimport sulle v1)
+- `AssetImportTask` (automated, replace off) **una texture alla volta**; poi le impostazioni **una proprietà alla volta** con
+  `finish_all_asset_compilation` prima e dopo ogni `set_editor_property` (in Python `Texture2D` non ha `post_edit_change`; ogni set ricompila),
+  infine `TextureToolset.GetSize` > 32 prima della texture successiva (regola §29).
+- D: sRGB on, Default, **Compress Without Alpha on** (tranne `T_Albero_Latifoglia_Chioma_v2_D`: alfa conservata). N: Normalmap, sRGB off, nessun flip.
+  ORM e `T_Morin_MacroVar`: Masks, sRGB off. Tutte: gruppo World, LODBias 0, mip da gruppo.
+- Dimensioni lette: 4096 per `T_Pav_Lastre_v2`, `T_Pav_Cubetti_v2`, `T_Parcheggio_Asfalto_v2`, `T_Molo_Asfalto_v2`, `T_MoloItalia_Cemento_v2`,
+  `T_Ponte_Legno_v2`, `T_Ponte_Acciaio_v2` (7 set, 21 texture; il documento dice "nove set" ma ne elenca 7); 2048 per tutte le altre.
+- Controllo finale: **217/217 texture di `LaSpezia/` con GetSize > 32**; nessun `contains no miplevels` nel log.
+
+### C. Master: macro-variazione (`T_Morin_MacroVar`, coordinate mondo, 32 m)
+Aggiunti a `M_Morin_Master_PBR` e `M_Morin_Master_Pav` (gruppo `Macro`) 13 nodi ciascuno, formula di `docs/texture_v2.md`:
+`WorldPosition.xy / 3200` → `MacroVar` (TextureSampleParameter2D, sampler Masks, campionatore condiviso Wrap World) → R = M;
+BaseColor = (BaseColor × Tinta) × lerp(1, 2M, `Macro_Int`); Roughness = saturate(ORM.G × `Roughness_Mult` + (M − 0,5) × 0,3 × `Macro_Int`).
+`Macro_Int` default **0** (le MI che non lo impostano restano invariate). Nessun altro nodo toccato; i nodi orfani del Pav restano.
+Statistiche (`MaterialToolset.GetStatistics`, prima → dopo): PBR **213 → 225** istruzioni pixel, campioni 3 → 4, campionatori 3 → 4;
+Pav **213 → 225**, campioni 6 → 7, campionatori 3 → 4; vertex invariati. +12 istruzioni (+5,6 %): costo ragionevole. Compilazione senza errori
+(22 shader, nessun errore `LogMaterial`/`LogShaderCompilers`). Nota: anche le MI con `Macro_Int` 0 pagano il campione in più
+(niente static switch, per non creare permutazioni).
+
+### D. MI ricollegate (20: le 19 della tabella del documento + `MI_Morin_Auto_v2_Luci`)
+| MI | Texture | Tile_m / UV_Tiling | Roughness_Mult | Macro_Int | Altro |
+|---|---|---|---|---|---|
+| `MI_Pav_Lastre` | `T_Pav_Lastre_v2` | Tile_m **4,8** | 1,0 | 0,35 | `Tinta` → bianco (1; 1; 1) |
+| `MI_Pav_Cubetti` | `T_Pav_Cubetti_v2` | Tile_m **2,8** | 1,0 | 0,30 | `Tinta` → bianco |
+| `MI_Pav_Fascia` | `T_Pav_Fascia_v2` | Tile_m **2,0** | 1,0 | 0,25 | |
+| `MI_Banchina_Blocchi` | `T_Banchina_Blocchi_v2` | UV 1 | 1,0 | 0,25 | |
+| `MI_Morin_Prato` / `MI_Morin_Prato_Mondo` | `T_Morin_Prato_v2` | UV 1 / Tile_m 4 | 1,0 | 0,45 | |
+| `MI_Parcheggio_Asfalto` / `MI_Molo_Asfalto` | `T_Parcheggio_Asfalto_v2` / `T_Molo_Asfalto_v2` | UV 1 | 1,0 | 0,35 | |
+| `MI_MoloItalia_Cemento` | `T_MoloItalia_Cemento_v2` | UV 1 | 1,0 | 0,30 | |
+| `MI_Molo_Scogliera` | `T_Molo_Scogliera_v2` | UV 1 | 1,0 | 0,20 | |
+| `MI_Ponte_Legno` | `T_Ponte_Legno_v2` | UV 1 | 1,0 | 0,20 | |
+| `MI_Banchina_Paramento` | `T_Banchina_Paramento_v2` | UV 1 | 1,0 | 0,25 | |
+| `MI_Ponte_Acciaio` | `T_Ponte_Acciaio_v2` | UV 1 | **0,9** | 0 | |
+| `MI_Morin_Corten`, `MI_Morin_NewJersey`, `MI_Morin_PinoDomestico_Corteccia` | rispettive `_v2` | UV 1 | 1,0 | 0 | |
+| `MI_Morin_PalmaA_Tronco` | `T_Morin_PalmaA_Tronco_v2` | — | 1,0 | 0 | |
+| `MI_Albero_Latifoglia_Chioma` (Masked) | `T_Albero_Latifoglia_Chioma_v2` | — | 1,0 | (non nel master) | |
+| `MI_Morin_Auto_v2` | D/ORM `T_Morin_Auto_v3`, N `T_Morin_Auto_v2_N` | — | 1,0 | 0 | |
+| `MI_Morin_Auto_v2_Luci` (Emissive) | D/ORM `T_Morin_Auto_v3`, N ed E v2 | — | 1,0 | (non nel master) | `Emissive_Intensita` 4 invariato |
+
+Deroga annotata: `Tinta` di lastre e cubetti portata a bianco come chiede la tabella (`Tinta` 1): l'albedo v2 è già tarato, il vecchio
+(0,6; 0,56; 0,48) lo avrebbe scurito del 40 %.
+
+### E. Catture (`docs/qa/realismo_tex_00..09.png`, stessi punti e FOV del §35.D, 1024 px, ombre, `r.Streaming.FullyLoadUsedTextures 1`, doppio render con 8 s di attesa)
+Extra: `realismo_tex_extra_10.png` (asfalto del parcheggio dall'alto, pitch −40), `_11` (cubetti e fascia ravvicinati), `_12` (cubetti dell'incrocio).
+Confronto `docs/qa/realismo_tex_confronto.png`: a sinistra `realismo_luce_*` (texture v1), a destra `realismo_tex_*`; righe 01 pavimentazione,
+03 giardini, 06 ponte, 09 molo.
+- **Migliora:** cubetti finalmente porfido credibile (cubetti piccoli, ventagli più stretti, fughe scure, niente viola-bruno uniforme);
+  fascia e cordoli in pietra opaca invece di plastica bianca; cemento del Molo Italia sporco e senza griglia di piastrelle (09); scogliera con
+  massi rocciosi veri; asfalto del parcheggio senza i rettangoli scuri ripetuti, con macro-variazione morbida; corten con chiazze e colature (08);
+  New Jersey grigio cemento invece di bianco; tronchi delle palme più chiari; auto con riflessi della vernice.
+- **Scacchiera delle lastre:** resta una variazione di tono **per lastra** ben visibile (alcune lastre più scure, distribuite in modo regolare):
+  meno "macchia ripetuta" della v1, ma a 5-15 m si legge ancora come una scacchiera leggera. In più le lastre v2, senza la vecchia `Tinta` calda,
+  sono **più chiare e fredde (grigio-azzurro)** della v1 e della foto `pav_1.png`: da valutare con l'utente (rimedio rapido: `Tinta` ~(0,95; 0,92; 0,86)).
+- **Macchie d'olio lucide sull'asfalto:** nelle catture (anche quella ravvicinata extra_10, con sole radente) **non si vede nessun riflesso lucido**:
+  le macchie si percepiscono appena e l'asfalto da vicino è piuttosto uniforme e un po' morbido. Nessun difetto, ma nemmeno l'effetto cercato.
+- **Verde del prato:** non più lime: verde oliva più scuro e naturale (03); la macro-variazione a 0,45 dà chiazze molto morbide, ma a distanza il
+  prato resta abbastanza uniforme.
+- **Cubetti:** il miglioramento più netto. Difetti: in ombra virano al **lilla** (luce cielo fredda sulla tinta grigio-bruna) e con tile 2,8 m i
+  ventagli si ripetono in modo visibile sui piazzali larghi (extra_12).
+- **Invariato o quasi:** legno del ponte (06) quasi identico alla v1; acciaio del ponte poco diverso (già meno bruciato con la luce v1);
+  strisce pedonali con macchie bianco-grigie (texture non rifatta); paramento della radice del molo (07) ancora scuro e uniforme.
+- Attenzione: sono catture dell'editor (`RenderLevelPOVs`), non in gioco.
+
+### F. Salvataggio, validazione, memoria
+- `save_dirty_packages`: 76 pacchetti (54 texture, 2 master, 20 MI); su disco 76 `.uasset` con data 17:43:47; dopo il salvataggio
+  **0 pacchetti sporchi** (contenuti e mappe). Nessun attore toccato (352), nessuna sessione, nessuna cancellazione.
+- Validazione `LaSpezia/`: **784/784 validi, 0 errori, 57 avvisi** (i noti di `ValkyrieValidator_StaticMesh`); `ValkyrieValidator_Textures` 217, 0 avvisi.
+- Log: nessun errore di texture, materiali o shader; solo `LogEOSSDK` di sistema.
+- **Memoria texture a runtime (stima a mano, solo informativa, metodo §21):** texture v2 a piena risoluzione con mip (BC1 0,5 B/px per D e ORM
+  opachi, BC5 1 B/px per N, BC3 per la chioma, ×1,33): 7 set 4096 ≈ **299 MiB**, 10 set 2048 ≈ 109 MiB, auto v3 + MacroVar ≈ 8 MiB, **≈ 416 MiB**
+  in più se fossero tutte residenti. Le v1 sostituite restano nel progetto ma queste MI non le referenziano più. Lo streaming ne tiene residente
+  solo una parte e il budget di pubblicazione (300 MiB statici, §30) non conta i mip in streaming: rileggere "Budget memoria mappa" (sorgente
+  "Pubblica") dopo la prossima sessione dell'utente. Per ridurre: cemento del Molo Italia e asfalto del molo a 2048 (come suggerisce il documento).
+
+### Problemi aperti
+- **(utente)** Giudizio sulle catture: tono freddo e chiaro delle lastre (`Tinta`), lilla dei cubetti in ombra, ripetizione dei ventagli.
+- **(blender-artist, facoltativo)** Macchie d'olio dell'asfalto troppo deboli per sembrare lucide; legno del ponte quasi uguale alla v1;
+  strisce pedonali e paramento della radice del molo non rifatti.
+- **(qa-tester)** Verifica in sessione (esposizione automatica) e, dopo un riavvio dell'editor, che le 54 texture restino valide.
+- Le texture v1 restano nel progetto (nessuna cancellazione); eliminabili solo con conferma dell'utente.
