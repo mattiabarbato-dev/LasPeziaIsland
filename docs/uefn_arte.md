@@ -2216,3 +2216,77 @@ Deroga dalla proposta: azimut 241° invece di 250° ed elevazione 23° invece di
 - Salvato l'unico pacchetto sporco (attore esterno del device `.../__ExternalActors__/LasPezia_Island/4/I8/YS7RUD2FV4XAJUCMZN3Z7R`); dopo il salvataggio
   nessun pacchetto sporco (contenuti e mappe). `ValidateAssets` sul livello: 1 controllato, 0 errori, 0 avvisi.
 - Nessun attore creato o cancellato, nessuna sessione di gioco, nessun commit. Prove intermedie solo nella scratchpad.
+
+## 37. Chiosco ottagonale v3, nave da crociera v2, colline NE v3, acqua del Molo Garibaldi (2026-11-20, ~16:40-16:55 ora locale)
+
+Sorgenti: `exports/blocco2/SM_Morin_ChioscoOttagonale_v3*`, `exports/molo_italia/SM_MoloItalia_NaveCrociera_v2*` (+ `molo_italia_posizioni_v2.csv`),
+`exports/fondale/SM_Fondale_Colline_NE_v3*`, texture `blender/textures/blocco2/T_Morin_ChioscoOtt_v3_*` e `blender/textures/molo_italia/T_MoloItalia_NaveCrociera_v2_*`.
+Metodo §32/§33: LOD0 col nome finale via `ImportFile` (materiali/texture off), LOD1/2 come `_Temp/TMPB2V3_*`, `_Temp/TMPB3V3_*`, `_Temp/TMPF3_*`,
+`remove_lods` + `set_lod_from_static_mesh(..., True)`, MI assegnate con `StaticMesh.set_material`, Nanite off, Use Simple Collision As Complex, soglie
+1,0/0,2/0,08, temporanei MinLOD 0. Un cambio per chiamata MCP (una chiamata che creava due MI e le assegnava ha fatto cadere la connessione,
+ECONNRESET, nessuna modifica applicata; rifatta a passi con `MaterialInstanceToolset`). Nessun attore né asset cancellato; le mesh precedenti restano
+nel Content Browser.
+
+### Asset
+| Asset | Tri LOD0/1/2 | Bbox locale (uu) | Convessi | Slot → MI | MinLOD L/M |
+|---|---|---|---|---|---|
+| `Arte/Blocco2/SM_Morin_ChioscoOttagonale_v3` | 428 / 376 / 218 | X ±355,7 · Y ±355,7 · Z 0..384 (LOD1/2 identica) | 4 (UCX) | `MI_Morin_ChioscoOtt_v3`, `MI_Morin_ChioscoOtt_v3_Vetro` | 2 (come v2) |
+| `Arte/MoloItalia/SM_MoloItalia_NaveCrociera_v2` | 2170 / 1350 / 1281 | X ±15000 · Y ±1960 · Z −850..6100 | **0** (2 UCX rimossi: fondale, come la v1) | `MI_MoloItalia_NaveCrociera_v2` | 2 (come v1) |
+| `Arte/Fondale/SM_Fondale_Colline_NE_v3` | 7652 / 4082 / 1457 | come v2 | 0 (convesso automatico rimosso) | `MI_Fondale_Colline_NE` | 0 (come v2) |
+
+- **Insidia §22 di nuovo:** sezione 1 dei LOD1/2 del chiosco sullo slot 0 → `set_lod_material_slot(mesh, 1, lod, 1)`: sezioni [0,1] in tutti i LOD.
+- Texture (regola §29, una alla volta, LODBias 0, `GetSize` controllato): `Arte/Blocco2/T_Morin_ChioscoOtt_v3_D/N/ORM` 2048,
+  `T_Morin_ChioscoOtt_v3_Vetro_D` 512; `Arte/MoloItalia/T_MoloItalia_NaveCrociera_v2_D/N/ORM` 2048. N Normalmap senza flip, ORM Masks sRGB off,
+  D opache con "Compress Without Alpha" (§27). Vetro_N/ORM non importate (il master del vetro non ha texture).
+- **Vetro:** `MI_Morin_ChioscoOtt_v3_Vetro` su `M_Morin_Master_Vetro` (Translucent, Volumetric Directional) con override **Two Sided = falso**,
+  `Opacita` 0,28, `Colore` (0,30; 0,36; 0,38). Il master ha solo parametri scalari/vettore: la alpha di `T_Morin_ChioscoOtt_v3_Vetro_D` (macchie
+  chiare) **non è campionata**; la texture è importata ma non referenziata. Per l'opacità da texture serve un parametro texture nel master
+  (tocca anche `MI_Molo_Vetro`).
+- Log degli import: nessun avviso (né tangenti degeneri né normali nulle).
+
+### Posa (stessa cartella Outliner, nessun override di materiale)
+- `Arte_B2_ChioscoOttagonale` → v3, (55206, −10872, 15), yaw 0, `FortStaticMesh` invariato.
+- `Arte_B3_NaveCrociera` → v2, **(109466,41; 35323,52; −103), yaw 137,3163**, scala 1, No Collision. Bounds X 97111..121822 · Y 23713..46934 · Z −953..5997.
+- `Arte_Fondale_Colline_NE` → v3, (518000, 48000, 0), No Collision, senza ombre (invariati).
+- **Insidia nuova:** `StaticMeshComponent.set_static_mesh` e `set_actor_location` da Python **non marcano sporco il pacchetto OFPA**: dopo
+  `save_dirty_packages` i 3 attori non risultavano salvati. Corretto con `actor.modify()` + `component.modify()` e nuovo salvataggio
+  (file `__ExternalActors__/.../3/OG/WJ6C…`, `7/R6/TWRA…`, `7/WT/S8DG…` con data nuova). Controllare sempre la data dei file OFPA.
+
+### Acqua: `Acqua_Golfo_Device_B3_Garibaldi` (Outliner `Acqua`, copia di `_B3_Est`, stesse opzioni: sempre attivo, altezza 1, 100 %, Default)
+- Centro (114228, 30846, −484), larghezza **67** × profondità **97** → volume **X 97076..131380 · Y 6014..55678 · Z −484..−100**. Bordo comune con
+  `_B3_Est` (Y 6014..35198) e `_B3_Mare` (Y 35198..55678) a X 97076: fessura 0, sovrapposizione 0. Esteso fino a X 1314 m (non 1260) perché il
+  bacino del Molo Garibaldi, senza fondale, chiude solo a X ~1290-1310 m: un bordo a 1260 m lasciava un buco sul vuoto.
+- Fondale sotto il volume (rasterizzazione dei triangoli LOD0 a 2 m su X 960-1280 m e a 5 m fino a X 1520 m):
+  sotto lo scafo il fondale è a −3,9..−10 m (bacino nelle colline); attorno, terra di `Colline_NE`/`Colline_E` a **−0,85..−0,40 m**
+  (20-60 cm sopra l'acqua, come le banchine; solo 5 celle a −1,00..−0,95 m a X 1018-1026 m, Y 62 m, sul bordo sud).
+  Edifici di `Citta_NE_01`/`Citta_E_01` dentro il volume: tutti su terra sopra l'acqua, **tranne un blocco di `Arte_Fondale_Citta_E_01`** a
+  X 1000-1014 m, Y UE 478-492 m (Blender Y −478..−492), ~140 m² di impronta sulla scarpata a mare (terreno < −1 m): la base risulta in acqua.
+  Il volume non si può ritagliare lì (serve acqua fino a X ~1008 m alla stessa Y). **Conflitto segnalato a blender-artist.**
+- **Barriere invariate** (area non giocabile, oltre `Barriera_Acqua_LatoPiuX_B3`). Log: alla duplicazione lo stesso avviso
+  "TimelinePostUpdateFunc ... Unable to find function" del §34.
+
+### Verifiche
+- **Chiosco:** catture `docs/qa/uefn_chiosco_ott_v3_{E,S,O,N,SE}.png` (8-11 m, FOV 60, ombre; E = +X, S = +Y lato mare, O = −X, N = −Y lato città):
+  tutte le 8 pareti si vedono da fuori, nessuna trasparente o buia; dietro i 3 banconi vetrati si vedono scaffali e frigo; insegna e tettoia corrette.
+  Collisione: 24 trace orizzontali (8 direzioni × Z 60/200/330) → 23 sul chiosco (r 2,95 m), 1 su uno sgabello davanti.
+- **Nave:** `docs/qa/uefn_nave_v2_faro.png` (64300, 29300, 180; yaw 30; pitch 2; FOV 75), come `ref/foto/vista/faro_2.png`: nave a sinistra del faro,
+  parallela alla costa del Molo Garibaldi, sull'acqua. Rispetto alla foto appare ~1,5 volte più grande nell'inquadratura (punto di ripresa della
+  foto non noto con precisione).
+- **Colline NE v3, Blocco 2:** rasterizzazione a 1 m su X 330-580 m, lato mare (Y UE > −7900): nessun punto sopra l'acqua né sotto la superficie
+  che non sia coperto da suolo con collisione (radice del Molo Italia, piazzale), salvo 7 punti a −3,2..−4,7 m nello smusso X 549-554 m.
+  Catture `docs/qa/uefn_b2_acqua_fix.png` (passeggiata X 380, punto di `diag_b2_acqua_passeggiata_X380.png`), `uefn_b2_acqua_fix_X550.png`
+  (52000, −8300, 170; yaw 60), `uefn_b2_acqua_fix_alto.png` (42000, −1000, 36000; zenitale; FOV 70, come `diag_b2_acqua_alto.png`):
+  **le macchie verdi A e B sono sparite**. Restano rettangoli d'acqua leggermente più chiari lungo la banchina (fondo a −5 m in trasparenza), non verdi.
+
+### Salvataggio, validazione, log
+`save_dirty_packages`: **0 pacchetti sporchi** (contenuti e mappe); 19 asset nuovi + 4 OFPA salvati. Validazione `LaSpezia/`: **730/730 validi,
+0 errori, 57 avvisi** (i noti di `ValkyrieValidator_StaticMesh`). Log: nessun errore sul progetto (solo `LogEOSSDK` di sistema, l'avviso di timeline
+del device Acqua e due errori di una mia query con indice di sezione sbagliato, senza effetti). Attori nel livello: 350 → **352** (+device Acqua V2
+e il suo `BP_FortWaterBodyCubeVolume_C`).
+
+### Temporanei e problemi aperti
+- 6 nuovi temporanei `LaSpezia/_Temp/TMPB2V3_*`, `TMPB3V3_*`, `TMPF3_*` (LOD1/LOD2), nessun referencer; eliminabili con conferma dell'utente insieme a
+  `SM_Morin_ChioscoOttagonale_v2`, `SM_MoloItalia_NaveCrociera`, `SM_Fondale_Colline_NE_v2`, ora non usate.
+- **(blender-artist)** blocco di `Arte_Fondale_Citta_E_01` con la base in acqua a X 1000-1014 m, Y Blender −478..−492 m.
+- **(blender-artist / utente, facoltativo)** opacità del vetro da texture: serve un parametro texture in `M_Morin_Master_Vetro`.
+- **(qa-tester)** In sessione: vetro del chiosco (traslucenza, interno visibile), nave e bordo dell'acqua a X 1314 m visti dal faro.
