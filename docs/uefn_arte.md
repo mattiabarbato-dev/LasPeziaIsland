@@ -801,3 +801,65 @@ cinque set 1024 ≈ 13-17 MiB, segnaletica ≈ 0,8 MiB: **≈ 25-31 MiB** in pi�
 
 ### Temporanei
 16 `LaSpezia/_Temp/TMPV_<asset>_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente.
+
+## 19. Parcheggio iniziale v1, viale v2, blockout fondale v4 e passeggiata v5 (2026-11-20, 04:28-04:40 ora locale)
+
+Sorgenti: `exports/parcheggio/` (19 FBX), `exports/parcheggio/parcheggio_posizioni_v1.csv` (54 righe, coordinate UE), texture
+`blender/textures/parcheggio/`, `exports/viale/viale_posizioni_v2.csv` (167 righe), `exports/blockout/SM_Blockout_Fondale_v4.fbx`,
+`SM_Blockout_Passeggiata_Pav_v5.fbx`. Controllo iniziale: nessun asset né attore con questi nomi. Metodo del §13 (LOD0 col nome finale,
+LOD1/2 come `_Temp/TMPP_<asset>_LOD1/2` + `set_lod_from_static_mesh` dopo `remove_lods`). Tutti gli FBX hanno UCX: niente `remove_collisions`.
+
+### Asset
+| Asset | Cartella | Tri LOD0/1/2 | Bbox LOD0 (uu) | Convessi | Slot → materiale | MinLOD L/M |
+|---|---|---|---|---|---|---|
+| `SM_Parcheggio_Asfalto` | Arte/Parcheggio | 153 | X 2000..10600 · Y −12085..−10200 · Z 2..15 | 6 | Asfalto, Segnaletica, Fascia, Terra → `MI_Parcheggio_Asfalto`, `MI_Viale_Segnaletica`, `MI_Pav_Fascia`, `MI_Pav_Terra` | 0 |
+| `SM_Morin_CartelloP` | Arte/Parcheggio | 78 / 50 / 20 | X −5,5..3,6 · Y ±30 · Z 0..270 | 1 | `MI_Morin_Cartelli` | 2 |
+| `SM_Morin_CartelloDivieto` | Arte/Parcheggio | 154 / 94 / 48 | idem | 1 | `MI_Morin_Cartelli` | 2 |
+| `SM_Morin_NewJersey` | Arte/Parcheggio | 54 / 26 / 18 | X ±100 · Y ±30,5 · Z 0..81 | 1 | `MI_Morin_NewJersey` | 2 |
+| `SM_Morin_Auto_A/B/C_Col` | Arte/Parcheggio | 324 / 204 / 124 | come `SM_Morin_Auto_A/B/C` | 2 | `MI_Morin_Auto` | 2 |
+| `SM_Blockout_Fondale_v4` | Blockout | 397 (solo LOD0) | X −16388..33000 · Y −30000..30341 · Z −300..1948,5 | 41 | `M_Blockout_Fondale`, Verde → `MI_Morin_Prato_Mondo` (come v3) | 0 |
+| `SM_Blockout_Passeggiata_Pav_v5` | Blockout | 98 (solo LOD0) | X −1230..25000 · Y −11800..8980 · Z −300..5 | 10 | Verde → `M_Blockout_Verde`, Pietra → `MI_Pav_Lastre` (arrivava su `M_Blockout_Pietra`) | 0 |
+
+Tutti: Nanite off, Use Simple Collision As Complex, soglie 1,0 / 0,2 / 0,08 sugli asset con LOD. Texture (9, `Arte/Parcheggio`):
+`T_Parcheggio_Asfalto_*` 2048 [SV], `T_Morin_Cartelli_*` 512, `T_Morin_NewJersey_*` 1024 (N = Normalmap senza flip, ORM = Masks, sRGB off).
+MI nuove su `M_Morin_Master_PBR`: `MI_Parcheggio_Asfalto`, `MI_Morin_Cartelli`, `MI_Morin_NewJersey`. Nessun master nuovo.
+Avvisi d'import: tangenti degeneri / bi-normali nulle su NewJersey, CartelloDivieto e sui due blockout (innocui).
+
+### Posa (Outliner `Arte/Parcheggio`; HISM duplicati da `Arte_Arredi_Tombini` + `clear_instances`, attore singolo dal gazebo)
+| Attore | Mesh | Istanze | Collisione |
+|---|---|---|---|
+| `Arte_Parcheggio_Asfalto` (FortStaticMeshActor) | SM_Parcheggio_Asfalto | (0,0,0) | Query Only |
+| `Arte_Parcheggio_AutoA/B/C_Col` | SM_Morin_Auto_A/B/C_Col | 11 / 18 / 11 | Query Only (`FortStaticMesh`) |
+| `Arte_Parcheggio_CartelliP` / `_CartelliDivieto` | CartelloP / CartelloDivieto | 2 / 2 | Query Only |
+| `Arte_Parcheggio_NewJersey` | SM_Morin_NewJersey | 3 | Query Only |
+| `Arte_Parcheggio_LatifogliaA/B` | `Arte/Alberi/SM_Albero_LatifogliaA/B` (esistenti) | 3 / 3 | Query Only (area giocabile) |
+
+**Viale v2** (`Arte/Viale`, stessi HISM, confronto per posizione X/Y con tolleranza 1 uu): `Arte_Viale_Strada` +10 (17), `AutoA` +13 (26),
+`AutoB` +21 (34), `AutoC` +16 (31), restano senza collisione; `Arte_Viale_PalazzoB` istanza Palazzo_06 Z 0 → **115,4**. Tutti gli altri HISM
+del viale già uguali al CSV v2; nessuna istanza in più o duplicata.
+
+**Blockout:** `Blockout_Fondale_v4` (dup. della v3) e `Blockout_Passeggiata_v5` (dup. della v4), posa (0,0,0), Query Only.
+**`Blockout_Fondale_v3` e `Blockout_Passeggiata_v4` nascosti, non cancellati** (metodo §14). Attori nel livello: 122.
+
+### Verifiche (line trace in editor)
+- Griglia 50 uu su X 2000..9500, Y −11800..−10000 (5.587 punti), ignorando auto, cartelli, new jersey, alberi, palme, arredi:
+  asfalto **+2** (3.925), aiuola degli alberi +14 (Y −11350..−11650), fascia palme +15 e aiuole +17 a Y > −10200, ramo del molo +1
+  (X ≤ 2350), tassello del chiosco +15 a X 9500. **Nessun buco, nessuna superficie del blockout sopra il suolo, salto massimo 16 cm.**
+- Trace dall'alto su tutte le 53 istanze: colpite **53/53** (auto, cartelli, new jersey, tronchi). Sotto le 21 auto a pettine (Y ≈ −11925..−11945)
+  il suolo di collisione è `Blockout_Fondale_v4` a Z 0: gli UCX dell'asfalto finiscono a Y −11800 (voluto, barriera); la mesh visibile resta a +2.
+
+### Salvataggio, validazione, render
+`save_dirty_packages` 04:36:40 (21 asset + 19 pacchetti mappa/OFPA; 18 OFPA con data 04:36:40-41 su disco), nessun pacchetto sporco.
+Validazione `LaSpezia/`: 310 controllati, 310 validi, 0 errori, 12 avvisi (11 noti + "un solo LOD" su `SM_Blockout_Fondale_v4`, voluto).
+Log: solo tangenti degeneri, EOS, deprecazioni Python. Render `docs/qa/uefn_parcheggio_v1.png` (camera `CAM_Park_F1` di
+`morin_parcheggio.py`: Blender (21,5; 106,6; 2,12) az 82°, pitch −6°, FOV 78° → UE (2150, −10660, 212), yaw **−8**, pitch −6, FOV 78, 1024 px, ombre).
+Nota sulla conversione: per una camera Blender (rotX ~90°) la direzione di vista è (−sin rotZ, cos rotZ), quindi yaw UE = **−(rotZ + 90°)**
+(rotZ = −82° → −8°); la regola "yaw = −rotZ" darebbe +82°, cioè la camera girata verso il mare.
+
+### Temporanei e problemi aperti
+- 12 `LaSpezia/_Temp/TMPP_<asset>_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente.
+- **Fila a pettine dentro la barriera:** `Barriera_LatoCitta` (volume Y −12058..−11802, X −35..272 m) copre le 21 auto a pettine
+  (centri Y −11923..−11945) e l'asfalto oltre Y 118 m: in gioco la fila a pettine non è raggiungibile. Da decidere: spostare la barriera
+  (es. a Y ≥ 121 m solo davanti al parcheggio) o accettarlo.
+- **`NewJersey_00`** (6200, −8060) è sopra la bitta 3 di `Arte_Banchina_Bitte` (6200, −8052,7; alta 45 cm): la bitta sta dentro il new jersey.
+  Da correggere nel CSV in Blender (spostare il new jersey di ~0,5-1 m lungo X) o togliere la bitta.

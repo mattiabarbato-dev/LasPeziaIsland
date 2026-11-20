@@ -114,8 +114,10 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      `exports/blockout/SM_Blockout_Fondale_v4.fbx` (397 tri, prima 417; 41 UCX, prima 43; collezione `Blockout_Fondale_v4` in
      `blender/blockout_blocco1.blend`, backup `blockout_blocco1_pre_fondale_v4.blend`). CSV nuovo `exports/viale/viale_posizioni_v2.csv`
      (167 righe; v1 intatto). Tangenti degeneri: non toccate.
-   - [ ] (uefn-builder) Viale v2: posare le righe nuove del CSV v2 (`Viale_Strada_07..10`, `Viale_Strada_SO_00..05`, `Auto_041..090`) negli
-     HISM esistenti, Palazzo_06 a Z 115,4; importare `SM_Blockout_Fondale_v4` (slot Verde → `MI_Morin_Prato_Mondo`), nascondere `Blockout_Fondale_v3`.
+   - [x] (uefn-builder, 2026-11-20 04:28-04:40 ora locale) Viale v2 (`docs/uefn_arte.md` §19): HISM di `Arte/Viale` = CSV v2 (167 righe,
+     confronto per posizione): +10 moduli strada (17), +13/+21/+16 auto A/B/C (26/34/31, senza collisione), Palazzo_06 a Z 115,4; nessun duplicato.
+     `Blockout_Fondale_v4` posato (slot Verde → `MI_Morin_Prato_Mondo`), **`Blockout_Fondale_v3` nascosto** (non cancellato).
+   - [ ] (utente) Conferma per cancellare `Blockout_Fondale_v3` e `Blockout_Passeggiata_v4` (nascosti), le loro mesh e i 12 `TMPP_*` in `_Temp`.
    - [x] (blender-artist, 2026-11-20) **Parcheggio iniziale v1** (X 20-95 m, `ref/zona_parcheggio_chiosco.md` §1): `blender/arte_parcheggio.blend`
      (copia di arte_viale + molo e blockout v5 collegati), script `blender/scripts/morin_parcheggio.py`, texture `blender/textures/parcheggio/`
      (asfalto 2048 [SV], cartelli 512, new jersey 1024). 19 FBX in `exports/parcheggio/`, CSV `exports/parcheggio/parcheggio_posizioni_v1.csv`
@@ -126,9 +128,14 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      pettine Y ~119), 4 cartelli, 3 new jersey (Y 80,6), 6 latifoglie A/B (Y 115,1, aiuola rialzata). Nuovo blockout
      `exports/blockout/SM_Blockout_Passeggiata_Pav_v5.fbx` (98 tri, 10 UCX; tolte le aiuole a X < 94,5; sorgente `arte_pavimentazione.blend`,
      collezione `Blockout_Passeggiata_Pav_v5`, backup `arte_pavimentazione_pre_blockout_v5.blend`). Confronto `docs/qa/arte_parcheggio_v1_confronto.png`.
-   - [ ] (uefn-builder) Import parcheggio v1 + `SM_Blockout_Passeggiata_Pav_v5`: nascondere `Blockout_Passeggiata_v4`; materiali riusati
-     (`MI_Viale_Segnaletica`, `MI_Pav_Fascia`, `MI_Pav_Terra`, `MI_Morin_Auto` sulle `_Col`); latifoglie dal CSV con il loro UCX (sono nell'area
-     giocabile). Line trace: asfalto +0,02 continuo X 20-95, nessun salto > 15 cm fra ramo del molo (X 24), cubetti (+0,15) e asfalto.
+   - [x] (uefn-builder, 2026-11-20 04:28-04:40 ora locale) Import parcheggio v1 + `SM_Blockout_Passeggiata_Pav_v5` (`docs/uefn_arte.md` §19):
+     7 mesh in `Arte/Parcheggio` (Asfalto 153 · CartelloP 78/50/20 · CartelloDivieto 154/94/48 · NewJersey 54/26/18 · Auto_A/B/C_Col 324/204/124,
+     2 convessi), 9 texture, 3 MI nuove (`MI_Parcheggio_Asfalto`, `MI_Morin_Cartelli`, `MI_Morin_NewJersey`); 1 attore + 8 HISM in Outliner
+     `Arte/Parcheggio` (53 istanze, collisione Query Only come il resto). `Blockout_Passeggiata_v5` posato, **`Blockout_Passeggiata_v4` nascosto**.
+     Trace X 20-95 m / Y 100-118 m: asfalto +2, aiuola alberi +14, nessun buco, nessun blockout sopra, salti max 16 cm. Validazione 310/310,
+     0 errori, 12 avvisi (11 noti + "un solo LOD" sul Fondale_v4). Render `docs/qa/uefn_parcheggio_v1.png` (camera `CAM_Park_F1`).
+   - [ ] (orchestratore/utente) Problemi del parcheggio v1 (§19): fila a pettine (Y ~119) dentro `Barriera_LatoCitta` (Y 118,0-120,6);
+     `NewJersey_00` (6200, −8060) sopra la bitta 3 (6200, −8052,7).
    - [ ] (utente/geo-scout) Verificare [S] del parcheggio: larghezza corsia (6,25), seconda fila a pettine dietro gli alberi, senso unico,
      posizione dei cartelli e dei new jersey, lampione a due globi affiancati (non modellato).
    - [ ] (utente/geo-scout) Verificare [S]: sezione del viale (sosta lato giardini, spartitraffico, sosta lato città, strisce bianche o blu),
