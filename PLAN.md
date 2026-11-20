@@ -766,12 +766,20 @@ Ordine per impatto visivo:
             pitch 0, largo, circolo) e `marina_barche_v2.csv` (544 barche: 194 motoscafi, 111 gozzi, 82 gommoni, 74 Vela9, 45 `YachtB_v2`,
             38 `YachtA`; 57 di prua). Verifiche: distanza minima barca-pontile 0,40 m, barca-barca 0,32 m, verso +X corretto 544/544,
             0 barche nelle zone libere (battello, scalette, circolo, rotte). Catture `docs/qa/arte_marina_v1_*.png`.
-      - [ ] (uefn-builder) **Import e posa della marina v1**: importare i 68 FBX di `exports/marina/` (LOD0 con UCX, LOD1/LOD2 con `import_lod`;
-            i FBX incorporano l'atlante: importare `T_Morin_Marina_*` una volta sola e ricollegare `M_Morin_Marina`, D sRGB, N Normalmap,
-            ORM Masks). Barche: **Collision = No Collision** (nessuna collisione automatica). Pontili, passerelle, colonnine, largo, circolo:
-            collisione dagli UCX. Posa da `marina_pontili_v2.csv` e `marina_barche_v2.csv` (un HISM per asset; yacht di Mirabello riusati);
-            se le barche sembrano troppo basse alzare tutto da −103 a −100. Controllare memoria dopo l'import e percorrenza a piedi
-            dal ciglio fino in fondo ai fingers.
+      - [x] (uefn-builder, 2026-11-20) **Import e posa della marina v1** (`docs/uefn_arte.md` §39): 24 mesh in `LaSpezia/Arte/Marina`
+            (LOD1/2 da 44 temporanei `_Temp/TMPMA_*` con `set_lod_from_static_mesh`, sezioni ok, Nanite off, Simple as Complex, MinLOD L/M 2;
+            barche 0 convessi, pontili con i loro UCX), atlante `T_Morin_Marina_D/N/ORM` importato **una volta sola** (LODBias 0, GetSize 2048)
+            + `MI_Morin_Marina`; pontili e circolo usano le MI esistenti `MI_Morin_Imbarco(_Legno)`. Nessuna copia di texture/materiali.
+            Posa: 27 attori in `Arte/Marina/{Pontili,Arredi,Circolo,Barche,Yacht}`: **101 pezzi dei pontili + 544 barche** (461 nuove + 38 YachtA
+            + 45 YachtB_v2) dai CSV v2, barche a **Z −103** (scelta: a −100 la linea rossa emergerebbe di più), No Collision.
+            **+10 raccordi** (`Arte_Marina_Pontili_Raccordi`, Pontile12 scalato in X, Z −46) per buchi del layout: radici F1-F5 (17-57 cm dalla
+            spina), 4 gomiti (spina ×2, pontile esterno 2 ×2: lì la capsula cadeva in acqua), angolo del pontile a L. Verifiche: percorribile da
+            banchina a fondo di ogni finger, 0 cadute di capsula, gradini ≤ 3 cm, corsie ±60 cm libere; barche 0 colpi; scalette e battello liberi;
+            barriere invariate (perimetro a Y 30800). Validazione 856/856, 0 errori. Catture `docs/qa/uefn_marina_{banchina,finger,alto}.png`.
+      - [ ] (blender-artist) Marina: correggere nel CSV/generatore le radici dei fingers F1-F5 (staccate 17-57 cm dalla spina) e i gomiti
+            (spina X 150/Y −86 e X 195/Y −132; pontile esterno 2 due gomiti con 41-52 cm di distacco), angolo del pontile a L; poi togliere
+            `Arte_Marina_Pontili_Raccordi`. Facoltativo: un pezzo "giunto" dedicato invece del Pontile12 scalato.
+      - [ ] (qa-tester) Marina in sessione: passerelle, radici e gomiti raccordati, colonnine sui pontili, barche senza collisione.
       - [ ] (geo-scout) Dati [S] da confermare con foto (§7 della scheda): larghezze, galleggianti/fissi, verso delle barche, circolo.
 
 **Cancello 3:** nessun volume grigio visibile nel Blocco 1; il ponte è riconoscibile dalla partenza.

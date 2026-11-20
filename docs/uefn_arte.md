@@ -2427,3 +2427,100 @@ Confronto `docs/qa/realismo_tex_confronto.png`: a sinistra `realismo_luce_*` (te
 - Catture `docs/qa/realismo_tex_01c.png`, `_03c.png`, `_05c.png` (stessi punti del §35.D).
 - Salvato l'attore esterno del device (`__ExternalActors__/LasPezia_Island/4/I8/YS7RUD2FV4XAJUCMZN3Z7R`, data 17:52:40); 0 pacchetti sporchi;
   validazione `LaSpezia/` 784/784, 0 errori, 57 avvisi noti. Da confermare in sessione (esposizione automatica).
+
+## 39. Marina del Blocco 1 v1: pontili, passerelle, colonnine, circolo, 544 barche (2026-11-20, ~18:05-18:30 ora locale)
+
+Sorgenti: `exports/marina/` (68 FBX), `marina_pontili_v2.csv` (101 righe), `marina_barche_v2.csv` (544), texture `blender/textures/marina/`.
+Controllo iniziale: nessun asset né attore con questi nomi. Nessun attore esistente spostato, nascosto o cancellato. Nessuna sessione avviata.
+
+### Import (metodo §13/§22/§29)
+- LOD0 col nome finale in `LaSpezia/Arte/Marina` con `StaticMeshToolset.ImportFile` (materiali e texture **off**: l'atlante incorporato negli FBX
+  non è stato importato 68 volte), LOD1/2 come `_Temp/TMPMA_<asset>_LOD1/_LOD2` (44), `remove_lods` (di nuovo 3 LOD automatici) +
+  `set_lod_from_static_mesh(..., True)`, sezioni dei LOD controllate per nome di slot (nessuna da rimappare), Nanite off,
+  Use Simple Collision As Complex, soglie 1,0/0,2/0,08, MinLOD Low/Medium 2 sui 22 asset a 3 LOD, 0 su largo, circolo e temporanei.
+- Barche: `remove_collisions` (0 convessi). Pontili: UCX arrivati con l'import, nessun convesso automatico in più.
+- Texture **una sola volta** (`AssetImportTask`, una alla volta, attesa della compilazione dopo ogni proprietà, `GetSize` 2048 su tutte e 3;
+  nessun `no miplevels` nel log): `T_Morin_Marina_D` sRGB, Default, Compress Without Alpha; `_N` Normalmap senza flip; `_ORM` Masks sRGB off;
+  LODBias 0. `MI_Morin_Marina` su `M_Morin_Master_PBR` (BaseColor/Normal/ORM). Nota: l'attesa giusta in Python è
+  `unreal.AutomationUtilsBlueprintLibrary.finish_all_asset_compilation()` (non esiste `unreal.AssetCompilingManager`).
+- Slot: `M_Morin_Marina` → `MI_Morin_Marina` (barche, colonnina, circolo), `M_Morin_Imbarco` / `M_Morin_Imbarco_Legno` → MI esistenti di `Arte/Imbarco`
+  (pontili, passerella, largo, circolo). In `Arte/Marina`: 24 mesh, 3 texture, 1 MI. **Nessun duplicato** di texture o materiali.
+
+| Asset | Tri LOD0/1/2 | Bbox locale (uu) | Convessi |
+|---|---|---|---|
+| `SM_Morin_Barca_Gommone_{Grigio,Nero,Rosso}` / `_Prua` | 980 / 488 / 222 | X −320..266 (prua −272..315) · Y ±110 · Z −38..124 | 0 |
+| `SM_Morin_Barca_Gozzo_{FasciaAzzurra,FasciaVerde,Legno}` / `_Prua` | 718 / 454 / 200 | X −346..298 (prua −297..347) · Y ±115 · Z −42..180 | 0 |
+| `SM_Morin_Barca_Motoscafo_{TelaBlu,TelaBeige,Blu}` | 1.134 / 660 / 272 | X −465..366 · Y ±135 · Z −50..209 | 0 |
+| `SM_Morin_Barca_Vela9_{CoprirandaBlu,CoprirandaGrigio,Blu}` | 974 / 488 / 192 | X −488..455 · Y ±150 · Z −40..1300 | 0 |
+| `SM_Morin_Marina_Pontile12` | 246 / 98 / 58 | X 0..1200 · Y ±150,5 · Z −55..12 | 1 (X 0..1200, Y ±140, Z −55..0) |
+| `SM_Mirabello_Pontile_Col` | 248 / 248 / 48 | X 0..4800 · Y ±148 · Z −55..100 | 6 (calpestio + 5 colonnine 30 × 30 cm **in asse**, ogni 10 m) |
+| `SM_Morin_Marina_Passerella` | 204 / 188 / 92 | X −35..395 · Y ±140 · Z −58..103,5 | 3 (rampa + 2 corrimano) |
+| `SM_Morin_Marina_Colonnina` | 66 / 58 / 46 | X ±16 · Y −16..13 · Z 0..116 | 1 |
+| `SM_Morin_Marina_PontileLargo` | 998 | X 0..3470 · Y ±250 · Z −220..38 | 1 |
+| `SM_Morin_Marina_Circolo` | 862 | X ±850 · Y −800..650 · Z −220..700 | 5 |
+
+Bbox dei LOD1/LOD2 entro 5 uu dal LOD0 (Pontile12 LOD1/2 Y ±148 contro ±150,5). Triangoli = PLAN.
+
+### Posa (Outliner `Arte/Marina/<gruppo>`)
+HISM duplicati: pontili da `Arte_Arredi_Tombini` (`FortStaticMesh`, Query Only), barche da `Arte_Mirabello_YachtA` (Custom, No Collision);
+singoli da `Arte_Arredi_Gazebo`; `clear_instances`, poi `Rotator(roll, pitch, yaw)` dal CSV. Tutti Static.
+
+| Attore | Mesh | Istanze |
+|---|---|---|
+| `Arte_Marina_Pontili_PontileCol` / `_Pontile12` / `_Passerelle` | Pontile_Col / Pontile12 / Passerella | 22 / 46 / 3 |
+| `Arte_Marina_Arredi_Colonnine` | Colonnina | 28 |
+| `Arte_Marina_PontileLargo`, `Arte_Marina_Circolo` (singoli) | Largo (12690, −8008,7, 0) yaw 89,67 · Circolo (16100, −7200, 0) yaw 0 | 1 + 1 |
+| `Arte_Marina_Barche_<Tipo>_<Variante>[_Prua]` (18 HISM, cartella `Barche`) | barche | 461 |
+| `Arte_Marina_Yacht_YachtA` / `_YachtB_v2` (cartella `Yacht`) | `Arte/Mirabello/SM_Mirabello_YachtA` / `_YachtB_v2` (riusati) | 38 / 45 |
+| `Arte_Marina_Pontili_Raccordi` (vedi sotto) | Pontile12 scalato in X | 10 |
+
+Totale: 101 pezzi del CSV + 544 barche + 10 raccordi. Attori nel livello 352 → **379**.
+- **Quota delle barche: −103** (CSV). Nelle catture ravvicinate il fondo rosso antivegetativa emerge già di ~10 cm; a −100 emergerebbe di più,
+  quindi resta −103 (gli yacht di Mirabello restano a −100).
+- **Verso "+X = prua":** viste dall'alto di YachtA e YachtB_v2: prua in +X, poppa sul pontile. Controllo su tutte le 544 (trace orizzontali a Z −70
+  in avanti e indietro fino al pontile): le 487 normali hanno la poppa verso il pontile, le 57 `_Prua` la prua: **544/544 coerenti** col CSV.
+
+### Raccordi (deroga di posa, da sostituire con la correzione del CSV)
+Line trace a griglia (fascia ±1 m dall'asse di ogni pontile) + "caduta" di una capsula r 34 / hh 88 sui punti senza pavimento: con i soli pezzi
+del CSV c'erano **buchi veri**: radici dei fingers F1-F5 staccate dal fianco della spina di **57 / 46 / 39 / 23 / 17 cm** (la spina devia di 0,28°
+e il CSV mette le radici a X 152-153 m); gomiti della spina (UE 15030, 8600 e 19550, 13200: tacche triangolari fino a 1 m sul bordo esterno,
+capsula sostenuta) e del pontile esterno 2 (UE 19600, 21284 e 21375, 22956: distacco 52 e 41 cm + tacca, **la capsula cadeva in acqua**);
+angolo del pontile a L (quadrato 2,8 × 1,4 m mancante). Aggiunti 10 pezzi `SM_Morin_Marina_Pontile12` in un HISM a parte,
+**Z −46** (1 cm sotto il calpestio, come le sovrapposizioni del CSV), scala X = lunghezza / 12 m: radici 0,37-0,77 m lungo l'asse del finger
+(da 10 cm dentro la spina a 10 cm dentro il finger), gomiti 1,3-2,0 m sulla bisettrice, angolo L 2,9 m. Nei gomiti i pezzi sporgono di
+pochi cm dal bordo (≤ 12 cm sugli UCX). La correzione vera va fatta nel generatore (segnalata); poi l'HISM si toglie.
+
+### Verifiche (line trace e sweep in editor)
+- **Percorrenza** (15 catene: spina, esterno, esterno 2, F1-F8, L gamba/testa/ramo, NE; partenza dalla banchina a Y −8400 per spina, L e NE):
+  griglia 10 cm, 311.002 punti: nessun buco salvo le linee di giunzione fra moduli (strisce di 1 campione, larghezza 0) e punti oltre le
+  testate; **0 cadute di capsula**, abbassamento massimo della capsula 3 cm (radice F7). Gradini fra campioni a 10 cm: **max 3,1 cm**
+  (passerella: Z 0 sul ciglio → −45 in 3,9 m, continua); raccordi −46 contro −45.
+- **Sweep di capsula** (r 34, hh 88, 20 cm sopra il pavimento, passo 10 cm) su corsie a ±60 cm dall'asse: **0 blocchi** dalla banchina alla
+  punta di ogni finger. In asse la capsula urta le colonnine centrali del `Pontile_Col` (30 × 30 cm ogni 10 m) e le `Colonnine`: si passa di lato.
+- **Barche:** 3.264 trace verticali (canali Visibility e Camera, 3 punti per barca): **0 colpi**.
+- **Zone libere** (OBB delle istanze contro le zone del generatore): specchi davanti alle scalette X 92/140/188 (±4 m, Y 66-82 Blender)
+  **liberi**; zona del battello X 55-90 m: nessuna barca; vi entrano solo le punte OSM del pontile a L (testa fino a X 89,4 m, ramo 88,9 m), 0,5-1,1 m.
+- **Barriere: invariate.** Lato mare del Blocco 1 = `Barriera_Acqua_LatoMare` (X −17600..28480) + `Barriera_Acqua_LatoMare_B2` (X 27340..58060),
+  entrambe Y 30800..31056, sovrapposte per 1140 uu: nessun varco. I pontili arrivano al massimo a Y +23118 (esterno 2, Blender −231 m), 77 m dentro.
+  Nessun'altra barriera interseca l'impronta della marina (X 8800..31700, Y −8100..23200). `Acqua_Golfo_Device` arriva a X 33850, Y 30844: copre tutto.
+
+### Salvataggio, validazione, log, memoria
+`save_dirty_packages` 18:11 (68 asset), 18:13 (27 OFPA + 5 external object delle cartelle), raccordi su disco 18:20; poi **0 pacchetti sporchi**;
+date dei 27 `.uasset` in `__ExternalActors__` controllate su disco. Validazione `LaSpezia/`: **856/856 validi, 0 errori, 80 avvisi** = 57 noti +
+"un solo LOD" su largo, circolo (pezzi unici) e sui 21 temporanei `TMPMA_*_LOD1` delle barche. Log: nessun errore sul progetto (solo
+`LogAudioMixer` di sistema e deprecazioni Python di `TraceTypeQuery`). Memoria texture: +1 set 2048 D/N/ORM ≈ **+10,7 MiB** con i mip.
+Una chiamata MCP con 6 HISM in un colpo ha fatto cadere la connessione (ECONNRESET, nessuna modifica applicata): rifatta a 2 HISM per chiamata (§34).
+
+### Catture (`docs/qa/`, 1024 px, ombre, `r.Streaming.FullyLoadUsedTextures 1`, doppio render)
+- `uefn_marina_banchina.png`: (30000, −8100, 170), yaw 173,5, pitch −0,2, FOV 64. **Nota:** con la camera Blender `CAM_Mar_Banchina` (X 282 m)
+  l'ancora del monumento sta accanto alla camera; l'inquadratura di `arte_marina_v1_banchina_confronto.png` (pontile NE con passerella a sinistra,
+  ancora ~15 m avanti, circolo in fondo) torna con la camera a **X 300 m**: usata questa.
+- `uefn_marina_finger.png`: (15600, −1880, 120), yaw 0,8, pitch −1,6, FOV 70 (sul finger F3 verso la punta).
+- `uefn_marina_alto.png`: (7500, −17500, 11000), yaw 56,3, pitch −29, FOV 62.
+
+### Temporanei e problemi aperti
+- 44 `LaSpezia/_Temp/TMPMA_*_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente.
+- **(blender-artist)** Correggere nel generatore le radici dei fingers, i 4 gomiti e l'angolo del pontile a L (vedi Raccordi), poi togliere
+  `Arte_Marina_Pontili_Raccordi`.
+- **(blender-artist, verifica)** `CAM_Mar_Banchina` dello script (X 282) non corrisponde all'immagine di confronto (sembra X ~300).
+- **(qa-tester)** In sessione: passerelle, raccordi, colonnine in asse sui `Pontile_Col`, barche senza collisione, acqua attorno ai pontili.
