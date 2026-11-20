@@ -284,3 +284,21 @@ scaricate in `blender/textures/src/<asset>/`:
 - Geometria dei pontili e posizioni: OSM (© OpenStreetMap contributors, ODbL), ways in `ref/marina_blocco1.md` §2.
 - `SM_Morin_Marina_Pontile12`, `_PontileLargo`, `_Passerella`, `SM_Mirabello_Pontile_Col`: riusano le texture già elencate di
   `M_Morin_Imbarco` / `M_Morin_Imbarco_Legno` (procedurali).
+
+## Texture v3 (2026-11-20)
+`blender/textures/v3/` (`blender/scripts/morin_texture_v3.py`, elenco in `docs/texture_v3.md`). Sorgenti **Poly Haven, CC0** già elencate
+nella sezione Texture v2: `wood_planks_grey` → `T_Ponte_Legno_v3`; `asphalt_04` → `T_Viale_Segnaletica_v2`; `patterned_cobblestone` →
+`T_Pav_Cubetti_v3`; `T_Morin_Prato_v3` deriva da `T_Morin_Prato_v2` (`leafy_grass`, CC0, più procedurale); `T_Morin_Prato_MacroVar` procedurale.
+Foto dell'utente (`ref/foto/ponte/ponte1.png`, `ponte_verso_passegiata.png`) usate **solo** come riferimento per la disposizione delle doghe
+e delle borchie e per la tinta: nessun pixel copiato, nessuna texture [SV].
+
+## Ristorante dell'edificio C e dehors a righe (2026-11-20) — `blender/textures/molo/`, `blender/scripts/morin_ristorante_c.py`
+- `T_Molo_RistoranteC_D/N/ORM` (2048, atlante 8 × 8 m) e `T_Molo_TendaRighe_D/N/ORM` (1024): **interamente procedurali** (intonaco, finestra a
+  griglia, porte-vetrate, vano del bancone con bottiglie generiche, lavagna con scarabocchi illeggibili, tasselli di legno, metallo, sedute,
+  tela bianca e righe blu-bianche). Nessun pixel di foto: `ref/foto/vista/strada_cheProsegue_verso_il_ponte.png` (cattura Street View, F3)
+  usata solo per forme, proporzioni e colori; niente UI, persone, targhe, loghi né il testo della lavagna reale. Nessuna marca [SV].
+- Insegna con **nome inventato**: "AL MUSCOLO STANCO" (scherzo su *muscoli* = cozze in spezzino), lettere in rilievo dal font incorporato in
+  Blender. Nessun nome o marchio del ristorante reale.
+- Riusi: fogliame `M_Albero_Latifoglia_Chioma` (procedurale, già elencato) per le piante sul tetto; fronde `T_Morin_PalmaA_Fronde` (già elencate)
+  per `SM_Molo_PalmaVaso`; fioriere `SM_Morin_Fioriera/B/C` e palma `SM_Morin_PalmaA` solo come istanze nel CSV.
+- Pianta dell'edificio: OSM way 205840540 (© OpenStreetMap contributors, ODbL).

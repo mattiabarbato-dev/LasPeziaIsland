@@ -77,3 +77,7 @@ senza i rettangoli scuri ripetuti.
 4. Memoria: nove set 4096 (~27 texture da 4k) pesano ~350-450 MB in VRAM compressi con le mip: controllare "Dimensioni del progetto"
    dopo l'import. Se serve, scendere a 2048 per cemento e asfalto del molo (meno vicini all'occhio).
 5. Catture `RenderLevelPOVs` agli stessi 10 punti del §35.D per il confronto in gioco.
+
+## Seguito: texture v3 (2026-11-20)
+Legno del ponte, segnaletica, cubetti e prato sono stati rifatti in `blender/textures/v3/`: vedi `docs/texture_v3.md` (nuovi parametri MI
+per `MI_Ponte_Legno`, `MI_Viale_Segnaletica`, `MI_Pav_Cubetti`, `MI_Morin_Prato`, `MI_Morin_Prato_Mondo`).

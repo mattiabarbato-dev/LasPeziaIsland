@@ -33,7 +33,25 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      gazebo fra 2ª e 3ª palma (X ≈ 33,9); dehors completi; auto ignorate. D3, D5-D7 (foto) aperte: si procede con le stime.
    - [~] (blender-artist) Tranche 1: pavimenti (asfalto, masselli, angolo cubetti), edifici A1A2/A3/A4A5/C, tendone, lampione 2 globi,
      latifoglie A/B, pino domestico → `blender/arte_molo.blend`, `exports/molo/`.
-   - [ ] (blender-artist) Tranche 2: dehors (tavolini, sedie, ombrelloni, tettoie a righe), fioriere, Sirena stilizzata, lampioni alti, piccoli prop.
+   - [~] (blender-artist) Tranche 2: dehors (tavolini, sedie, ombrelloni, tettoie a righe), fioriere, Sirena stilizzata, lampioni alti, piccoli prop.
+     Fatto il dehors del ristorante C (sotto); restano i dehors della fila A, Sirena, lampioni alti, piccoli prop.
+   - [x] (blender-artist, 2026-11-20) **Ristorante dell'edificio C v2 + dehors a righe** (`blender/scripts/morin_ristorante_c.py`, `blender/arte_molo.blend`
+     collezioni `MOLO_C_Kit` / `MOLO_C_Contesto`; texture `blender/textures/molo/T_Molo_RistoranteC_*` 2048 e `T_Molo_TendaRighe_*` 1024). 18 FBX in
+     `exports/molo/` (LOD0 con UCX, LOD1/LOD2 con `bake_rotation`), posa `exports/molo/molo_posizioni_v2.csv` (32 righe, coordinate UE).
+     Tri LOD0/1/2 e misure: `SM_Molo_Edificio_C_v2` 1.940/773/316 (4,84 × 17,52 × 4,85 m; finestre a griglia, porte-vetrate, vano del bancone,
+     porta di servizio, copertina, canna fumaria, 3 clima, sfiati, 4 fioriere con verde sul tetto e verde che ricade, applique, pluviali,
+     insegna "AL MUSCOLO STANCO"); `SM_Molo_DehorsRighe` 768/340/162 (3,39 × 12,22 × 3,04; 4 campate, tela bianca con mantovana a righe,
+     prima campata nord bianca come in F3, tende laterali raccolte); `SM_Molo_SetLegno` 416/288/92 (1,2 × 1,72 × 0,86; tavolo + 4 sedie a
+     sedute colorate); `SM_Molo_OmbrelloneLegno` 340/228/92 (Ø 2,77 × 2,92); `SM_Molo_CavallettoMenu` 68 (0,7 × 0,41 × 1,09);
+     `SM_Molo_PalmaVaso` 406/258/162 (2,61 × 2,49 × 3,46). Bbox dei LOD entro lo 0,6 %; normali verificate con ray test dall'esterno
+     (0 facce rovesciate; restano 1-3 impatti radenti sulle mantovane doppie), nessun ricalcolo globale. Confronto `docs/qa/arte_ristorante_c_v2.png`
+     (foto F3 | render dalla camera F3 | vista ravvicinata). Deroghe e stime nel log decisioni (dehors sulla strada come in foto, corridoio ≥ 8,5 m).
+   - [ ] (uefn-builder) **Import ristorante C v2**: le 6 mesh × 3 LOD (metodo §12: ImportFile in `_Temp` + `set_lod_from_static_mesh`), texture
+     `T_Molo_RistoranteC_*` e `T_Molo_TendaRighe_*` (D sRGB, N Normalmap, ORM Masks) con `MI_Molo_RistoranteC` e `MI_Molo_TendaRighe` su
+     `M_Morin_Master_PBR` (macro 0); slot fogliame → `MI_Albero_Latifoglia_Chioma`, fronde → `MI_Morin_PalmaA_Fronde`. Posa dal CSV v2: edificio e
+     dehors in (0,0,0); HISM per `SM_Molo_SetLegno` (10), `SM_Molo_OmbrelloneLegno` (4), `SM_Molo_PalmaVaso` (7), fioriere del chiosco (5),
+     `SM_Morin_PalmaA` (3); cavalletto singolo. **Nascondere** (non cancellare) l'attore di `SM_Molo_Edificio_C` v1. Verificare: nessun
+     oggetto nel corridoio X −2,3 → 7,4 fra Y 12 e 42, imbocco del ponte libero, collisioni di montanti/tettoia/tavoli, normali in scena.
    - [x] (blender-artist, 2026-11-19) **Chiosco-bar + dehors v1** (scheda `ref/zona_parcheggio_chiosco.md` §3): `blender/arte_chiosco.blend`
      (contesto CTX_Contesto *linkato* da arte_molo.blend), script `blender/scripts/morin_chiosco.py`, texture `blender/textures/chiosco/`
      (2 atlanti 2048 D/N/ORM), 22 FBX in `exports/chiosco/` + `chiosco_posizioni_v1.csv` (39 righe, coordinate UE, quota Z 15 uu).
@@ -54,7 +72,7 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      (42 righe) in Outliner `Arte/Chiosco`: 2 attori singoli + 6 HISM (ombrelloni 4, tavoli 9, sgabelli 5, fioriere 8/7/7).
      `Blockout_Passeggiata_v3` posato; **`Blockout_Passeggiata_v2` nascosto** (non cancellato: serve la conferma diretta dell'utente).
      Line trace: nessuna aiuola sopra il tassello, suolo continuo. Render `docs/qa/uefn_chiosco_v2.png`, `uefn_chiosco_v2_b.png`.
-   - [ ] (utente) Conferma per cancellare l'attore `Blockout_Passeggiata_v2` e l'asset `SM_Blockout_Passeggiata_Pav_v2`; pulizia dei 18 `TMPC_*` in `_Temp`.
+   - [x] (utente) Conferma per cancellare l'attore `Blockout_Passeggiata_v2` e l'asset `SM_Blockout_Passeggiata_Pav_v2`; pulizia dei 18 `TMPC_*` in `_Temp`. Fatto: cancellati il 2026-11-20 con conferma dell'utente (`docs/uefn_arte.md` §41).
    - [ ] (qa-tester) Prova in sessione del dehors: gradino del tassello (+15), passaggio fra tavoli e fioriere, collisione degli ombrelloni.
    - [x] (blender-artist, 2026-11-19) **Giardini a Mare v1: oleandri ad alberello + panchina lunga** (scheda `ref/zona_parcheggio_chiosco.md` §4,
      foto `prato con alberelli.png`): `blender/arte_giardini.blend` (copia di arte_chiosco.blend, contesto linkato), script
@@ -80,7 +98,7 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      `_OleandriRosa` 11, `_Panchine` 29 (solo CSV Blocco 1). `Blockout_Passeggiata_v4` posato, **`Blockout_Passeggiata_v3` nascosto**
      (non cancellato). Line trace X 117-250 m: suolo continuo (prato +5, fascia +15), nessuna siepe, panchine su fascia +15.
      Validazione 222/222, 0 errori, 10 avvisi noti. Render `docs/qa/uefn_giardini_v2.png`, `_b.png`.
-   - [ ] (utente) Conferma per cancellare gli attori nascosti `Blockout_Passeggiata_v2`/`_v3`, le loro mesh e i 6 `TMPG_*` in `_Temp`.
+   - [x] (utente) Conferma per cancellare gli attori nascosti `Blockout_Passeggiata_v2`/`_v3`, le loro mesh e i 6 `TMPG_*` in `_Temp`. Fatto: cancellati il 2026-11-20 con conferma dell'utente (`docs/uefn_arte.md` §41).
    - [ ] (qa-tester) Prova in sessione: panchina lunga (sedersi/saltarci), passaggio tra gli oleandri, gradino fascia +15 → prato +5.
    - [ ] (geo-scout/utente) Disposizione delle aiuole geometriche con bordura di bosso nel prato (foto in pianta o vista aerea), poi
      `SM_Morin_BorduraBosso_Mod` (blender-artist).
@@ -106,7 +124,7 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      senza collisione. Slot Verde di `SM_Blockout_Fondale_v3` su **`MI_Morin_Prato_Mondo`** (proiezione mondo: le UV del blockout sono nulle).
      Trace: prato +8 continuo su X 117,5-250 m / Y 102-118 m. Validazione 278/278, 0 errori, 11 avvisi (10 noti + "un solo LOD" sul Fondale_v3).
      Render `docs/qa/uefn_viale_v1.png` (camera F1).
-   - [ ] (utente) Conferma per cancellare `Blockout_Fondale_v2` (nascosto), la sua mesh e i 16 `TMPV_*` in `_Temp`.
+   - [x] (utente) Conferma per cancellare `Blockout_Fondale_v2` (nascosto), la sua mesh e i 16 `TMPV_*` in `_Temp`. Fatto: cancellati il 2026-11-20 con conferma dell'utente (`docs/uefn_arte.md` §41).
    - [x] (blender-artist, 2026-11-20) **Correzioni Viale v1** (decisioni.md 2026-11-20): (1) palazzi X 330/357,5 e latifoglia X 333 stanno già
      sul terreno `SM_Fondale_Colline_N` (Z 0..+1,29 sotto le impronte, ray test): nessun suolo nuovo, Palazzo_06 (B) alzato a Z +1,154 m;
      (2) strada +4 moduli a NE (X 250-326) e +6 a SO (X 3-117, davanti al parcheggio), +50 auto in sosta; (3) il "cubo bianco" è l'isola/UCX
@@ -117,7 +135,7 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
    - [x] (uefn-builder, 2026-11-20 04:28-04:40 ora locale) Viale v2 (`docs/uefn_arte.md` §19): HISM di `Arte/Viale` = CSV v2 (167 righe,
      confronto per posizione): +10 moduli strada (17), +13/+21/+16 auto A/B/C (26/34/31, senza collisione), Palazzo_06 a Z 115,4; nessun duplicato.
      `Blockout_Fondale_v4` posato (slot Verde → `MI_Morin_Prato_Mondo`), **`Blockout_Fondale_v3` nascosto** (non cancellato).
-   - [ ] (utente) Conferma per cancellare `Blockout_Fondale_v3` e `Blockout_Passeggiata_v4` (nascosti), le loro mesh e i 12 `TMPP_*` in `_Temp`.
+   - [x] (utente) Conferma per cancellare `Blockout_Fondale_v3` e `Blockout_Passeggiata_v4` (nascosti), le loro mesh e i 12 `TMPP_*` in `_Temp`. Fatto: cancellati il 2026-11-20 con conferma dell'utente (`docs/uefn_arte.md` §41).
    - [x] (blender-artist, 2026-11-20) **Parcheggio iniziale v1** (X 20-95 m, `ref/zona_parcheggio_chiosco.md` §1): `blender/arte_parcheggio.blend`
      (copia di arte_viale + molo e blockout v5 collegati), script `blender/scripts/morin_parcheggio.py`, texture `blender/textures/parcheggio/`
      (asfalto 2048 [SV], cartelli 512, new jersey 1024). 19 FBX in `exports/parcheggio/`, CSV `exports/parcheggio/parcheggio_posizioni_v1.csv`
@@ -286,7 +304,7 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
    - [x] (uefn-builder, 2026-11-19 18:15) Import e posa del kit molo v2 (`docs/uefn_arte.md` §13): 14 mesh in `LaSpezia/Arte/Molo` e
      `LaSpezia/Arte/Alberi`, 21 texture, 8 MI; 14 attori in Outliner `Arte/Molo` e `Arte/Alberi`; LOD, UCX e materiali verificati,
      validazione 43/43 senza avvisi, tutto salvato. Render `docs/qa/uefn_molo_v2_F1.png`, `_F3.png`, `_alto.png`.
-   - [ ] (utente → uefn-builder) **Conferma per nascondere/cancellare il blockout della zona**: le scatole di `Blockout_Fondale`
+   - [x] (utente → uefn-builder) **Conferma per nascondere/cancellare il blockout della zona**: le scatole di `Blockout_Fondale`
      (Z 4-8 m) coprono per intero A1A2, A3, A4A5, C, tendone e i tronchi delle latifoglie 02, 05, 06; la siepe/aiuole di
      `Blockout_Passeggiata` (Y 116-118, +40 cm) coprono asfalto e ramo verso il parcheggio. Sono mesh uniche: serve una nuova
      versione dei due blockout (blender-artist) oppure nascondere gli attori interi (si perde anche il resto del blockout).
@@ -314,6 +332,12 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
        `Blockout_Fondale`, `Blockout_Passeggiata`, le mesh `SM_Blockout_Fondale`, `SM_Blockout_Passeggiata_Pav`/`_Passeggiata`/`_Arte`,
        i 130 temporanei di `LaSpezia/_Temp` e i 5 materiali orfani `M_Banchina_*`, `M_Morin_PalmaA_*`. Referencer controllati uno per uno,
        validazione `LaSpezia/` 167/167 valida, log puliti. Render `docs/qa/uefn_pulizia_alto.png`.
+     - [x] (uefn-builder, 2026-11-20, confermato dall'utente) Pulizia v2 (`docs/uefn_arte.md` §41): cancellati **44 attori nascosti**
+       superati (blockout v2-v4, ponte, Mirabello, palme segnaposto, banchina v1, fondale città NO/N v1, incrocio/molo/parcheggio vecchi,
+       HISM auto vecchi, latifoglie parcheggio, raccordi marina) e **412 asset** senza referencer vivi: 57 mesh, 2 materiali, 2 MI,
+       53 texture v1 e i 298 temporanei di `_Temp`. Tenuti: `SM_Morin_Sedia`/`_Tavolino`, `T_Morin_ChioscoOtt_v3_Vetro_D`,
+       `A_Viale_Clacson_02/_05`. Attori 380 → 336, asset `LaSpezia/` 859 → 447. Validazione 447/447, 0 errori, 15 avvisi noti;
+       mappa ricaricata: MapCheck 0 errori/0 avvisi, nessun "Failed to load". Catture `docs/qa/uefn_pulizia2_*_prima/_dopo.png`.
 1. [~] Fondale: tinta MI fatta (facciate ok, colline poco cambiate: colpa della nebbia, `docs/uefn_fondale.md` §9); colle cittadino v2
    importato in UEFN (`docs/uefn_fondale.md` §10), **da verificare in sessione (utente)**; poi alberi del colle troppo chiari (MI dedicata).
    **TO DO (rimandato dall'utente): task nebbia** su `Luce_OraDelGiorno` — densità 0,002-0,003 o diminuzione 0,03, colore più blu/scuro,
@@ -677,7 +701,7 @@ Ordine per impatto visivo:
             Copia v2: `blender/arte_pavimentazione_v2.blend`. Render `docs/qa/arte_pav_v3_gazebo.png`, `arte_pav_v3_dalponte.png`
       - [x] (uefn-builder) v3 applicata insieme alla v2 (vedi sopra): gazebo da `gazebo_v3/`, 54 palme e 54 aiuole
       - [ ] (qa-tester) prova in sessione della v3: cordolo, gazebo (ingresso dai varchi), panchine, lampioni; (utente) tinta cubetti e globi;
-            (utente) conferma per eliminare i 33 temporanei di `LaSpezia/_Temp`
+            (temporanei di `LaSpezia/_Temp` cancellati il 2026-11-20, `docs/uefn_arte.md` §41)
 - [~] (blender-artist) Arredi: lampione, panchina, cestino, parapetto
       2026-11-19: lampione, panchina v2, tombino e pensilina fatti (vedi kit pavimentazione v2). Restano cestino, rastrelliere, parapetto
       2026-11-20: cestino (252/126/37 tri), rastrelliera (768/346/114) e parabordo (58/28/8) fatti in `exports/imbarco/` (vedi sotto). Resta il parapetto
@@ -796,7 +820,7 @@ Ordine per impatto visivo:
             10.951 prove (le uniche cadute sono oltre le 15 testate); barche No Collision, 0 punti barca sopra un pontile. **Barche nuove a Z −110**
             (461; yacht invariati a −100): a −103 il rosso emergeva ~10 cm. Salvato, 0 pacchetti sporchi, validazione 860/860, 0 errori, 80 avvisi noti.
             Catture `docs/qa/uefn_marina_finger_v3.png`, `uefn_marina_alto_v3.png`.
-      - [ ] (utente) Conferma per cancellare `Arte_Marina_Pontili_Raccordi` (nascosto) e i temporanei `_Temp/TMPMA_*` (44 + 2).
+      - [x] (utente) Conferma per cancellare `Arte_Marina_Pontili_Raccordi` (nascosto) e i temporanei `_Temp/TMPMA_*` (44 + 2). Fatto: cancellati il 2026-11-20 con conferma dell'utente (`docs/uefn_arte.md` §41).
       - [ ] (blender-artist) Allineare `marina_barche_v2.csv` alla quota di posa −110 delle 4 famiglie nuove (oggi −103 nel CSV).
       - [ ] (qa-tester) Marina in sessione: passerelle, radici e gomiti raccordati, colonnine sui pontili, barche senza collisione.
       - [ ] (geo-scout) Dati [S] da confermare con foto (§7 della scheda): larghezze, galleggianti/fissi, verso delle barche, circolo.
@@ -822,6 +846,14 @@ Ordine per impatto visivo:
       il freddo in ombra e il lilla dei cubetti vengono dalla luce cielo (§36), non dall'albedo. §38.G.
       Luce cielo: colore (1,0; 0,92; 0,84), intensità 0,8 → 1,0 (`realismo_tex_01c/_03c/_05c`): ombre neutro-calde, niente lilla. §36.C, §38.H.
 - [ ] (utente) Dopo l'import: giudizio sulle catture (variazione per lastra, tinta dei cubetti, verde del prato).
+- [x] (blender-artist, 2026-11-20) **Texture v3** (`docs/texture_v3.md`, script `blender/scripts/morin_texture_v3.py`, `blender/textures/v3/`, 13 PNG):
+      `T_Ponte_Legno_v3` 4096 (doghe **trasversali** come in foto, 2 file di borchie, usura al centro, tinta grigio-bruna più neutra);
+      `T_Viale_Segnaletica_v2` 2048 su 2 m (vernice consumata e screpolata, asfalto che traspare); `T_Pav_Cubetti_v3` 4096 su **5,6 m**
+      (2 × 2 ventagli deformati, tinta per cubetto); `T_Morin_Prato_v3` 4096 su **8 m** (zone fitte/rade, chiazze) + `T_Morin_Prato_MacroVar`
+      (seconda macro, solo prato). Render `docs/qa/arte_texture_v3_confronto.png` (`blender/arte_texture_v3.blend`). Nessun import, nessun commit.
+- [ ] (uefn-builder) **Import texture v3** e MI secondo `docs/texture_v3.md` ("Cosa fare in UEFN"): `MI_Ponte_Legno` (macro 0,15),
+      `MI_Viale_Segnaletica` (`UV_Tiling` 0,5), `MI_Pav_Cubetti` (`Tile_m` 5,6, macro 0,35), `MI_Morin_Prato`/`_Mondo` (`UV_Tiling` 0,5 / `Tile_m` 8,
+      `MacroVar` = `T_Morin_Prato_MacroVar`, macro 0,6). Annotare prima i valori attuali; catture agli stessi punti del §35.D.
 
 ## Fase 4 — Ottimizzazione
 - [ ] (blender-artist) Collisioni UCX_ su tutti gli asset; verifica budget triangoli
