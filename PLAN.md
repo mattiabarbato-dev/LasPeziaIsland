@@ -524,7 +524,8 @@ Ordine per impatto visivo:
             in (0,0,0); `Blockout_Ponte` **nascosto** (non cancellato), Mirabello visibile. Line trace: calpestio continuo 0 → 430 → 130,
             5,7 m liberi, corsie 2,8/2,9 m ai lati delle antenne, raccordi 1 cm (passeggiata) e 0,6 cm (Mirabello), parapetti continui 1,2 m,
             stralli senza collisione, antenne visibili dalla partenza. Validazione 515/515, 0 errori. Render `docs/qa/uefn_ponte_v1_*.png`.
-      - [!] (utente) **Memoria texture oltre soglia**: totale stimato 313,7-391,5 MiB (soglia 245). Proposte di LODBias 1 in §27, nulla applicato.
+      - [x] Memoria texture: dopo il ponte 313,7-391,5 MiB; applicata la scelta dell'utente ("senza alpha" su 47 D opache + LODBias 1 su
+            Ponte_Acciaio, Auto_v2, Imbarco, Imbarco_Legno, Pav_Terra, Banchina_Paramento) → **235,5-236,2 MiB** (soglia 245). §27.
       - [ ] (qa-tester) Sessione: rampa, lati delle antenne, parapetti con montanti visibili, sfarfallio degli stralli a distanza.
       - [ ] (blender-artist) `SM_Ponte_Parapetti` 37k vertici (avviso validatore): valutare divisione in due mesh o moduli.
       - [ ] (utente) Foto laterale del ponte (inclinazione pennoni, n. stralli, profilo), dettaglio dell'imbocco e del concio apribile.

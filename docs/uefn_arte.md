@@ -1022,6 +1022,7 @@ La stima "vicine" qui sopra era la prima proposta (non applicata). Applicata la 
 - **Restano a 1 (30):** `T_Banchina_Ciglio_*` (solo moduli v1 nascosti), `T_Morin_Oleandro_Chioma_*`, `T_Morin_Prato_*`, `T_Morin_Gazebo_Fregio_*`,
   `T_Molo_Asfalto/Facciate/Masselli_*`, `T_Parcheggio_Asfalto_*`, `T_Albero_Latifoglia_Chioma_*`, `T_Morin_PinoDomestico_Chioma_*`.
 - Stima ricalcolata prima di applicare: totale texture del progetto **192,3-232,7 MiB** (prima 110,3-132,7), sotto la soglia di 245 MiB.
+- **Aggiornamento 2026-11-20 (§27):** dopo il ponte il totale era 313,7-391,5 MiB; con "Compress Without Alpha" su 47 D opache e LODBias 1 su Ponte_Acciaio, Auto_v2, Imbarco, Imbarco_Legno, Pav_Terra, Banchina_Paramento: **235,5-236,2 MiB**. Elenco nel §27.
 - Transazione con `modify()`; `save_dirty_packages` 05:25:31 (30 texture), nessun pacchetto sporco; validazione `LaSpezia/` 393/393 validi,
   0 errori, 13 avvisi (gli stessi di sopra). Decisione in `docs/decisioni.md`.
 
@@ -1476,3 +1477,19 @@ Log: nessun errore.
 - **(qa-tester)** In sessione: rampa e discesa, passaggio ai lati delle antenne, parapetti, montanti visibili, sfarfallio degli stralli.
 - `Blockout_Mirabello`: a Y 18000 la rampa di arrivo ha un rialzo a +110 (parapetto del blockout) solo sul lato X+; sul lato X− bordo libero a ~1,2 m
   dal suolo (preesistente, non toccato).
+
+### Memoria: "senza alpha + 5 a metà" applicato (scelta dell'utente, 2026-11-20 ~11:45)
+1. **Compress Without Alpha** (`compression_no_alpha`) su **47 texture `_D` opache** di `LaSpezia/`: Tombino, Banchina Paramento/Ghisa/Ciglio/Blocchi,
+   Fondale (Tenda, 10 Colline/Colle_Suolo, Facciata, Palazzo A/B/C, EdificioVetrate), Pav Lastre/Terra/Fascia/Cubetti, PalmaA_Tronco, Platano e Pino
+   cortecce, Molo Asfalto/Facciate/Masselli, Chiosco, Dehors, Oleandro_Fusto, Prato, Bosso, Viale_Segnaletica, Auto, Auto_v2, Parcheggio_Asfalto,
+   Cartelli, NewJersey, Imbarco, Imbarco_Legno, Incrocio_Props, Ponte Legno/Acciaio/Cavo.
+   Controllo dell'alfa: grafi dei master (`GetGraph`): solo `M_Morin_Master_PBR_Masked` usa `BaseColor.A` (→ OpacityMask); PBR, Pav, Fondale,
+   PBR_Emissive non usano mai il canale A; Vetro (traslucido) non ha texture. **Escluse** (MI sul master masked): `T_Morin_PalmaA_Fronde_D`,
+   `T_Albero_Latifoglia_Chioma_D`, `T_Morin_PinoDomestico_Chioma_D`, `T_Morin_Oleandro_Chioma_D`, `T_Viale_Fiori_D`, `T_Morin_Gazebo_Fregio_D`.
+   Il bosso è su `M_Morin_Master_PBR` opaco: incluso.
+2. **LODBias 1** (19 texture): `T_Ponte_Acciaio_*`, `T_Morin_Auto_v2_*` (anche `_E`), `T_Morin_Imbarco_*`, `T_Morin_Imbarco_Legno_*`, `T_Pav_Terra_*`,
+   `T_Banchina_Paramento_*`.
+3. **Stima (metodo §21, 138 texture):** prima 313,7-391,5 MiB → **dopo 235,5-236,2 MiB**, sotto la soglia di 245 (ponte 54,0 MiB). Il caso alto ora
+   differisce dal basso solo per `T_Morin_Auto_v2_E`.
+`save_dirty_packages` 11:47:37 (60 texture), nessun pacchetto sporco; validazione `LaSpezia/` 515/515 validi, 0 errori, 27 avvisi (gli stessi).
+Cattura di controllo `docs/qa/uefn_ponte_v1_calpestio_mem.png` (stessa camera di `uefn_ponte_v1_calpestio.png`): colori invariati.
