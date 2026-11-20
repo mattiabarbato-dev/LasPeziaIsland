@@ -2748,3 +2748,9 @@ Fuori da `_Temp` (percorsi relativi a `LaSpezia/`, referencer verificati):
   `uefn_pulizia2_moloitalia_*` (48000, −12000, 2500; pitch −18, yaw 45). **Geometria identica** (barche, pontili, palme, edifici, nave,
   faro). Dopo il ricaricamento il cielo è più blu e senza nuvole e l'esposizione più chiara: è lo stato di luce dell'editor ricaricato
   (nessun asset cancellato era usato da cielo o luci: tutti erano senza referencer), da ricontrollare in sessione.
+- **Controllo luce dopo il ricaricamento** (richiesto dall'orchestratore): le opzioni di `Luce_OraDelGiorno` lette con `ListClassicDeviceOptions` sono
+  **tutte salvate e attive**: orario fisso 18,5; override sole SÌ, intensità 8, colore (1; 0,86; 0,70), rotazione Z 20; override luce cielo SÌ,
+  1,0, (1; 0,92; 0,84); override nebbia SÌ, densità 0,007; override nuvole SÌ, copertura 0,3. Invece i componenti di `DSA_UEFN_Ch5S1_C_0` (la Day
+  Sequence generata dall'editor) dopo il reload sono ai valori di default: sole 10 bianco, nebbia 0,025, nuvole volumetriche invisibili.
+  Quindi la differenza è solo nell'**anteprima dell'editor**, che dopo il reload non riapplica il modificatore. Non ho cambiato nulla
+  (0 pacchetti sporchi). Cattura `docs/qa/uefn_luce_dopo_reload.png`. Il risultato in gioco va confermato in sessione.
