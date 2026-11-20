@@ -2022,3 +2022,119 @@ Render 1024 px con ombre (`docs/qa/`): `uefn_moloitalia_v2_terrazza.png` (59065,
   (avviso della timeline); il rettangolo senz'acqua a est del bacino (X 725-971 m, Y < 60 m) visto dal molo.
 - **(blender-artist, facoltativo)** `Arte_Fondale_Citta_NE_01`: basi dei blocchi a X 725-820 m sotto il livello dell'acqua (Z −1,3..−2,9 m) e fondale
   a −8 m sotto l'edificio a X ~745 m, Y ~35 m: se si vuole l'acqua anche lì vanno alzate o ritagliate.
+
+## 35. Diagnosi difetti e audit realismo (2026-11-20, ~16:00-16:30 ora locale)
+
+Solo diagnosi: nessun asset, attore, device o impostazione modificati, niente sessioni di gioco, nessun commit. Catture con `RenderLevelPOVs`
+(ombre attive, `r.Streaming.FullyLoadUsedTextures 1`), analisi geometrica con GeometryScript sulle render data dei LOD.
+Coordinate UE (X, Y, Z in uu); in Blender Y = −Y UE / 100. Superficie dell'acqua Acqua V2: **Z −100**.
+
+### A. Forme verdi sull'acqua del Blocco 2: `Arte_Fondale_Colline_NE` (`SM_Fondale_Colline_NE_v2`, `MI_Fondale_Colline_NE`)
+- Bounds degli attori su X 250-580 m, lato mare (Y UE > −7900): l'unica mesh visibile con superficie fra Z −484 e Z 0 è il fondale colline NE
+  (bbox X 33000..1002000, Y −330000..426000, Z −1000..31931; attore a (518000, 48000, 0), Static, No Collision, senza ombre).
+  `Blockout_Fondale_v5` finisce a X 33000; `Blockout_Fondale_B2_Terreno`, `Blockout_Passeggiata_B2`, `SM_Morin_Prato_Giardini_B2` e `Colline_SE`
+  non hanno triangoli in quell'area (0 punti). `Blockout_Fondale_v2/v3/v4` sono già invisibili.
+- Campionamento dei triangoli della mesh (griglia 100 uu, quota massima per punto), due macchie **sopra** la superficie:
+
+| Macchia | X (m) | Y UE (uu) → Y Blender (m) | Z (uu) | Area |
+|---|---|---|---|---|
+| A | 340-380 | −8000..−6000 → 80..60 | −80 (≈ 20 cm sopra l'acqua) | ~440 m² |
+| B | 519-580 | −8000..+2000 → 80..−20 | −55..−100 (media −75) | ~2.830 m² |
+
+  Altri ~1.160 m² fra 0 e 2 m **sotto** la superficie (X 341-577, Y Blender 79..−25) si vedono in trasparenza come velo verde.
+  Tinta del materiale (0,34; 0,52; 0,38): è il verde visto nelle catture.
+- Catture: `docs/qa/diag_b2_acqua_passeggiata_X380.png`, `_X500.png` (dalla passeggiata), `diag_b2_acqua_alto.png` (zenitale, X 170-670 m),
+  `diag_b2_acqua_macchia_X340_380.png`, `diag_b2_acqua_macchia_X520_580.png` (obliqua: il cuneo verde contro il ciglio vicino all'angolo del Molo Italia).
+- **Correzione (blender-artist):** in `SM_Fondale_Colline_NE_v2` abbassare sotto Z −5 m (fondo dell'acqua −4,84 m) o eliminare le facce con
+  X < 580 m e Y Blender > −100 m (tutto il lato mare del Blocco 2): sotto la passeggiata c'è già il suolo del Blocco 2.
+  Il fondale non va nascosto: è anche il profilo delle colline NE.
+- Da verificare (non richiesto): sullo stesso fondale, fra X 577 e 971 m e Y Blender 1..−93 m, ci sono ~2 ha con Z fra −1 m e +0,05 m. Gran parte è
+  sotto il suolo del molo o nel rettangolo senz'acqua del §34; il controllo con trace dall'alto ha fatto cadere la connessione MCP e non è concluso.
+
+### B. Chiosco ottagonale v2 (`Arte_B2_ChioscoOttagonale`, `SM_Morin_ChioscoOttagonale_v2`): **normali del corpo invertite**
+- Attore: (55206, −10872, 15), yaw 0, scala 1, nessun override di materiale; slot `MI_Morin_Chiosco`, `MI_Morin_Dehors`; MinLOD 0, LOD forzato 0.
+  Nessun attore usa la v1 (`SM_Morin_ChioscoOttagonale`) e nulla si sovrappone (vicini: ombrelloni, sgabelli, tavoli, piazzetta).
+- LOD: 3; soglie 1,0 / 0,2 / 0,08; tri 138 / 138 / 106; in tutti i LOD 2 sezioni, sezione 0 → slot 0, sezione 1 → slot 1 (corretto).
+- Materiali: `MI_Morin_Chiosco` e `MI_Morin_Dehors` (`Arte/Chiosco`, master `M_Morin_Master_PBR`, opaco) **non two-sided**, nessun override.
+  Texture D/N/ORM 2048 presenti (le stesse del chiosco del Blocco 1, che si vede bene).
+- Normali per faccia nel LOD0 (uguale nel LOD1; LOD2 stesso schema), classificate rispetto all'asse del chiosco:
+
+| Parte | Mat | Tri | Area | Normale |
+|---|---|---|---|---|
+| Tetto (Z ~3 m) | 0 | 6 | 21,4 m² | in su, **giusta** |
+| Gronda/fascia del tetto (Z 2,42-2,72) | 0 | 32 | 12,2 m² | verso fuori, **giusta** |
+| Pareti posteriori, 3 lati (azimut 225°, 270°, 315°; Z 0-2,62; r ≈ 2,6 m) | 0 | 12 | ~19 m² | **verso l'interno** |
+| Fascia alta dei 5 lati anteriori (Z 1,10-2,62; r ≈ 2,0 m) | 0 | 10 | ~12 m² | **verso l'interno** |
+| Bancone dei 5 lati anteriori (Z 0-1,10; r ≈ 2,6 m) | 1 | 10 | 12,4 m² | **verso l'interno** |
+| Piano del bancone (Z ~1,1) | 1 | 10 | 5,6 m² | **verso il basso** |
+
+  Normali di vertice concordi con quelle di faccia (0 discordanze), 0 triangoli degeneri. Nessuna parete verticale del corpo ha la normale verso fuori.
+  La v1 aveva normali miste (12 tri verso fuori, 18 verso dentro, piano del bancone in su): l'inversione è stata introdotta nella v2.
+- Effetto: da fuori le facce vicine sono scartate dal back-face culling (materiale a una faccia) e si vede l'interno, buio, delle 2-3 pareti lontane:
+  è "un terzo della parete" e il blocco scuro senza texture delle catture.
+- Catture `docs/qa/diag_chiosco_{vicino,lontano}_{E,S,O,N}.png` (11 m e 50 m, FOV 60): LOD0 e LOD1 hanno la stessa geometria, il difetto è identico.
+  `_vicino_N` è coperta da un tronco di palma.
+- **Correzione (blender-artist):** ricalcolare le normali verso l'esterno del corpo (pareti, fascia, bancone) e verso l'alto del piano del bancone,
+  esportare `SM_Morin_ChioscoOttagonale_v3` con i LOD; non rendere two-sided il materiale (raddoppia il costo e illumina male l'interno).
+
+### C. Nave da crociera (`Arte_B3_NaveCrociera`, `SM_MoloItalia_NaveCrociera`, `MI_MoloItalia_Tinte`)
+- Attore (90000, 26000, −103), yaw −74, scala 1 → Blender (900; −260), rotZ 74°. Bounds mesh X ±12500 · Y ±1615 · Z −800..5200.
+- **Misure:** lunghezza **250 m**, larghezza **32,3 m**, altezza sull'acqua **52 m** (cima a Z 5097), immersione 8 m. Estremità a (93450, 13988) e
+  (86550, 38012) UE. Distanze minime dallo scafo: dalla lanterna del faro **~180 m**, dalla fine della passeggiata (56600, −8000) **~430 m**,
+  dal punto simulato di `giardini.webp` (38000, −10800) ~640 m al centro.
+- Confronto con una nave grande (290-330 × 38 m, 55-65 m sull'acqua): la nostra è **più piccola** del tipico. La scala non è il problema.
+- Causa probabile: **posizione**. La nave è in acqua aperta, ~180 m a est del faro, di traverso (asse ~N-S), senza banchina. Nella foto
+  `ref/foto/arredi/giardini.webp` la nave è una striscia sottile all'orizzonte, cioè molto più lontana (le navi ormeggiano nel porto commerciale,
+  Molo Garibaldi, `ref/molo_italia.md` §14: posizione [S]). Contribuiscono la nebbia debole (densità 0,004: quasi nessuna prospettiva aerea a 400-600 m)
+  e la sagoma a gradoni bianca piatta, che sembra vicina.
+- Catture: `docs/qa/diag_nave_giardini.png` (dai Giardini verso NE, FOV 80), `diag_nave_fine_passeggiata.png` (dal piazzale finale: la nave è coperta
+  dalla Capitaneria e dagli edifici del molo), `diag_nave_faro.png` (dalla testata: la fiancata riempie metà dell'inquadratura).
+- **Correzione:** geo-scout misura la posizione reale di ormeggio (Molo Garibaldi) da OSM; uefn-builder sposta e ruota l'attore (solo trasformazione,
+  scala 1:1). Facoltativo (blender-artist): sagoma meno a gradoni (prua, balconate, scialuppe) e un tratto di banchina sotto.
+
+### D. Audit realismo: 10 catture a occhio d'uomo (`docs/qa/realismo_00..09.png`, 1024 px, ombre)
+Materiali individuati con trace dalla camera (griglia 20 × 20) e lettura delle MI. Master: `M_Morin_Master_PBR` (solo `UV_Tiling`, `Roughness_Mult`),
+`M_Morin_Master_Pav` (`Tile_m`, `Roughness_Mult`, `Tinta`); nessuna MI controllata usa `Roughness_Mult` diverso da 1.
+
+| # | Inquadratura (posizione; pitch, yaw; FOV) | Materiali meno realistici e cosa non va |
+|---|---|---|
+| 00 | Partenza B1, X 240 m verso il ponte (24000, −8400, 180; 3, 142,3; 75) | **Acqua V2**: specchio bianco-azzurro con increspatura fine ripetuta, nessuna profondità né colore del golfo. **`MI_Banchina_Blocchi`** (ciglio): bianco piatto, nessuna usura né segni d'acqua. **`MI_Pav_Lastre`**: chiazze arancioni di luce fra le fronde troppo sature; giunti tutti uguali. Le antenne del ponte si leggono appena (sottili e chiare sul cielo chiaro) |
+| 01 | Pavimentazione ravvicinata (8000, −8500, 170; −35, 200; 70) | **`MI_Pav_Lastre`** (Tile_m 3,2, 2048): stesse macchie ripetute ogni 3,2 m, giunti dipinti senza rilievo (normal debole), roughness uniforme, tono freddo-violaceo. **`MI_Pav_Fascia`** (cordolo, Tile_m 1): bianco marmo troppo chiaro, sembra plastica. **`MI_Pav_Cubetti`**: violaceo |
+| 02 | Banchina e acqua verso l'imbarco (12500, −8250, 170; −8, 165; 75) | **Acqua V2** (riflesso del cielo quasi bianco, increspatura a pixel). **`MI_Banchina_Blocchi`** (ciglio uniforme). **`MI_Morin_PalmaA_Tronco`**: tronchi lontani quasi neri |
+| 03 | Giardini a Mare e Viale Italia (15300, −9650, 180; −3, −90; 90) | **`MI_Morin_Prato`** (UV_Tiling 1): verde lime uniforme, senza variazioni né ciuffi, troppo saturo rispetto a `giardini.webp`. **`MI_Pav_Cubetti`**: viola-bruno, ventagli troppo grandi. **`MI_Albero_Latifoglia_Chioma`**: chiome a grumi scuri "dipinti", bordo delle card visibile. `MI_Pav_Terra` (aiuole) rosata |
+| 04 | Parcheggio (2150, −10660, 212; −6, −8; 78) | **`MI_Morin_Auto_v2`**: carrozzerie lattiginose, tetti polverosi, nessun riflesso (roughness alta). **`MI_Parcheggio_Asfalto`**: macchie scure grandi e ripetute, nessuna grana fine. **`MI_Morin_PinoDomestico_Corteccia`**: tronchi arancio piatti |
+| 05 | Incrocio (1560, −10050, 210; −2, −90; 90) | **`MI_Pav_Cubetti`** (scala e tinta). **`MI_Albero_Latifoglia_Chioma`**. **`M_Blockout_Fondale`** su `Blockout_Fondale_v5`: a sinistra si vedono ancora volumi grigio-bianchi del blockout |
+| 06 | Ponte, calpestio (−120, 4300, 429; 4, 90; 75) | **`MI_Ponte_Acciaio`** (4096): bianco pieno senza sfumature né riflessi, sovraesposto. **`MI_Ponte_Legno`**: doghe rosate e tutte uguali, fughe poco scure. `MI_Ponte_Cavo`: cavi tratteggiati (aliasing) |
+| 07 | Mirabello, testata verso il ponte (−1300, 19000, 180; 4, −84; 80) | **`MI_Parcheggio_Asfalto`** su `SM_Mirabello_Suolo`: rosato e piatto; **`MI_Molo_Masselli`** a toppe che sembrano decal. **`MI_Banchina_Paramento`**: muro scuro e uniforme |
+| 08 | Blocco 2, scritta LA SPEZIA (25420, −9150, 165; −4, 90; 70) | **`MI_Morin_Corten`** (1024): arancio-bruno uniforme, niente colature né variazioni di ruggine, risoluzione bassa per un asset vicino alla corsia. **`MI_Pav_Fascia`** (cordolo bianco). Sullo sfondo la macchia verde B del §35.A |
+| 09 | Molo Italia verso il faro (64300, 29300, 180; 3, 45; 70) | **`MI_MoloItalia_Cemento`**: bianco quasi saturo, griglia di piastrelle visibile, nessuna sporcizia. **`MI_Molo_Scogliera`** (1024): massi beige "spugnosi", texture a scala troppo grande. **`MI_Molo_Asfalto`**: viola-grigio a chiazze. `MI_Morin_NewJersey`: plastica bianca |
+
+Problemi comuni: grigi e pietre virano al **viola/freddo**; i bianchi (cemento, fascia, ciglio, acciaio del ponte, New Jersey) sono **sovraesposti**
+e piatti; diverse texture vicine alla corsia sono a **1024** (corten, scogliera, New Jersey, tinte); nessuna variazione a grande scala (le stesse
+macchie si ripetono a ogni modulo).
+
+### E. Luce e post-process (letti, NON modificati)
+- **`Luce_OraDelGiorno`** (`BP_DaySequenceModifier_Device_C`, Outliner `Luci`): sempre attivo, **orario fisso 18,0**, priorità 2000, velocità 1,
+  senza volume. Override **nebbia: SÌ**: densità **0,004**, colore (0,30; 0,38; 0,52), diminuzione in altezza 0,02, dispersione direzionale
+  (0,67; 0,48; 0,30), nebbia secondaria 0, dispersione volumetrica del sole 1, opacità massima 1. Override sole, luce cielo, cielo e nuvole: **NO**
+  (valori di default della Day Sequence di Fortnite alle 18). Sequenza giorno utente: nessuna.
+- **`IslandSettings0`**: orario, luminosità luce, colore luce, densità e colore nebbia = **Predefinito** (nessun override); luce di contorno 0.
+- Nel livello non ci sono Post Process Volume, Directional Light, Sky Light, Sky Atmosphere né Exponential Height Fog propri: tutto viene dalla
+  Day Sequence. L'unica luce piazzata è `Luce_Faro_MoloItalia`. Il device non espone l'esposizione.
+- Nelle catture: cielo pallido e lattiginoso, orizzonte quasi bianco, poco contrasto; ombre lunghe ma morbide; dominante fredda su grigi e pietre;
+  le colline lontane hanno un po' di foschia, gli oggetti a 400-600 m (nave, città NE) quasi niente.
+- **Proposte (da NON applicare senza l'utente; da verificare in sessione, perché il render dell'editor può differire dal gioco):**
+  1. Override sole: sole radente da ovest-sud-ovest (`SunlightRotationZ/X`, azimut ~250°, elevazione ~15-20°), colore caldo (1,0; 0,86; 0,70),
+     intensità ~8 invece di 10: luce dorata e meno bianchi bruciati.
+  2. Override luce cielo: intensità 0,7-0,8, colore neutro-caldo (1,0; 0,97; 0,93), per togliere la dominante viola.
+  3. Nebbia: densità 0,006-0,008, colore meno saturo (0,45; 0,52; 0,62), diminuzione 0,03-0,05, opacità massima 0,9: prospettiva aerea per nave,
+     città e colline senza farle sparire.
+  4. Nuvole: override con copertura 0,25-0,35, come i cumuli delle foto.
+  5. Lato materiali (blender-artist): albedo dei bianchi ≤ 0,75; `Roughness_Mult` più basso per auto e acciaio del ponte; variazione a grande scala
+     (seconda texture) su lastre, cubetti, prato e asfalto; texture 2048 per corten, scogliera, New Jersey.
+
+### Temporanei e problemi aperti
+- Nessun asset o attore temporaneo creato; script di lavoro solo nella scratchpad della sessione.
+- **(blender-artist)** colline NE sopra l'acqua del Blocco 2 (§35.A); normali del chiosco v2 (§35.B); materiali dell'audit (§35.D).
+- **(geo-scout → uefn-builder)** posizione reale della nave da crociera (§35.C).
+- **(utente)** scegliere se e quali proposte di luce e nebbia applicare (§35.E).
