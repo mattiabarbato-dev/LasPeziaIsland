@@ -536,8 +536,17 @@ Ordine per impatto visivo:
       strisce pedonali, marciapiede del multipiano (fronte nord reale a Y −208). Tri LOD0: Suolo 104 · Pianerottolo 644 · Passerella 1.292 ·
       Multipiano 1.319 · Fondale 549 · Pontile 248/240/10 · YachtA 600/272/126 · YachtB 522/282/122 · Fanale 144/96/72. **Nessuna texture nuova.**
       Render `docs/qa/arte_mirabello_v1.png`, `arte_mirabello_v1_b.png`. Scelte [S] in `docs/decisioni.md` 2026-11-20.
-      - [ ] (uefn-builder) Import; nascondere `Blockout_Mirabello` (`SM_Blockout_Mirabello`); decidere sulla barriera `Barriera_Mirabello_LatoPiuX`
-            (oggi a X 980 taglia la passerella a metà: spostarla a X ≈ 5000 o chiudere la passerella con un cancello).
+      - [x] (uefn-builder) Import 2026-11-20 (`docs/uefn_arte.md` §28): 9 mesh in `Arte/Mirabello` (4 con LOD 3), nessuna texture/MI nuova,
+            34 attori in Outliner `Arte/Mirabello` (6 singoli + 28 HISM); `Blockout_Mirabello` **nascosto** (non cancellato).
+            Barriera spostata (scelta dell'utente): `LatoPiuX` a X 5150, nuove `FronteNE` (davanti al multipiano, Y 20444..20700) e `RaccordoNE`;
+            perimetro continuo (passo 4 uu). 20 auto ora dentro l'area passate a `_Col_v2_` (25 con collisione, 16 senza, fuori area).
+            Line trace: ponte → pianerottolo senza fessure (0,2 cm), scala a rampa fino a Z 0, passerella fino a terra (X 46,1 m), ringhiere OK
+            tranne un bordo aperto, nessun gradino > 40 cm, suolo continuo. Validazione 532/532, 0 errori. Memoria texture invariata 236 MiB.
+            Render `docs/qa/uefn_mirabello_v1.png`, `_b.png` (parapetti del ponte a giorno, non pannelli pieni).
+      - [ ] (blender-artist) Ringhiera sul bordo N del pianerottolo (X −1,9..−0,55, Y −179: salto 1,30 m); UCX della recinzione del Fondale;
+            `Blockout_Fondale_v4` da tagliare a X ≥ −136 m (sporge 16 m oltre il multipiano).
+      - [ ] (utente) Pontile_087 e yacht senza collisione raggiungibili dall'area nuova (si cade in acqua): accettare o dare collisione.
+      - [ ] (qa-tester) Sessione: barriere nuove di Mirabello, scala, passerella, auto quasi bianche nel render (LODBias/streaming?).
       - [ ] (utente) Foto di Mirabello: arrivo del ponte (scala e passerella), fronte del multipiano, pavimentazione del quai.
       - [ ] (utente) Foto laterale del ponte (inclinazione pennoni, n. stralli, profilo), dettaglio dell'imbocco e del concio apribile.
 - [x] (geo-scout) Schede per la grafica di palme e banchina (2026-11-19): `ref/palme.md`, `ref/banchina.md`, `ref/asset_fonti.md`

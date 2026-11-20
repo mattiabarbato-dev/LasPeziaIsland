@@ -1493,3 +1493,93 @@ Log: nessun errore.
    differisce dal basso solo per `T_Morin_Auto_v2_E`.
 `save_dirty_packages` 11:47:37 (60 texture), nessun pacchetto sporco; validazione `LaSpezia/` 515/515 validi, 0 errori, 27 avvisi (gli stessi).
 Cattura di controllo `docs/qa/uefn_ponte_v1_calpestio_mem.png` (stessa camera di `uefn_ponte_v1_calpestio.png`): colori invariati.
+
+## 28. Testata di Porto Mirabello v1 (2026-11-20, ~12:20-12:45 ora locale)
+
+Sorgenti: `exports/mirabello/` (16 FBX), `exports/mirabello/mirabello_posizioni_v1.csv` (102 righe utili; nel CSV le auto sono **41**, non 47).
+Controllo iniziale: nessun asset né attore con questi nomi. Metodo del §13/§27: LOD0 col nome finale in `LaSpezia/Arte/Mirabello`
+(`ImportFile`, materiali/texture off, combine on), LOD1/2 come `_Temp/TMPMB_SM_Mirabello_<asset>_LOD1/2`, `remove_lods` (di nuovo 3 LOD
+automatici su tutti) + `set_lod_from_static_mesh(..., True)`, sezioni di ogni LOD controllate (nessuna da rimappare), Nanite off,
+Use Simple Collision As Complex, soglie 1,0 / 0,2 / 0,08, MinLOD Low/Medium 2 sui 4 asset a 3 LOD, 0 sui pezzi unici e sui temporanei.
+`remove_collisions` dove non c'è UCX (Fondale, Pontile, YachtA/B, Fanale e temporanei: `ImportFile` aveva aggiunto 1 convesso automatico).
+**Nessuna texture né materiale creato** (in `Arte/Mirabello` solo le 9 StaticMesh; texture di `LaSpezia/` sempre 138): slot `M_<x>` → MI
+esistenti `MI_<x>` (Parcheggio_Asfalto, Viale_Segnaletica, Molo_Masselli/_Grigio, Morin_Bosso, Morin_Prato, Ponte_Legno, Ponte_Acciaio,
+Banchina_Paramento, Pav_Fascia, Morin_Imbarco/_Legno).
+
+| Asset (`Arte/Mirabello`) | Tri LOD0/1/2 | Bbox (uu) | Convessi |
+|---|---|---|---|
+| `SM_Mirabello_Suolo` | 104 | X −2020..980 · Y 16764..21800 · Z 0..100 | 4 |
+| `SM_Mirabello_Pianerottolo` (+ scala) | 644 | X −1780..300 · Y 17900..18660 · Z 0..255 | 8 |
+| `SM_Mirabello_Passerella` | 1.292 | X −60..4613 · Y 17660..18040 · Z 0..245 | 5 |
+| `SM_Mirabello_Multipiano` | 1.319 | X −13600..3550 · Y 20770..30280 · Z 0..1030 | 1 (fronte X −2496..1504, Y 20828..21904, Z 0..810) |
+| `SM_Mirabello_Fondale` | 549 | X −6000..11680 · Y 16120..25000 · Z −160..120 | 0 |
+| `SM_Mirabello_Pontile` | 248 / 240 / 10 | X 0..4800 · Y ±148 · Z −55..100 | 0 |
+| `SM_Mirabello_YachtA` | 600 / 272 / 126 | X −695..625 · Y ±200 · Z −85..350 | 0 |
+| `SM_Mirabello_YachtB` | 522 / 282 / 122 | X −550..550 · Y ±180 · Z −70..1550 | 0 |
+| `SM_Mirabello_Fanale` | 144 / 96 / 72 | X ±60 · Y ±60 · Z 0..630 | 0 |
+
+### Posa (Outliner `Arte/Mirabello`; singoli duplicati da `Arte_Arredi_Gazebo`, HISM da `Arte_Arredi_Tombini` + `clear_instances`; `Rotator(roll, pitch, yaw)`)
+- Singoli in (0,0,0): `Arte_Mirabello_Suolo`, `_Pianerottolo`, `_Passerella`, `_Multipiano` (Query Only, `FortStaticMesh`), `_Fondale` (No Collision);
+  `Arte_Mirabello_Fanale` (10970, 16560, 2), No Collision.
+- HISM nuovi (anche per gli asset riusati, che altrove sono già HISM): `Arte_Mirabello_Banchina_Moduli` (7, yaw 176,93 = −183,07),
+  `_Banchina_Bitte` (2), `_Lampioni` (3), `_Panchine` (2), `_Cestini` (2), `_PalmaA` (3, scala 1) Query Only; `_Pontili` (5), `_YachtA` (9),
+  `_YachtB` (23) No Collision; auto in 17 HISM `Arte_Mirabello_Auto{A,B,C}[_Col]_v2_<Colore>`.
+- **Auto:** con la barriera spostata (sotto) 20 auto senza collisione del CSV cadevano nell'area giocabile (Auto_006, 009-018, 032-040, X −2116..4368):
+  spostate negli HISM `_Col_v2_` dello stesso modello e colore (stessa regola del §20). Risultato: **25 con collisione, 16 senza** (tutte fuori area).
+  L'HISM `Arte_Mirabello_AutoB_v2_Argento`, rimasto vuoto, è stato riusato (rinominato `..._AutoB_Col_v2_Argento`, mesh `_Col`, Query Only).
+- **Nascosto, non cancellato** (metodo §14): `Blockout_Mirabello` (Visible falso, Hidden In Game, No Collision, Actor Enable Collision no).
+- `Blockout_Fondale_v4` non toccato. Il suo blocco edificio dietro il multipiano (Z 700, X −15200..3150, Y 21850..30350) **sporge di 16 m**
+  oltre il fianco ovest del multipiano (X −15200..−13600, tutta la profondità, alto 7 m); dentro l'impronta è coperto (multipiano alto 10,3 m).
+  Attori nel livello: 234 (+34).
+
+### Barriera (decisione dell'utente "Sposta la barriera")
+Barrier device con le stesse opzioni (Scatola, invisibile, sempre, altezza 10, base −700); larghezza/profondità accettano solo 0,5 o valori interi.
+
+| Label | Centro | Unità L × P | Ingombro (`BarrierBounds`) |
+|---|---|---|---|
+| `Barriera_Mirabello_LatoPiuX` (spostata, prima X 1110) | (5150, 18875, −700) | 0,5 × 12 | X 5022..5278 · Y 15803..21947 |
+| `Barriera_Mirabello_FronteNE` (nuova, dup.) | (3448, 20572, −700) | 9 × 0,5 | X 1144..5752 · Y 20444..20700 |
+| `Barriera_Mirabello_RaccordoNE` (nuova, dup.) | (1272, 21226, −700) | 0,5 × 3 | X 1144..1400 · Y 20458..21994 |
+
+`LatoMenoX` e `Fondo` invariate. Perimetro: LatoMenoX → Fondo → Raccordo (dentro la X dell'UCX del multipiano, che finisce a 1504) →
+FronteNE (davanti alla facciata: Y 20828 a X 1400, Y 20770 all'angolo X 2790; oltre X 1504 il multipiano non ha collisione) → LatoPiuX.
+Area nuova: X 980..5022, dal mare a Y 20444 (passerella, parcheggio a due file, quai in masselli fino alla recinzione).
+**Continuità** (passo 4 uu sulla linea mediana, quadrato ±120 uu attorno a ogni campione): nessun varco; le sole "mancanze" sono le due estremità
+in mare (Y < 15925, lato mare aperto come prima) e l'angolo esterno Fondo/Raccordo (X 1272..1400, Y 21994..22008), chiuso dalla sovrapposizione
+X 1144..1272 · Y 21752..21994. Sovrapposizioni: LatoMenoX/Fondo 256 × 195, Fondo/Raccordo 128 × 242, Raccordo/FronteNE 256 × 242, FronteNE/LatoPiuX 256 × 256.
+
+### Verifiche (line trace in editor)
+- **Ponte → pianerottolo** (X −790..−230 ogni 10 cm, Y 17850..17960 ogni 2 cm): nessuna fessura, salto max 0,2 cm (impalcato 131 → pianerottolo 130).
+- **Scala** (5 profili X −1760..−1440, ogni 2 cm): rampa di collisione continua da Z 130 (Y 18260) a Z 0 (Y ~18660), pendenza ~19°, nessun buco.
+- **Passerella** (3 profili Y 17700/17850/18000, ogni 5 cm): continua da Z 130 a 0, finisce a X 4610 a raso su `Blockout_Fondale_v4` (Z 0).
+- **Ringhiere** (trace orizzontali a +20/60/100/115 cm, ogni 20-25 cm): colpite su passerella (entrambi i lati), scala (entrambi), pianerottolo O/S/E,
+  testa della passerella; altezza ~1,15-1,25 m. **Bordo aperto:** pianerottolo lato N tra il parapetto del ponte e la testa della passerella,
+  **X −190..−55 a Y 17900** (1,35 m), salto di 1,30 m sul suolo (Z 0) senza ringhiera (sotto non c'è acqua: non è una trappola).
+- **Gradini** (griglia 50 cm su X −2000..5000, Y 16500..20450, prop esclusi): nessun gradino percorribile oltre 40 cm; i salti > 40 cm sono bordi di
+  passerella/pianerottolo con ringhiera, la siepe (Z 100, con UCX) e il bordo aperto sopra. Suolo Mirabello +15 → fondale 0 a X 980 (15 cm).
+- **Suolo continuo**: nessun buco interno nella griglia; nell'area nuova il suolo con collisione è `Blockout_Fondale_v4` a Z 0 (sotto il
+  `SM_Mirabello_Fondale` visivo a +2/+5 cm). Senza collisione: **recinzione metallica** tra quai e parcheggio (si attraversa) e prati del Fondale;
+  multipiano oltre X 1504 (chiuso dalla barriera).
+- **Yacht, pontili, fanale**: nessun impatto (No Collision). Nell'area nuova il **Pontile_087** (X 2795, radice a Y 16500, 0,75 m dal ciglio) e i
+  suoi yacht sono a portata di salto: chi ci sale cade in acqua. Altri yacht nell'acqua davanti all'area (X −1951..3659). Decide l'utente.
+
+### Salvataggio, validazione, log, memoria
+`save_dirty_packages` 12:39:26: 17 asset (9 mesh + 8 temporanei) + 36 OFPA + 1 external object (date su disco controllate); **nessun pacchetto
+sporco**. Validazione `LaSpezia/`: **532/532 validi, 0 errori, 33 avvisi** = 27 noti + 6 "un solo LOD" (Fondale, Multipiano, Passerella,
+Pianerottolo: pezzi unici; `TMPMB_..._YachtA_LOD1`, `_YachtB_LOD1`). Log: nessun errore (solo EOS/audio). **Memoria texture invariata:
+235,5-236,2 MiB** (nessuna texture nuova, 138 texture); mesh nuove ~6,5k tri LOD0 in tutto.
+
+### Render (`docs/qa/`, 1024 px, ombre, `r.Streaming.FullyLoadUsedTextures 1`)
+- `uefn_mirabello_v1.png`: (−510, 15600, 440), pitch −9, yaw 90, FOV 80, dal calpestio del ponte verso l'arrivo. I parapetti del tratto finale
+  si vedono **a giorno** (montanti, corrimano, cavi), **non** come pannelli pieni bianchi. Le auto del parcheggio appaiono quasi bianche
+  (`T_Morin_Auto_v2_*` a LODBias 1 + mip in streaming, come nel §20): da guardare in sessione.
+- `uefn_mirabello_v1_b.png`: (−1300, 19000, 180), pitch 4, yaw −84, FOV 80, dalla testata verso il ponte: scala, muro del pianerottolo in
+  paramento, ringhiere, antenne e stralli.
+
+### Temporanei e problemi aperti
+- 8 `LaSpezia/_Temp/TMPMB_SM_Mirabello_{Pontile,YachtA,YachtB,Fanale}_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente.
+- **(blender-artist)** Ringhiera mancante sul bordo N del pianerottolo, Blender X −1,9..−0,55, Y −179.
+- **(blender-artist)** `Blockout_Fondale_v4`: il blocco Z 7 m sporge di 16 m a ovest del multipiano (X −152..−136 m): versione tagliata a X ≥ −136.
+- **(blender-artist)** UCX per la recinzione del Fondale (ora attraversabile).
+- **(utente)** Pontile_087 e yacht senza collisione raggiungibili dall'area nuova: accettare (si cade in acqua) o dare collisione.
+- **(qa-tester)** In sessione: barriere nuove, scala a rampa, passerella fino a terra, bordo aperto, auto quasi bianche.
