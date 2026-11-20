@@ -1711,3 +1711,111 @@ Spatial Profiler. Le stime "metodo §21" restano solo informative (memoria textu
   mip forzati residenti 20 s): auto colorate con vetri, fanali e targhe; asfalto, strisce, chiome e palme nitidi.
 - Memoria: budget di pubblicazione invariato in pratica (§30); stima a mano a piena risoluzione (solo informativa) ≈ 314-392 MiB a runtime in streaming.
   Da rileggere "Budget memoria mappa" (sorgente "Pubblica") dopo la prossima sessione dell'utente.
+
+## 32. Blocco 2 v1: passeggiata X 251-566 (2026-11-20, ~13:00-13:25 ora locale)
+
+Sorgenti: `exports/blocco2/` (5 asset con LOD, 7 pezzi unici, 9 CSV in coordinate UE), `exports/blockout/SM_Blockout_{Passeggiata_B2,Fondale_B2_Terreno}.fbx`,
+texture `blender/textures/blocco2/T_Morin_Corten_D/N/ORM.png`. Metodo del §13/§21 (LOD0 col nome finale via `ImportFile`, materiali/texture off;
+LOD1/2 come `_Temp/TMPB2_<asset>_LOD1/2`; `remove_lods` + `set_lod_from_static_mesh(..., True)`; sezioni dei LOD1/2 rimappate sugli slot 0/1;
+Nanite off; Use Simple Collision As Complex; soglie 1,0/0,2/0,08; MinLOD Low/Medium 2 sulle mesh a 3 LOD, 0 sui pezzi unici e sui temporanei).
+Tutti gli FBX LOD0 hanno UCX (controllato nei file): nessun `remove_collisions`. Nessun attore né asset cancellato.
+
+### Asset (`LaSpezia/Arte/Blocco2`, blockout in `LaSpezia/Blockout`)
+| Asset | Tri LOD0/1/2 | Bbox locale (uu) | Convessi | Slot → MI |
+|---|---|---|---|---|
+| `SM_Morin_Cannone` | 1.208 / 840 / 280 | X ±51 · Y −112..145 · Z 0..111 | 2 | `MI_Banchina_Ghisa`, `MI_Morin_Cannone_Legno` |
+| `SM_Morin_Redamare` | 612 / 540 / 468 | X ±400 · Y ±30 · Z 0..135 | 2 | `MI_Morin_Corten` |
+| `SM_Banchina_Angolo_MoloItalia` | 1.311 / 731 / 31 | X 0..762 · Y −55..3216 · Z −300..0 | 2 | `MI_Banchina_Blocchi`, `MI_Banchina_Paramento` |
+| `SM_Morin_ChioscoOttagonale` | 138 / 122 / 106 | X ±370 · Y ±370 · Z 0..345 | 2 | `MI_Morin_Chiosco`, `MI_Morin_Dehors` |
+| `SM_Morin_AstaBandiera` | 140 / 112 / 70 | X ±22 · Y ±21 · Z 0..1152 | 2 | `MI_Pav_Fascia` |
+| `SM_Pav_Camminamento_4m_B2` | 2 | X 0..400 · Y −940..−54 · Z 0 | 1 (Z −30..0) | `MI_Pav_Lastre` |
+| `SM_Pav_FasciaPalme_Fine` | 36 | X 0..900 · Y −10200..−8915 · Z ±15 | 1 | `MI_Pav_Cubetti`, `MI_Pav_Fascia` |
+| `SM_Morin_Prato_Giardini_B2` | 105 | X 25000..55875 · Y −12085..−10190 · Z −5..8 | 3 | `MI_Morin_Prato` |
+| `SM_Pav_Vialetti_B2` | 26 | X 28731..55875 · Y −11800..−10096 · Z 5..11 | 9 | `MI_Pav_Cubetti` |
+| `SM_Pav_Piazzetta_Chiosco_B2` | 18 | X 52660..55875 · Y −11545..−10200 · Z 7..15 | 1 | `MI_Pav_Cubetti`, `MI_Pav_Fascia` |
+| `SM_Pav_Piazzale_Fine_B2` | 10 | X 54927..56600 · Y −12100..−4709 · Z −300..0 | 3 | `MI_Pav_Cubetti` |
+| `SM_Pav_Scritta_Morin` | 265 | X 55467..55802 · Y −9960..−9260 · Z 15,3 | 1 | `MI_Pav_Fascia` |
+| `Blockout/SM_Blockout_Passeggiata_B2` | 19 | X 25000..55920 · Y −12100..−7927 · Z −300..−15 | 1 | `M_Blockout_Pietra` → `MI_Pav_Lastre` |
+| `Blockout/SM_Blockout_Fondale_B2_Terreno` | 10 | X 33000..58000 · Y −30000..−12085 · Z −300..0 | 1 | `M_Blockout_Verde` → `MI_Morin_Prato_Mondo` |
+
+- **Texture:** `T_Morin_Corten_D/N/ORM` 1024 (Poly Haven, CC0) in `Arte/Blocco2`; N = Normalmap senza flip, ORM = Masks, sRGB off, LODBias 0.
+  Regola §29 rispettata (una alla volta, `GetSize` = 1024 dopo ogni cambio). Texture del progetto: 141 (+3).
+- **MI nuove** (`Arte/Blocco2`, parent `M_Morin_Master_PBR`): `MI_Morin_Corten` (D/N/ORM corten) e `MI_Morin_Cannone_Legno`
+  (`T_Morin_Imbarco_Legno_D/N/ORM`, Tinta 0,30 / 0,22 / 0,16). Tutti gli altri slot sulle MI esistenti.
+- **Log:** `SM_Morin_ChioscoOttagonale` (e i suoi LOD) dà "basi tangenti degeneri / normali quasi nulle": facce degeneri nel modello (blender-artist).
+
+### Posa (Outliner `Arte/Blocco2/<gruppo>`, blockout in `Blockout`; HISM nuovi, nessuna istanza aggiunta agli HISM del Blocco 1)
+HISM duplicati da `Arte_Arredi_Tombini` (Query Only `FortStaticMesh`, Static) o da `Arte_Viale_PalazzoA` (No Collision) + `clear_instances`;
+pezzi unici duplicati da `Arte_Arredi_Gazebo`, l'ancora da `Arte_Banchina_AncoraMonumento`, i blockout da `Blockout_Fondale_v5`. Trasformazioni dal CSV
+(yaw, scala uniforme `scala`). **620 istanze** in 45 attori (654 righe − 34 auto statiche non posate).
+
+| Gruppo | Attori (istanze) |
+|---|---|
+| banchina | `Arte_B2_Banchina_Mod4m_v2` (68), `_Mod4m_Nicchia` (6), `_Scaletta_v2` (6), `Arte_B2_Ancora_02` (1) |
+| pav | `Arte_B2_Pav_Camminamento_4m_B2` (77), `_Cordolo_9m` (34), `_FasciaPalme_9m` (33), `_Aiuola` (68), `Arte_B2_Fascia_33` (FasciaPalme_Fine) |
+| palme | `Arte_B2_Palme_Morin_PalmaA` (68) |
+| arredi | `Arte_B2_Arredi_Morin_{Panchina 17, Cestino 11, Lampione 8, Tombino 10}` |
+| giardini | `Arte_B2_Giardini_Morin_{OleandroAlberello_Bianco 27, _Rosa 26, PanchinaLunga_Mod 63}` |
+| viale | `Arte_B2_Viale_Italia_Strada_v2` (13, No Collision), `Arte_B2_Viale_Spartitraffico_Fiori` (18, No Collision), `Arte_B2_Viale_Morin_Semaforo` (4) |
+| fondale | `Arte_B2_Fondale_Palazzo_{A,B,C}` (2+2+2), `_Albero_LatifogliaA/B` (4/5), `_Morin_PinoDomestico` (7), `_Morin_PalmaA` (6): tutti No Collision (come `Arte_Viale_GP_*`) |
+| chiosco | `Arte_B2_Chiosco_Morin_{Ombrellone, TavoloSet, Sgabello}` (4 ciascuno), `_Fioriera` (2), `_FiorieraB` (2), `_Lampione` (2) |
+| nuovi | `Arte_B2_Nuovi_Morin_Cannone` (2), `_AstaBandiera` (3), `Arte_B2_Redamare`, `Arte_B2_Angolo_MoloItalia`, `Arte_B2_ChioscoOttagonale`, `Arte_B2_Morin_Prato_Giardini_B2`, `Arte_B2_Pav_{Vialetti_B2, Piazzetta_Chiosco_B2, Piazzale_Fine_B2, Scritta_Morin}`; `Blockout_Passeggiata_B2`, `Blockout_Fondale_B2_Terreno` |
+
+**Nascosto, non cancellato** (§14): `Arte_Banchina_Testata_Fine`. Attori nel livello: 290 (+55).
+
+### Barriere (`Device/Barriere`, copie con le stesse opzioni: Scatola, invisibile, sempre attiva, altezza 10, blocca proiettili)
+Segno della Y verificato sulle esistenti: `Barriera_LatoCitta` a Y −11930 (città = Y negativo), `Barriera_Acqua_LatoMare` a Y +30928 (mare = Y positivo).
+**Deroga:** `BarrierWidth` accetta solo valori fissi (… 20, 30, 40, 50, 60 …): 51 e 56 non esistono. Usati 50 e 60 con i centri richiesti.
+
+| Label | Centro | Unità L × P | Ingombro (`BarrierBounds`) |
+|---|---|---|---|
+| `Barriera_FineBlocco` (spostata) | (56700, 10930, −700) | 0,5 × 90 | X 56572..56828 · Y −12110..33970 |
+| `Barriera_LatoCitta_B2` (nuova) | (43872, −11930, −700) | **50** × 0,5 | X 31072..56672 · Y −12058..−11802 |
+| `Barriera_Acqua_LatoMare_B2` (nuova) | (42700, 30928, −700) | **60** × 0,5 | X 27340..58060 · Y 30800..31056 |
+
+Continuità sui bounds, passo 4 uu: lato città X −3510..56828 (tratto del parcheggio invariato), lato mare X −17600..56828, fine blocco
+Y −12058..31056: **nessun varco**. Sovrapposizioni ai raccordi: LatoCitta/LatoCitta_B2 32 uu in X (stessa fascia Y), LatoCitta_B2/FineBlocco 100 uu,
+LatoMare/LatoMare_B2 1140 uu; gli spigoli (56572; −11802) e (56572; 30800) sono dentro due barriere. Molo Italia chiuso da `Barriera_FineBlocco`.
+
+### Acqua
+Acqua V2 limitata a 100 tiles (512 m): `Acqua_Golfo_Device` resta X −17100..34100. Nuovo **`Acqua_Golfo_Device_B2`** (copia, stesse opzioni:
+profondità 84, altezza 1, 100 % verticale, tipo Default, sempre attivo) al centro (45876, 9550, −484), larghezza **46** → volume
+`FortWaterBodyCubeVolumeComponent` **X 34100..57652** · Y −11954..31054 · Z −484..−100, identico in Y e Z al primo. Bordo comune a X 34100:
+**fessura 0, sovrapposizione 0** (il riquadro di sola edizione è rientrato di 115-250 uu, ma non è l'acqua).
+
+### Traffico (`LS_Viale_Traffico`)
+Le 34 auto statiche del CSV viale **non posate** (richiesta dell'utente). Sequenza estesa: giro **90 s** (frame 0-2700 a 30 fps, prima 60 s),
+corsa **X −15000 ↔ 57300** (723 m, prima 480 m), sezioni Transform 0-2700, chiavi X lineari durante la corsa e costanti nell'attesa a Z −3000 (stesso schema
+del §25; le auto a cavallo del giro hanno la stessa X a frame 0 e 2700). Corse: 62,0 s a 42 km/h, 76,6 s a 34, 65,1 s a 40, 84,0 s a 31.
+**+7 auto** (`Arte_Viale_Traffico_14..20`, duplicate dalle esistenti: Movable, No Collision, `MI_Morin_Auto_v2_Luci`; binding possessable nuovi) per
+mantenere la densità: 21 auto, partenze ogni 15 s (corsie mare 2 e città), 22,5 s (mare 1), 18 s (striscia città).
+Verifica (scrub ogni 10 frame, interpolazione ricostruita dalle chiavi): tratto Blocco 1 (X −16..326 m) **7,8 auto in media** (max 9, come prima),
+tratto Blocco 2 (X 326..573 m) 5,7 (max 8); distanza minima fra auto della stessa corsia **155 m**; nessun salto con l'auto visibile.
+Le auto dei clacson sono in strada agli istanti delle tracce Audio (Traffico_12 a 3,0/3,65 s, _00 a 19 s, _08 a 41 s); lo schema ora si ripete ogni 90 s.
+Salti: a X −150 m (come prima) e a **X +573 m**, fine dei moduli viale del Blocco 2 (visibile da lontano dal piazzale finale).
+
+### Verifiche (line trace in editor; prop ignorati per suolo e gradini)
+- **Suolo X 248..566** (griglia 100 × 100 uu dal ciglio a Y −11790, 12.748 punti): **0 buchi**; gli unici 30 senza impatto sono a X 566,0
+  (bordo del piazzale, oltre la faccia interna della barriera a 565,72). `Blockout_Passeggiata_B2` non è mai la superficie più alta.
+- **Gradini:** nessuno > 40 cm. Salti trovati: cordolo 15 cm, piazzetta/scritta/fascia → piazzale 15 cm (atteso), prato → fascia 7, vialetti 2-10, aiuole 2.
+- **Raccordo B1/B2** (X 249..254, passo 10 × 20 uu, 5.661 punti): 0 buchi; profili lungo X a Y −79,9 / −82 / −85 / −88,8 / −89 / −90 / −95 / −101 m
+  con salto massimo **0 cm** (2 cm sul bordo aiuola): camminamento Z 0, striscia tattile 1,2, cordolo e fascia 15, banchina −0,5 continui.
+- **Angolo verso il Molo Italia:** bordo terra monotono (smusso da X 549 a Y −79 fino a X 554,2 a Y −48), nessun buco interno. Oltre Y −47,09 il piazzale
+  finisce sull'acqua (ciglio, come la banchina): Blocco 3 non ancora costruito.
+- **Collisione prop:** cannoni 2/2, aste 3/3, panchine 17/17, panchine lunghe 63/63, lampioni 8/8, cestini 11/11, palme 68/68, tavoli 4/4,
+  REDAMARE 30/30 trace orizzontali, chiosco ottagonale colpito (22/30, i mancati sono oltre il raggio di 3,7 m).
+
+### Salvataggio, validazione, render
+`save_dirty_packages`: **0 pacchetti sporchi**; 97 `.uasset` con data nuova (57 OFPA, 17 in `Arte/Blocco2`, `LS_Viale_Traffico`, i 2 blockout).
+Validazione `LaSpezia/`: **567/567 validi, 0 errori, 41 avvisi** (`ValkyrieValidator_StaticMesh`: i 37 noti + "un solo LOD" sui nuovi `TMPB2_*`).
+Log: nessun errore nuovo sul progetto (solo `LogAudioMixer` di sistema e gli avvisi di tangenti del chiosco ottagonale).
+Render 1024 px, ombre, mip forzati (`docs/qa/`): `uefn_blocco2_redamare.png` (25420, −9150, 165; yaw 90; pitch −4; FOV 70),
+`uefn_blocco2_infilata.png` (26300, −9610, 185; yaw 0; pitch −2; FOV 75), `uefn_blocco2_fine.png` (56150, −9610, 180; yaw 180; pitch −12; FOV 75).
+
+### Temporanei e problemi aperti
+- 10 nuovi `LaSpezia/_Temp/TMPB2_SM_{Morin_Cannone, Morin_Redamare, Banchina_Angolo_MoloItalia, Morin_ChioscoOttagonale, Morin_AstaBandiera}_LOD1/_LOD2`;
+  eliminabili con conferma dell'utente.
+- **(blender-artist)** `SM_Morin_ChioscoOttagonale`: tangenti degeneri/normali nulle (facce ad area zero?).
+- **(qa-tester)** In sessione: traffico a 90 s con 21 auto (loop, salto a X 573 m dal piazzale), barriere B2 (non visibili ai trace in modalità Crea),
+  bordo acqua tra i due device Acqua V2 a X 341 m, piazzale finale sull'acqua oltre Y −47 m.
+- Memoria: +3 texture 1024 (~2,7 MiB a runtime), mesh trascurabili; rileggere "Budget memoria mappa" dopo la prossima sessione (§30).
