@@ -57,6 +57,7 @@ PASS = (3.0, 46.1, -180.4, -176.6)        # passerella in discesa
 STAIR = (-17.8, -14.2, -186.6, -182.6)    # scala (8 alzate da 16,25 cm)
 N_RISE = 8
 SPALLA_X = (-8.73, -0.63)          # spalla del ponte (arte_ponte.blend)
+GAP_N = (-1.72, -0.56)             # varco N del pianerottolo: parapetto est del ponte (X -1,68) -> testa passerella
 ROAD_N = (-191.25, -186.75)        # corsia nord (senso unico) [S: asse OSM -186,9 spostato 2 m a S per la scala]
 ROW1 = (-195.875, -191.25)
 ROW2 = (-200.5, -195.875)
@@ -357,7 +358,9 @@ def build_suolo(coll, name="SM_Mirabello_Suolo"):
 # =================================================================================================================
 # pianerottolo + scala (spalla Mirabello -> suolo)
 # =================================================================================================================
-def build_pianerottolo(coll, name="SM_Mirabello_Pianerottolo"):
+def build_pianerottolo(coll, name="SM_Mirabello_Pianerottolo", chiudi_nord=False):
+    """chiudi_nord (v2, docs/uefn_arte.md §28): ringhiera sul bordo N fra il parapetto del ponte (X -1,68) e la
+    testa della passerella (X -0,56), dove c'era un salto di 1,30 m senza protezione."""
     M = ["M_Ponte_Legno", "M_Ponte_Acciaio", "M_Banchina_Paramento", "M_Pav_Fascia"]
     g = PB(M)
     x0, x1, y0, y1 = LAND
@@ -395,6 +398,8 @@ def build_pianerottolo(coll, name="SM_Mirabello_Pianerottolo"):
     # ringhiere (h 1,15 dal calpestio, come il ponte)
     r = 0.04
     _rail(g, [(x0 + r, y1 - r), (SPALLA_X[0] + 0.25, y1 - r)], [Z_DECK] * 2)
+    if chiudi_nord:
+        _rail(g, [(GAP_N[0], y1 - r), (HEAD[0] + r, y1 - r)], [Z_DECK] * 2)
     _rail(g, [(x0 + r, y1 - r), (x0 + r, y0 + r)], [Z_DECK] * 2)
     _rail(g, [(sx1 - 0.075, y0 + r), (x1 - r, y0 + r), (x1 - r, PASS[2])], [Z_DECK] * 3)
     for xx in (sx0 + 0.075, sx1 - 0.075):
@@ -407,6 +412,8 @@ def build_pianerottolo(coll, name="SM_Mirabello_Pianerottolo"):
              (x0, x0 + 0.10, y0, y1, Z_DECK, Z_DECK + 1.15),                        # ovest
              (sx1 - 0.15, x1, y0, y0 + 0.10, Z_DECK, Z_DECK + 1.15),                # sud
              (x1 - 0.10, x1, y0, PASS[2], Z_DECK, Z_DECK + 1.15)]                   # est
+    if chiudi_nord:
+        boxes.append((GAP_N[0] - 0.25, HEAD[0] + 0.05, y1 - 0.10, y1, Z_DECK, Z_DECK + 1.15))   # ringhiera N (varco)
     pk._ucx(name, boxes, coll)
     wedge = [Vector((x, y, z)) for x in (sx0, sx1) for (y, z) in ((sy1, 0.0), (sy1, Z_DECK), (sy0, 0.0))]
     pk._ucx_hull(name, len(boxes), wedge, coll)
@@ -565,7 +572,9 @@ def build_multipiano(coll, name="SM_Mirabello_Multipiano"):
 # =================================================================================================================
 # fondale: suolo fuori dal box, ciglio, recinzione metallica, prati
 # =================================================================================================================
-def build_fondale(coll, name="SM_Mirabello_Fondale"):
+def build_fondale(coll, name="SM_Mirabello_Fondale", ucx_recinzione=False):
+    """ucx_recinzione (v2): un UCX box sottile e ruotato lungo tutta la recinzione (h 1,25 m), che ora e' in parte
+    dentro l'area giocabile (barriera a X 51,5). Nessun altro UCX: il suolo di collisione resta il blockout."""
     M = ["M_Parcheggio_Asfalto", "M_Molo_Masselli", "M_Banchina_Paramento", "M_Morin_Prato", "M_Morin_Bosso",
          "M_Ponte_Acciaio"]
     g = PB(M)
@@ -602,7 +611,14 @@ def build_fondale(coll, name="SM_Mirabello_Fondale"):
         g.post(p.x, p.y, zf, 1.2, 0.03, "M_Ponte_Acciaio")
     for zr in (0.12, 0.62, 1.17):
         g.beam((a.x, a.y, zr), (b.x, b.y, zr), 0.03, 0.04, "M_Ponte_Acciaio")
-    return g.finish(name, coll)
+    o = g.finish(name, coll)
+    for u in [u for u in bpy.data.objects if u.name.startswith(f"UCX_{name}_")]:
+        bpy.data.objects.remove(u)
+    if ucx_recinzione:
+        d = b - a
+        mat = Matrix.Translation((a.x, a.y, 0.0)) @ Matrix.Rotation(math.atan2(d.y, d.x), 4, "Z")
+        pk._ucx(name, [(-0.10, L + 0.10, -0.06, 0.06, 0.0, 1.25, mat)], coll)
+    return o
 
 
 # =================================================================================================================
@@ -711,8 +727,10 @@ def build_yacht_a(coll, lod=0, name="SM_Mirabello_YachtA"):
     return g.finish(name + mi._sfx(lod), coll)
 
 
-def build_yacht_b(coll, lod=0, name="SM_Mirabello_YachtB"):
-    """Barca a vela ~11 x 3,6 m: scafo bianco, tuga bassa, albero 15 m, boma con vela avvolta blu [S]."""
+def build_yacht_b(coll, lod=0, name="SM_Mirabello_YachtB", genoa="BLU", albero="BIANCO"):
+    """Barca a vela ~11 x 3,6 m: scafo bianco, tuga bassa, albero 15 m, boma con vela avvolta blu [S].
+    v2 (docs/uefn_arte.md §28): genoa avvolto sullo strallo BIANCO e albero/boma in alluminio (ACCIAIO): da lontano
+    il genoa blu si leggeva come un albero blu acceso."""
     L, B = 11.0, 3.6
     g = Geo()
     hb, zs = _hull_loft(g, L, B, (0.95, 1.15), -0.7, lod, boot="BLU")
@@ -729,13 +747,13 @@ def build_yacht_b(coll, lod=0, name="SM_Mirabello_YachtB"):
     g.box(-4.6, -2.4, -0.38 * B, 0.38 * B, 0.95, 1.20, "BIANCO", faces=("top", "xn", "yn", "yp"))
     sides = {0: 8, 1: 5, 2: 4}[lod]
     xm = 0.6
-    g.tube([(xm, 0, 1.2), (xm, 0, 15.5)], 0.085, sides, "BIANCO")                      # albero
-    g.tube([(xm, 0, 2.35), (-4.2, 0, 2.30)], 0.06, sides, "BIANCO")                    # boma
+    g.tube([(xm, 0, 1.2), (xm, 0, 15.5)], 0.085, sides, albero)                        # albero
+    g.tube([(xm, 0, 2.35), (-4.2, 0, 2.30)], 0.06, sides, albero)                      # boma
     g.tube([(xm - 0.2, 0, 2.55), (-4.0, 0, 2.50)], 0.20, sides, "BLU")                 # vela avvolta (copriranda)
     if lod < 2:
         g.tube([(xm, 0, 15.3), (L / 2 - 0.1, 0, zs(L / 2) + 0.05)], 0.012, 3, "ACCIAIO", cap=False)   # strallo
         g.tube([(xm, 0, 15.3), (-L / 2 + 0.2, 0, zs(-L / 2) + 0.05)], 0.012, 3, "ACCIAIO", cap=False)  # paterazzo
-        g.tube([(L / 2 - 0.1, 0, 1.4), (xm + 0.05, 0, 14.0)], 0.10, 4, "BLU", cap=True)            # genoa avvolto
+        g.tube([(L / 2 - 0.1, 0, 1.4), (xm + 0.05, 0, 14.0)], 0.10, 4, genoa, cap=True)            # genoa avvolto
         for s in (-1, 1):
             g.tube([(xm, 0, 13.5), (xm - 0.3, s * (hb(xm) - 0.1), zs(xm))], 0.01, 3, "ACCIAIO", cap=False)
     if lod == 0:

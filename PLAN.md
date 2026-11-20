@@ -543,8 +543,26 @@ Ordine per impatto visivo:
             Line trace: ponte → pianerottolo senza fessure (0,2 cm), scala a rampa fino a Z 0, passerella fino a terra (X 46,1 m), ringhiere OK
             tranne un bordo aperto, nessun gradino > 40 cm, suolo continuo. Validazione 532/532, 0 errori. Memoria texture invariata 236 MiB.
             Render `docs/qa/uefn_mirabello_v1.png`, `_b.png` (parapetti del ponte a giorno, non pannelli pieni).
-      - [ ] (blender-artist) Ringhiera sul bordo N del pianerottolo (X −1,9..−0,55, Y −179: salto 1,30 m); UCX della recinzione del Fondale;
-            `Blockout_Fondale_v4` da tagliare a X ≥ −136 m (sporge 16 m oltre il multipiano).
+      - [x] (blender-artist) Correzioni v2 2026-11-20 (da §28; backup `blender/arte_mirabello_pre_fix_v2.blend`,
+            `blender/blockout_blocco1_pre_fondale_v5.blend`, `blender/scripts/morin_mirabello_v1_backup.py.txt`; v1/v4 intatte):
+            `SM_Mirabello_Pianerottolo_v2` 704 tri (+60), ringhiera bianca sul varco N X −1,72..−0,56 a Y −179,04 (h 1,15) + UCX_05
+            (X −1,97..−0,55, Y −179,1..−179,0, Z 1,30..2,45), 9 UCX · `SM_Mirabello_Fondale_v2` 549 tri, 1 UCX box sottile ruotato lungo
+            tutta la recinzione (X −0,5..113,6, h 1,25, spessore 0,12) · `SM_Mirabello_YachtB_v2` 522/282/77 tri, albero e boma in
+            alluminio (cella ACCIAIO), genoa avvolto bianco (era il tubo BLU sullo strallo che da lontano sembrava l'albero), no UCX ·
+            `exports/blockout/SM_Blockout_Fondale_v5.fbx` 397 tri, 41 UCX, blocco Z 7 m tagliato a X ≥ −136 (mesh e UCX_Edifici_00),
+            collezione `Blockout_Fondale_v5` in `blockout_blocco1.blend`. FBX in `exports/mirabello/` (`_v2`, `_v2_LOD1/2`).
+      - [ ] (uefn-builder) **Import correzioni Mirabello v2** (metodo §28, nomi nuovi, nessun vecchio asset cancellato):
+            1. `SM_Mirabello_Pianerottolo_v2` (scena, UCX 9) → mesh dell'attore `Arte_Mirabello_Pianerottolo` (stessa posa 0,0,0, Query Only);
+               `SM_Mirabello_Pianerottolo` resta nel Content Browser inutilizzato.
+            2. `SM_Mirabello_Fondale_v2` (scena, 1 UCX = recinzione) → mesh dell'attore `Arte_Mirabello_Fondale`; **collisione da No Collision
+               a Query Only/BlockAll** (l'unico convesso è la recinzione; i prati/suolo restano senza collisione, il suolo resta il blockout).
+               Non fare `remove_collisions` su questa mesh. Verifica: trace orizzontale sulla recinzione a X 1000..5000 uu.
+            3. `SM_Mirabello_YachtB_v2` + `_v2_LOD1/_LOD2` (asset, 3 LOD, no UCX: `remove_collisions`) → mesh dell'HISM
+               `Arte_Mirabello_YachtB` (23 istanze, No Collision); `SM_Mirabello_YachtB` resta inutilizzato.
+            4. `SM_Blockout_Fondale_v5` (scena, solo LOD0, 41 UCX, slot Verde → `MI_Morin_Prato_Mondo` come v4) → nuovo attore
+               `Blockout_Fondale_v5` in (0,0,0) Query Only (dup. di `Blockout_Fondale_v4`); **nascondere `Blockout_Fondale_v4`** (metodo §14).
+            Controlli: suolo continuo in area Mirabello e Viale (v5 identico alla v4 tranne X < −136 m), ringhiera N (trace a +20/60/100 cm
+            su X −190..−55, Y 17900), validazione, memoria (nessuna texture nuova).
       - [ ] (utente) Pontile_087 e yacht senza collisione raggiungibili dall'area nuova (si cade in acqua): accettare o dare collisione.
       - [ ] (qa-tester) Sessione: barriere nuove di Mirabello, scala, passerella, auto quasi bianche nel render (LODBias/streaming?).
       - [ ] (utente) Foto di Mirabello: arrivo del ponte (scala e passerella), fronte del multipiano, pavimentazione del quai.
