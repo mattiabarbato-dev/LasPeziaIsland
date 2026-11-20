@@ -46,7 +46,12 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      `SM_Molo_PalmaVaso` 406/258/162 (2,61 × 2,49 × 3,46). Bbox dei LOD entro lo 0,6 %; normali verificate con ray test dall'esterno
      (0 facce rovesciate; restano 1-3 impatti radenti sulle mantovane doppie), nessun ricalcolo globale. Confronto `docs/qa/arte_ristorante_c_v2.png`
      (foto F3 | render dalla camera F3 | vista ravvicinata). Deroghe e stime nel log decisioni (dehors sulla strada come in foto, corridoio ≥ 8,5 m).
-   - [ ] (uefn-builder) **Import ristorante C v2**: le 6 mesh × 3 LOD (metodo §12: ImportFile in `_Temp` + `set_lod_from_static_mesh`), texture
+   - [x] (uefn-builder, 2026-11-20 ~20:00) **Import ristorante C v2** fatto (`docs/uefn_arte.md` §42.E-I): 6 mesh × 3 LOD (tri = scheda), convessi = UCX,
+     slot dei LOD rimappati, 2 MI e 6 texture nuove, 32/32 righe del CSV posate in `Arte/Molo/RistoranteC` (3 singoli + 8 HISM), `Arte_Molo_Edificio_C`
+     v1 nascosto (non cancellato). Line trace: tutto con collisione; corsia libera X −210..740 (tavoli a yaw −92 sporgono 9 cm oltre X −230,
+     cavalletto sul bordo); imbocco del ponte libero. 0 sporchi, 486/486 validi. Catture `docs/qa/uefn_ristorante_c_v2.png` (+ `_vicino`).
+     Testo originale del task:
+     (uefn-builder) **Import ristorante C v2**: le 6 mesh × 3 LOD (metodo §12: ImportFile in `_Temp` + `set_lod_from_static_mesh`), texture
      `T_Molo_RistoranteC_*` e `T_Molo_TendaRighe_*` (D sRGB, N Normalmap, ORM Masks) con `MI_Molo_RistoranteC` e `MI_Molo_TendaRighe` su
      `M_Morin_Master_PBR` (macro 0); slot fogliame → `MI_Albero_Latifoglia_Chioma`, fronde → `MI_Morin_PalmaA_Fronde`. Posa dal CSV v2: edificio e
      dehors in (0,0,0); HISM per `SM_Molo_SetLegno` (10), `SM_Molo_OmbrelloneLegno` (4), `SM_Molo_PalmaVaso` (7), fioriere del chiosco (5),
@@ -851,7 +856,11 @@ Ordine per impatto visivo:
       `T_Viale_Segnaletica_v2` 2048 su 2 m (vernice consumata e screpolata, asfalto che traspare); `T_Pav_Cubetti_v3` 4096 su **5,6 m**
       (2 × 2 ventagli deformati, tinta per cubetto); `T_Morin_Prato_v3` 4096 su **8 m** (zone fitte/rade, chiazze) + `T_Morin_Prato_MacroVar`
       (seconda macro, solo prato). Render `docs/qa/arte_texture_v3_confronto.png` (`blender/arte_texture_v3.blend`). Nessun import, nessun commit.
-- [ ] (uefn-builder) **Import texture v3** e MI secondo `docs/texture_v3.md` ("Cosa fare in UEFN"): `MI_Ponte_Legno` (macro 0,15),
+- [x] (uefn-builder, 2026-11-20 ~20:00) **Import texture v3** fatto (`docs/uefn_arte.md` §42.A-D, valori vecchi in §42.A): 13 texture in
+      `Arte/Texture_v3` (GetSize ok, LODBias 0, nessun "no miplevels"), 5 MI ricollegate coi valori della tabella. Doghe del ponte **trasversali**
+      (UV corrette). Catture `docs/qa/uefn_texture_v3_{ponte,cubetti,prato,strisce}.png`. Saldo memoria texture stimato ≈ +45 MiB (informativo).
+      Testo originale del task:
+      (uefn-builder) **Import texture v3** e MI secondo `docs/texture_v3.md` ("Cosa fare in UEFN"): `MI_Ponte_Legno` (macro 0,15),
       `MI_Viale_Segnaletica` (`UV_Tiling` 0,5), `MI_Pav_Cubetti` (`Tile_m` 5,6, macro 0,35), `MI_Morin_Prato`/`_Mondo` (`UV_Tiling` 0,5 / `Tile_m` 8,
       `MacroVar` = `T_Morin_Prato_MacroVar`, macro 0,6). Annotare prima i valori attuali; catture agli stessi punti del §35.D.
 

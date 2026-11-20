@@ -2754,3 +2754,111 @@ Fuori da `_Temp` (percorsi relativi a `LaSpezia/`, referencer verificati):
   Sequence generata dall'editor) dopo il reload sono ai valori di default: sole 10 bianco, nebbia 0,025, nuvole volumetriche invisibili.
   Quindi la differenza è solo nell'**anteprima dell'editor**, che dopo il reload non riapplica il modificatore. Non ho cambiato nulla
   (0 pacchetti sporchi). Cattura `docs/qa/uefn_luce_dopo_reload.png`. Il risultato in gioco va confermato in sessione.
+
+## 42. Texture v3 e ristorante C v2 "Al Muscolo Stanco" (2026-11-20, ~19:55-20:10 ora locale)
+
+Istruzioni: `docs/texture_v3.md` e PLAN.md (voce "Import ristorante C v2"). Nessuna sessione di gioco, nessuna cancellazione, nessun commit.
+
+### A. Valori PRIMA della modifica (per tornare indietro)
+| MI | Master | Texture (BaseColor/Normal/ORM) | Scalari con override | MacroVar |
+|---|---|---|---|---|
+| `Ponte/MI_Ponte_Legno` | PBR | `Texture_v2/T_Ponte_Legno_v2_*` | `UV_Tiling` 1 · `Roughness_Mult` 1 · `Macro_Int` 0,2 | default del master (`T_Morin_MacroVar`) |
+| `Viale/MI_Viale_Segnaletica` | PBR | `Viale/T_Viale_Segnaletica_*` (v1) | nessuno (`UV_Tiling` 1 e `Macro_Int` 0 dal master) | default |
+| `Pavimentazione/MI_Pav_Cubetti` | Pav | `Texture_v2/T_Pav_Cubetti_v2_*` | `Tile_m` 2,8 · `Roughness_Mult` 1 · `Macro_Int` 0,3 · `Tinta` (0,97; 0,94; 0,90) | default |
+| `Viale/MI_Morin_Prato` | PBR | `Texture_v2/T_Morin_Prato_v2_*` | `UV_Tiling` 1 · `Roughness_Mult` 1 · `Macro_Int` 0,45 | default (nessun override) |
+| `Viale/MI_Morin_Prato_Mondo` | Pav | `Texture_v2/T_Morin_Prato_v2_*` | `Tile_m` 4 · `Roughness_Mult` 1 · `Macro_Int` 0,45 | default (nessun override) |
+
+Per tornare indietro: rimettere texture e scalari della tabella e togliere l'override `MacroVar` dalle due MI del prato.
+
+### B. Texture v3 (`LaSpezia/Arte/Texture_v3`, 13 texture, nomi nuovi, nessuna v1/v2 sovrascritta)
+Metodo §38.B: `AssetImportTask` una texture alla volta, una proprietà alla volta con `finish_all_asset_compilation` prima e dopo, poi `GetSize` > 32.
+D: sRGB, Default, Compress Without Alpha; N: Normalmap, sRGB off, nessun flip; ORM e `T_Morin_Prato_MacroVar`: Masks, sRGB off (come
+`T_Morin_MacroVar`). Tutte gruppo World, LODBias 0. Dimensioni lette: 4096 per `T_Ponte_Legno_v3_*`, `T_Pav_Cubetti_v3_*`, `T_Morin_Prato_v3_*`;
+2048 per `T_Viale_Segnaletica_v2_*` e `T_Morin_Prato_MacroVar`. Nessun `contains no miplevels` nel log.
+
+### C. MI dopo
+| MI | Texture | Scalari | Altro |
+|---|---|---|---|
+| `MI_Ponte_Legno` | `T_Ponte_Legno_v3_*` | `UV_Tiling` 1 · `Roughness_Mult` 1 · `Macro_Int` **0,15** | |
+| `MI_Viale_Segnaletica` | `T_Viale_Segnaletica_v2_*` | `UV_Tiling` **0,5** · `Roughness_Mult` 1 · `Macro_Int` 0 | |
+| `MI_Pav_Cubetti` | `T_Pav_Cubetti_v3_*` | `Tile_m` **5,6** · `Roughness_Mult` 1 · `Macro_Int` **0,35** | `Tinta` invariata (0,97; 0,94; 0,90) |
+| `MI_Morin_Prato` | `T_Morin_Prato_v3_*` | `UV_Tiling` **0,5** · `Roughness_Mult` 1 · `Macro_Int` **0,6** | `MacroVar` = `T_Morin_Prato_MacroVar` |
+| `MI_Morin_Prato_Mondo` | `T_Morin_Prato_v3_*` | `Tile_m` **8** · `Roughness_Mult` 1 · `Macro_Int` **0,6** | `MacroVar` = `T_Morin_Prato_MacroVar` |
+
+Nota Python: `MaterialEditingLibrary.set_material_instance_*_parameter_value` restituisce falso anche quando applica il valore: verificare rileggendo.
+
+### D. Catture texture (`docs/qa/`, 1024 px, ombre, `r.Streaming.FullyLoadUsedTextures 1`, doppio render con 8 s di attesa)
+- `uefn_texture_v3_ponte.png` (−120, 4300, 429; pitch −22, yaw 90; FOV 75; punto 06 del §35.D più inclinato sul calpestio): **doghe trasversali**
+  alla direzione di marcia, giunto continuo sull'asse, due file di borchie. Le UV del ponte sono giuste: niente da segnalare a blender-artist.
+- `uefn_texture_v3_cubetti.png` (1100, −10300, 400; −25, −90; 80; piazzale dell'incrocio): ventagli ad archi irregolari, nessuna ripetizione
+  evidente sul piazzale.
+- `uefn_texture_v3_prato.png` (punto 03 del §35.D: 15300, −9650, 180; −3, −90; 90).
+- `uefn_texture_v3_strisce.png` (650, −11250, 320; −45, −90; 70; strisce pedonali dell'incrocio): vernice consumata a chiazze, asfalto che traspare.
+
+### E. Ristorante C v2: asset (`LaSpezia/Arte/Molo`, metodo §13/§39)
+LOD0 col nome finale (`ImportFile`, materiali e texture off), LOD1/2 come `_Temp/TMPMC_<asset>_LOD1/_LOD2` (12), `remove_lods` +
+`set_lod_from_static_mesh(..., True)`. **Rimappatura degli slot dei LOD:** dopo la copia le sezioni dei LOD1/2 puntavano tutte allo slot 0;
+riportate per nome di slot del temporaneo con `set_lod_material_slot` (sezione 0 → materiale, sezione 1 → tela, fogliame o fronde).
+**Insidia:** riassegnare `static_materials` copiando l'array e rimettendolo con `set_editor_property` non ha avuto effetto (slot rimasti a
+`WorldGridMaterial`, prima cattura tutta grigia); funziona `StaticMesh.set_material(indice, MI)`.
+Nanite off nelle impostazioni (`IsNaniteMesh` del toolset risponde vero anche sull'edificio C v1, che ha Nanite off: non è affidabile),
+Use Simple Collision As Complex, soglie 1,0/0,2/0,08, MinLOD Low/Medium 0 su edificio e dehors, 2 sui prop, 0 sui temporanei.
+
+| Asset | Tri LOD0/1/2 | Bbox LOD0 (uu) | Convessi = UCX | Slot → MI |
+|---|---|---|---|---|
+| `SM_Molo_Edificio_C_v2` | 1.940 / 773 / 316 | X −1216..−732 · Y −4226..−2474 · Z 0..485 (mondo) | 5 | `MI_Molo_RistoranteC`, `MI_Albero_Latifoglia_Chioma` |
+| `SM_Molo_DehorsRighe` | 768 / 340 / 162 | X −766..−427 · Y −3871..−2649 · Z 0..304 (mondo) | 6 | `MI_Molo_RistoranteC`, `MI_Molo_TendaRighe` |
+| `SM_Molo_SetLegno` | 416 / 288 / 92 | X ±60 · Y −87..85 · Z 0..86 | 1 | `MI_Molo_RistoranteC` |
+| `SM_Molo_OmbrelloneLegno` | 340 / 228 / 92 | X ±139 · Y ±139 · Z 0..292 | 3 | `MI_Molo_RistoranteC`, `MI_Molo_TendaRighe` |
+| `SM_Molo_CavallettoMenu` | 68 / 68 / 68 | X ±35 · Y ±21 · Z 0..109 | 1 | `MI_Molo_RistoranteC` |
+| `SM_Molo_PalmaVaso` | 406 / 258 / 162 | X −143..117 · Y −128..121 · Z 0..346 | 1 | `MI_Molo_RistoranteC`, `MI_Morin_PalmaA_Fronde` |
+
+Bbox dei LOD1/2 entro 2 uu dal LOD0; triangoli = PLAN. Texture `T_Molo_RistoranteC_D/N/ORM` 2048 e `T_Molo_TendaRighe_D/N/ORM` 1024 (metodo B).
+MI nuove su `M_Morin_Master_PBR`: `MI_Molo_RistoranteC`, `MI_Molo_TendaRighe` (BaseColor/Normal/ORM, `Macro_Int` 0).
+
+### F. Posa (Outliner `Arte/Molo/RistoranteC`, CSV `exports/molo/molo_posizioni_v2.csv`, 32 righe, tutte posate)
+| Attore | Mesh | Istanze / trasformazione |
+|---|---|---|
+| `Arte_Molo_Edificio_C_v2`, `Arte_Molo_DehorsRighe` (dup. di `Arte_Molo_Edificio_C`) | omonime | (0,0,0), yaw 0 |
+| `Arte_Molo_CavallettoMenu_00` (dup. di `Arte_Arredi_Gazebo`) | CavallettoMenu | (−255, −3890, 1), yaw −35 |
+| `Arte_Molo_SetLegno` / `_OmbrelloneLegno` / `_PalmaVaso` (HISM, dup. di `Arte_Arredi_Tombini`) | rispettive | 10 / 4 / 7 |
+| `Arte_Molo_FiorieraC_A` / `_B` / `_C` (HISM) | `Chiosco/SM_Morin_Fioriera` / `B` / `C` | 2 / 2 / 1 |
+| `Arte_Molo_PalmaAlta` (HISM) | `Palme/SM_Morin_PalmaA` | 3 |
+
+Tutti `FortStaticMesh` Query Only, Static, nessun override di materiale. **Nascosto, non cancellato** (§14): `Arte_Molo_Edificio_C` (v1):
+componente Visible falso, No Collision, Hidden In Game, collisione attore off. Attori nel livello 336 → **346**.
+
+### G. Verifiche (line trace in editor, canale Visibility)
+- **Collisioni:** verticale su ogni pezzo del CSV: tavoli colpiti a Z 77 (10/10; i due sotto la tenda colpiscono prima la tettoia a Z 276),
+  ombrelloni a 293, cavalletto 110, fioriere 101, palme in vaso 93, palme alte 738. Orizzontale a Z 45: tutti colpiti. Tettoia del dehors:
+  griglia 8 × 13, 101/104 sul dehors (3 sul tetto dell'edificio). A Z 100 da +X la fronte del dehors è aperta (solo montanti a X −440/−430).
+- **Corridoio X −230 → 740 (−2,3 → 7,4 m), Y −1200 → −4200, Z 15/60/100/150/190, passo 10 cm (490 trace lungo Y):** colpi solo a
+  X −230/−220 (convesso di `SetLegno_09` fino a X −221, cioè **9 cm dentro il bordo**) e a X −230 Z 100 (cavalletto, sul bordo).
+  Da X −210 a 740 **nessun colpo**: corsia libera ~9,5 m (≥ 8 m). Le palme in vaso a X 800 arrivano a X 743.
+- **Imbocco del ponte** (X −873..300, Y −1200..300, 380 trace orizzontali): solo parapetti e impalcato del ponte già esistenti; trace verticali
+  su griglia 50 cm: `Arte_Molo_Pav_Masselli_03` Z 1, `Blockout_Passeggiata_v5` Z 0, impalcato. Nessun oggetto nuovo.
+- Normali: nelle catture nessuna faccia rovesciata visibile.
+- Una chiamata MCP con due griglie di trace (circa 1000 multi-trace) ha fatto cadere la connessione (ECONNRESET, nessuna modifica): rifatta in due.
+
+### H. Catture ristorante (`docs/qa/`, 1024 px, ombre, doppio render)
+- `uefn_ristorante_c_v2.png`: camera F3 di `arte_ristorante_c_v2.png` (Blender (4,45; 46,4; 2,3), az 213,4° → UE (445, −4640, 230), yaw 123,4, FOV 92,5).
+- `uefn_ristorante_c_v2_vicino.png` (extra): (150, −4300, 170), pitch −4, yaw 140, FOV 70.
+
+Giudizio: sagoma, tenda a righe blu, insegna, vetrate, finestra a griglia, fioriere sul tetto, tavoli con sedute colorate, ombrelloni e palme
+alte tornano come nel render Blender. Alle 18,5 il ristorante è tutto in ombra (latifoglia ed edifici a ovest): bianchi grigio-azzurri,
+meno leggibile della foto F3 (presa di giorno). Le fronde della palma in vaso sono scure e rade. A destra dell'inquadratura resta
+visibile un volume grigio liscio dietro l'edificio (fondale/blockout, non toccato).
+
+### I. Salvataggio, validazione, log, memoria
+`save_dirty_packages` 20:02 (texture v3 + 5 MI), 20:08 (26 asset + 12 OFPA: 11 attori nuovi e C v1), poi i 12 temporanei con MinLOD 0;
+**0 pacchetti sporchi**. Validazione `LaSpezia/`: **486/486 validi, 0 errori, 20 avvisi** (15 noti + "un solo LOD" su 5 temporanei
+`TMPMC_*`). Log: nessun `no miplevels`, nessun errore `LogMaterial`/shader; solo `LogEOSSDK` e messaggi generici del motore.
+Memoria texture (stima a mano, solo informativa, metodo §38.F): texture v3 ≈ 141 MiB se tutte residenti, ma le MI non referenziano più legno,
+cubetti e prato v2 e la segnaletica v1 → saldo ≈ **+45 MiB**; ristorante +1 set 2048 e +1 set 1024 ≈ **+13 MiB**. Rileggere "Budget memoria mappa".
+
+### Temporanei e problemi aperti
+- 12 `LaSpezia/_Temp/TMPMC_*_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente. Le texture v2 sostituite restano nel progetto.
+- **(blender-artist, minore)** I tavoli della fila esterna a yaw −92 (`SetLegno_03/05/07/09`, X −311) sporgono di 9 cm nel corridoio
+  (collisione fino a X −221): spostarli di 10 cm verso −X nel CSV se si vuole il margine pieno. Il cavalletto tocca il bordo (X −230).
+- **(utente)** Giudizio sulle catture texture v3 e ristorante; luce serale che mette il ristorante tutto in ombra.
+- **(qa-tester)** In sessione: collisione di tavoli e tettoia, corsia libera verso il ponte, prato da lontano.
