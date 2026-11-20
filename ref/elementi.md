@@ -17,6 +17,7 @@ Fonte delle posizioni: OpenStreetMap, © OpenStreetMap contributors (id tra pare
 | Pontile Assonautica (lato NE) | X ≈ 290, da Y 80 a Y -6 | 86 m | | [V] OSM 175935432 |
 | Pontili Porto Mirabello (sotto la testata d'arrivo) | X da -58 a 92, Y da -115 a -170 | 44-56 m ciascuno | Yacht come fondale | [V] OSM 912795085…089 |
 | Larghezza dei pontili | — | 2,5-3 m | | [S] |
+| **Marina completa (pontili, fingers, barche)** | X 89-316 | vedi **`ref/marina_blocco1.md`** (2026-11-20) | layout e CSV in `exports/marina/` | [V] OSM / [S] foto |
 
 ## 2. Bitte, scalette, parapetti, recinzioni
 
