@@ -758,10 +758,11 @@ def build_context(rows, name=CTX):
     return coll
 
 
-def link_contesto_b1():
+def link_contesto_b1(pav_csv="exports/pavimentazione/pav_posizioni_v3.csv",
+                     palme_csv="exports/pavimentazione/palme_posizioni_v3.csv"):
     """Ultimo tratto del Blocco 1 (X >= 200) per le catture del raccordo: dalle CSV in exports/ (coordinate UE)."""
     import csv
-    files = ["exports/banchina_v2/banchina_posizioni_v2.csv", "exports/pavimentazione/pav_posizioni_v3.csv",
+    files = ["exports/banchina_v2/banchina_posizioni_v2.csv", pav_csv,
              "exports/giardini/giardini_posizioni_v1.csv", "exports/viale/viale_posizioni_v4.csv"]
     rows = []
     for f in files:
@@ -774,7 +775,7 @@ def link_contesto_b1():
                     continue
                 a = {"SM_Viale_Italia_Strada": "SM_Viale_Italia_Strada_v2"}.get(r["asset"], r["asset"])
                 rows.append((a, "B1_" + r["nome"], x, y, float(r["z"]) / 100, -float(r.get("yaw") or 0), 1.0, "b1"))
-    with open(f"{PROJ}/exports/pavimentazione/palme_posizioni_v3.csv", encoding="utf-8") as fh:
+    with open(f"{PROJ}/{palme_csv}", encoding="utf-8") as fh:   # v5: palme_posizioni_v5.csv
         for r in csv.DictReader(fh):
             x, y = float(r["x"]) / 100, -float(r["y"]) / 100
             if x >= 200:
@@ -1146,3 +1147,74 @@ def export_all(overwrite=False):
                 o.hide_viewport = hv
                 o.hide_set(hg)
     return reps
+
+
+
+# =============================================================================================================
+# LAYOUT v5 (2026-11-20): passo delle palme 8 m, prima coppia a X 20,4 (ref/palme.md §6). Le costanti e le funzioni v1
+# qui sopra restano invariate (PALME_X, PANCH_X, LAMP_X, X_FASCIA, N_FASCIA, build_fascia_fine, write_csvs).
+# Il layout v5 e' calcolato in un solo punto per i due blocchi: pk.layout_v5() (morin_pav_kit.py).
+#     b2.build_fascia_fine_v5(pk._coll(b2.KIT))     # SM_Pav_FasciaPalme_Fine_v2 (+ UCX)
+#     rows = pk.layout_v5(); pk.check_layout_v5(rows + b2.scritta_rows_v5())
+#     b2.write_csvs_v5(rows)                        # exports/blocco2/blocco2_{palme,pav,arredi}_v5.csv
+# =============================================================================================================
+PALME_X_V5 = [x for x in pk.v5_palme_x() if x > pk.V5_X_B1_END]                    # 260,4 ... 556,4 (38 per filare)
+PANCH_X_V5 = [pk.V5_PANCH[0] + pk.V5_PANCH[1] * k for k in range(pk.V5_PANCH[2])
+              if pk.V5_PANCH[0] + pk.V5_PANCH[1] * k > pk.V5_X_B1_END]              # 256,4 ... 544,4 (19)
+LAMP_X_V5 = [pk.V5_LAMP[0] + pk.V5_LAMP[1] * k for k in range(pk.V5_LAMP[2])
+             if pk.V5_LAMP[0] + pk.V5_LAMP[1] * k > pk.V5_X_B1_END]                 # 256,7 ... 544,7 (10)
+X_FASCIA_V5 = pk.V5_X_B1_END                    # 256,4: primo modulo 8 m del Blocco 2
+N_FASCIA_V5 = pk.V5_N_MOD - pk.V5_N_MOD_B1 + 1  # 37 moduli da 8 m + SM_Pav_FasciaPalme_Fine_v2 (552,4 -> 558,75)
+# La scritta "PASSEGGIATA / MORIN" (mesh in coordinate di progetto, X 554,7-558,0) cade sulle aiuole dell'ultima palma
+# (556,4: aiuole X 554,6-558,2). La scheda la mette "prima della prima palma da NE" [F]: si sposta l'attore di +4,2 m in X
+# (lettere X 558,9-562,2, sul piazzale in cubetti), senza toccare la mesh.
+SCRITTA_DX_V5 = 4.2
+
+
+def build_fascia_fine_v5(coll, name="SM_Pav_FasciaPalme_Fine_v2", L=pk.V5_L_FINE):
+    """Coda della fascia v5, X 552,4 -> 558,75 (L 6,35 m): mezza striscia trasversale all'inizio (chiude quella del modulo
+    da 8 m precedente), strisce longitudinali lungo le aiuole dell'ultima palma (X locale 0 -> 5,8 = fine aiuola a 558,2),
+    una striscia trasversale piena (5,8 -> 6,1) e cubetti liberi fino a 558,75 (poi il piazzale della scritta)."""
+    h = pk.V5_STRIP_H
+    a1 = 4.0 + pk.AIU_X / 2                       # 5,8: fine dell'aiuola dell'ultima palma (palma a X locale 4,0)
+    xs = [0.0, h, a1, a1 + pk.STRIP, L]
+    bm = bmesh.new()
+    pk._fascia_grid(bm, xs, lambda i, j: (j == 2 and i == 0) or (j in (1, 3) and i in (0, 1)) or i == 2)
+    pk._box(bm, 0, L, pk.K1, pk.Y_END, pk.ZB, ZF, 0, faces=("xn", "xp", "yp"))
+    o = pk._finish(name, bm, ["M_Pav_Cubetti", "M_Pav_Fascia"], coll)
+    pk._ucx(name, [(0, L, pk.K1, pk.Y_END, pk.ZB, ZF)], coll)
+    return o
+
+
+def scritta_rows_v5():
+    """Impronte (statiche) della scritta spostata, per pk.check_layout_v5(statics=...)."""
+    d = SCRITTA_DX_V5
+    return [("SM_Pav_Scritta_Morin", "Scritta_PASSEGGIATA", 555.0 + d, 96.1, 0.33, 3.5),
+            ("SM_Pav_Scritta_Morin", "Scritta_MORIN", 557.7 + d, 96.1, 0.33, 2.0)]
+
+
+def write_csvs_v5(rows=None, prefix="exports/blocco2/blocco2"):
+    """CSV v5 del Blocco 2 (palme, pav, arredi) con nomi nuovi; i v1 restano intatti. Camminamento e cordolo copiati dal v1
+    (invariati); la riga SM_Pav_Scritta_Morin in pav e' lo spostamento dell'attore (offset +420 uu in X)."""
+    import csv
+    rows = pk.layout_v5() if rows is None else rows
+    paths = {g: f"{PROJ}/{prefix}_{g}_v5.csv" for g in ("palme", "pav", "arredi")}
+    for p in paths.values():
+        if os.path.exists(p):
+            raise RuntimeError(f"esiste gia, non lo sovrascrivo: {p}")
+    out = {g: ["asset,nome,x,y,z,yaw,scala"] for g in paths}
+    with open(f"{PROJ}/{prefix}_pav_v1.csv", newline="", encoding="utf-8") as fh:
+        for r in csv.DictReader(fh):
+            if r["asset"] in ("SM_Pav_Camminamento_4m_B2", "SM_Pav_Cordolo_9m"):
+                out["pav"].append(",".join(r[k] for k in ("asset", "nome", "x", "y", "z", "yaw", "scala")))
+    for a, n, x, y, z, rz, s, b, g in rows:
+        if b != "B2":
+            continue
+        yaw = -rz if abs(rz) > 1e-9 else 0.0
+        out[g].append(f"{a},{n},{_ue(x * 100)},{_ue(-y * 100)},{_ue(z * 100)},{yaw:.4f},{s:.3f}")
+    out["pav"].append(f"SM_Pav_Scritta_Morin,B2_Pav_Scritta_Morin,{_ue(SCRITTA_DX_V5 * 100)},0.0,0.0,0.0000,1.000")
+    for g, p in paths.items():
+        with open(p, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write("\n".join(out[g]) + "\n")
+        print(f"{g:<8} {len(out[g]) - 1:>4}  {p}")
+    return {g: len(out[g]) - 1 for g in out}

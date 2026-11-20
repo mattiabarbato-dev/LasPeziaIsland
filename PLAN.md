@@ -311,8 +311,31 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      dell'utente 68 per filare, 12 panchine OSM tutte a metà fra due palme della griglia 20,4 + 8k). Oggi nel gioco: coppia a X 12 inesistente
      (la sua aiuola copre il basamento della Sirena per ~0,7 × 1,0 m), passo 9 m, 61 palme per filare invece di 68, gazebo a 25,5 invece di ~40.
      Domande all'utente D-P1 (gazebo dopo 2 o 3 coppie), D-P2 (lampione a 2 globi a (15,3; 101,9) invece di (13,0; 106,0)), D-P3 (palo "area pedonale").
-   - [ ] (utente) Rispondere a D-P1, D-P2, D-P3 (`ref/foto_nuove_2026-11-20.md` §13.3). Senza risposta: gazebo a 40,4 (OSM), lampione a 2 globi spostato.
-   - [ ] (blender-artist) **Layout fascia palme v5** (Blocco 1 + Blocco 2), dati in `ref/palme.md` §6.3-6.4:
+   - [x] (utente) D-P1: gazebo "Come OSM, X 40" → (40,4; 93,2). D-P2: lampione a 2 globi a (15,3; 101,9) confermato. D-P3 (palo "area pedonale"): aperta.
+   - [x] (blender-artist, 2026-11-20 sera) **Layout v5 fatto** (dettagli sotto la vecchia descrizione del task).
+     - Script: `morin_pav_kit.py` sezione "LAYOUT v5" in fondo (`layout_v5`, `check_layout_v5`, `write_csv_v5`, `build_v5_meshes`, `build_context_v5`;
+       un solo layout per i due blocchi), `morin_blocco2.py` sezione v5 (`PALME_X_V5`, `PANCH_X_V5`, `LAMP_X_V5`, `X_FASCIA_V5`, `N_FASCIA_V5`,
+       `build_fascia_fine_v5`, `write_csvs_v5`, `scritta_rows_v5`; `link_contesto_b1(pav_csv, palme_csv)` legge anche i CSV v5). Funzioni v1/v3 intatte.
+       Backup: `blender/arte_pavimentazione_pre_layout_v5.blend`, `arte_blocco2_pre_layout_v5.blend`, `arte_dettagli_radice_pre_layout_v5.blend`,
+       `scripts/morin_pav_kit_pre_layout_v5.py.bak`, `scripts/morin_blocco2_pre_layout_v5.py.bak`.
+     - Mesh nuove (1 UCX box ciascuna, normali verificate: 0 facce verso il basso o verso l'interno, origine (0,0,0), si posano a (X, 0, 0)):
+       `exports/pavimentazione/SM_Pav_FasciaPalme_8m.fbx` 8,00 × 12,85 × 0,30 m, **36 tri**; `SM_Pav_FasciaPalme_Testa.fbx` 6,65 × 12,85 × 0,30 m, **16 tri**;
+       `exports/blocco2/SM_Pav_FasciaPalme_Fine_v2.fbx` 6,35 × 12,85 × 0,30 m, **46 tri** (nome `_v2`: la `_Fine` v1 resta). Materiali `M_Pav_Cubetti` + `M_Pav_Fascia`.
+     - CSV nuovi: `exports/pavimentazione/pav_posizioni_v5.csv` (206 righe), `palme_posizioni_v5.csv` (60), `exports/blocco2/blocco2_palme_v5.csv` (76),
+       `blocco2_pav_v5.csv` (226, con la riga di spostamento della scritta `B2_Pav_Scritta_Morin` X +420 uu), `blocco2_arredi_v5.csv` (50),
+       `exports/dettagli/dettagli_posizioni_v3.csv` (= v2 con i 9 `Cestino_v2_*` spostati + `Lampione2Globi_00` a (1530; −10190)),
+       `exports/imbarco/imbarco_posizioni_v3.csv` (solo le 3 rastrelliere). Cordolo 9 m e camminamento: righe identiche a v3/v1.
+     - Conteggi (prima → dopo) B1: palme 54 → 60, aiuole 54 → 60, fascia 27 × 9 m → testa + 30 × 8 m, panchine 13 → 14, lampioni 7 → 7, tombini 8 → 8,
+       gazebo 1, cestini 9 → 9, rastrelliere 3 → 3. B2: palme 68 → 76, aiuole 68 → 76, fascia 33 × 9 m + Fine → 37 × 8 m + Fine_v2, panchine 17 → 19,
+       lampioni 8 → 10, cestini 11 → 11, tombini 10 → 10. Cordolo invariato (27 + 34).
+     - Controllo `check_layout_v5`: 358 impronte (229 del v5 + 129 fisse: Sirena, palo dei cartelli, 4 new jersey, cartelli del parcheggio, panchina lunga,
+       chiosco e dehors, scritta) → **0 conflitti**, 0 coppie sotto 0,15 m (prima: 43 oggetti attuali sulle aiuole nuove, geo-scout ne contava 48 con i cestini v1).
+       Preesistenti fuori dal v5 (solo segnalati): NJPlastica_02/03 si toccano (−6 cm). Corsia: il v5 non mette nulla nel camminamento; minimo 7,47 m a X 19,3
+       per `PaloCartelli_00` (19,2; 81,1) già posato, 7,98 m ai new jersey: da valutare con l'utente (non toccati).
+     - Catture: `docs/qa/arte_layout_v5_inizio.png` (foto S1/S3 a sinistra, render Cycles CPU a destra; camera S1 a (14,4; 102,6) invece di 14,9 per avere
+       il palo del lampione a sinistra come in foto), `docs/qa/arte_layout_v5_alto.png` (X −3 → 63, sopra con le palme, sotto senza chiome).
+       Contesto in `arte_dettagli_radice.blend`: collezione `PAV_Contesto_v5` (oggetti `V5_*`); i `V3_*` sostituiti, `DET_Cestino_v2_*` e `CTXM_Lampione2Globi_00` nascosti.
+   - [—] ~~(blender-artist) **Layout fascia palme v5** (Blocco 1 + Blocco 2)~~ testo originale del task, fatto sopra; dati in `ref/palme.md` §6.3-6.4:
      - palme e aiuole a **X 20,4 + 8k** (k 0-67), Y 92,6 / 99,6 allineate: Blocco 1 **60** (k 0-29), Blocco 2 **76** (k 30-67); tolta la coppia a X 12;
      - nuova `SM_Pav_FasciaPalme_8m` (strisce trasversali a 24,4 + 8k) + testa `SM_Pav_FasciaPalme_Testa` (X 9,75 → 16,4, solo cubetti)
        + `SM_Pav_FasciaPalme_Fine` rifatta (552,4 → 558,75); `SM_Pav_Cordolo_9m` può restare;
@@ -326,7 +349,17 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
        se D-P2 confermato, lampione a 2 globi a (15,3; 101,9) nel CSV del molo;
      - controllo impronte (`check_footprints`) esteso a cestini, rastrelliere, Sirena, lampione a 2 globi e cartelli: 0 conflitti
        (oggi, contro le aiuole nuove, sono 48); render dall'angolo della Sirena verso il mare da confrontare con `vista__statua.png`.
-   - [ ] (uefn-builder) Applicare il v5: import della sola `SM_Pav_FasciaPalme_8m` / `_Testa` / `_Fine` (metodo `docs/uefn_arte.md` §12),
+   - [ ] (uefn-builder) **Applicare il v5** (CSV e mesh pronti, vedi sopra):
+     1. Import di `exports/pavimentazione/SM_Pav_FasciaPalme_8m.fbx`, `SM_Pav_FasciaPalme_Testa.fbx`, `exports/blocco2/SM_Pav_FasciaPalme_Fine_v2.fbx`
+        (metodo `docs/uefn_arte.md` §12, collisione dagli UCX, materiali esistenti `M_Pav_Cubetti`/`M_Pav_Fascia` riassegnati, non duplicati).
+     2. HISM ripopolati dai CSV v5 (UE = CSV): palme da `palme_posizioni_v5.csv` + `blocco2_palme_v5.csv`; aiuole, fascia, panchine, lampioni, tombini da
+        `pav_posizioni_v5.csv` + `blocco2_pav_v5.csv` + `blocco2_arredi_v5.csv`; cestini B2 da `blocco2_arredi_v5.csv`. Le istanze in eccesso si tolgono
+        dagli HISM (non è cancellazione di asset); i moduli fascia 9 m vengono sostituiti dagli 8 m (HISM nuovi o riassegnati), cordolo e camminamento invariati.
+     3. Attori singoli: `Gazebo_00` → (4040; −9320; 15); `Cestino_v2_00..08` e `Lampione2Globi_00` → `dettagli_posizioni_v3.csv`; `Rastrelliera_00..02` →
+        `imbarco_posizioni_v3.csv`; scritta `SM_Pav_Scritta_Morin` → X +420 uu (riga `B2_Pav_Scritta_Morin` in `blocco2_pav_v5.csv`). Gli attori sostituiti
+        (moduli fascia 9 m, `SM_Pav_FasciaPalme_Fine` v1) si **nascondono**, non si cancellano.
+     4. Verifiche: trace sui 136 tronchi, gradino del cordolo, Sirena libera dall'aiuola, giunti delle strisce a 24,4 + 8k, linea di vista sulle antenne, memoria.
+     Testo originale: import della sola `SM_Pav_FasciaPalme_8m` / `_Testa` / `_Fine` (metodo `docs/uefn_arte.md` §12),
      poi **solo spostamenti di istanze** HISM dai CSV v5 (palme, aiuole, fascia, panchine, lampioni, tombini, cestini, rastrelliere; Blocco 1 e 2),
      gazebo e lampione a 2 globi come attori singoli. Le istanze in più (palme +6 / +8, aiuole idem, panchine +1 / +2, lampioni +2 nel B2) si aggiungono;
      quelle in meno (moduli fascia 9 m) si **nascondono o si chiedono all'utente** prima di cancellarle. Verifiche: trace sui 136 tronchi,
@@ -1283,3 +1316,4 @@ Ordine per impatto visivo:
 | 2026-11-20 | Blocco 2 in UEFN: barriere B2 larghe 50 e 60 unità (non 51/56), secondo device Acqua V2, traffico finto a 90 s con 21 auto fino a X 573 m | Il device Barriera accetta solo larghezze fisse; Acqua V2 max 512 m; 723 m di corsa non stanno in 60 s; dettagli in `docs/uefn_arte.md` §32 |
 | 2026-11-20 | Molo Italia in UEFN: 6 barriere (FineBlocco spostata a X 64000 con profondità 20 + striscia RadiceEst che occupa 1,28 m dell'angolo est della radice), 2 device Acqua V2 nuovi, faro lampeggiante con materiale a tempo (niente Verse) e Point Light con light function | Il device Barriera non accetta 24 unità; Acqua V2 max 512 m e nessuna sovrapposizione; Fl R 4 s richiesto senza Verse; dettagli in `docs/uefn_arte.md` §33 |
 | 2026-11-20 | Acqua scenografica oltre il faro: 3 device Acqua V2 fuori dalle barriere (fino a X 971 m, Y 557 m); `_B3_Est` da Y 60 m, non da −1,3 m | Niente vuoto dalla testata, perimetro giocabile invariato; più a sud l'acqua allagava le basi dei blocchi del fondale del porto (Z −1,3..−2,9 m); dettagli in `docs/uefn_arte.md` §34 |
+| 2026-11-20 | Layout palme v5: passo 8 m, prima coppia a X 20,4, 136 palme; testa della fascia senza palme; gazebo a X 40,4 (OSM) | Tre fonti concordi (OSM, conteggio dell'utente, panchine OSM); decisione dell'utente sul gazebo; dettagli in `docs/decisioni.md` |

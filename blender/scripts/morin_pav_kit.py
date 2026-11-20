@@ -1,4 +1,4 @@
-"""morin_pav_kit.py — kit di pavimentazione e arredi della fascia palme, Blocco 1 (Fase 3). Versione v3 (2026-11-19).
+"""morin_pav_kit.py — kit di pavimentazione e arredi della fascia palme, Blocco 1 (Fase 3). Versione v3 (2026-11-19) + layout v5 (2026-11-20, in fondo al file: passo 8 m).
 
 La v1 (commit 105067e) resta in Git e nel file blender/arte_pavimentazione_v1.blend; la v2 in arte_pavimentazione_v2.blend.
 v3 [V-utente]: tetto del gazebo a piramide esagonale (falde a ~30 gradi) con lanternino e pinnacolo (h 5,12 m); un solo
@@ -966,4 +966,344 @@ def build_context(rows, name="PAV_Contesto_v3", prefix="V3_"):
         x, y, yaw = float(r["x"]) / 100, -float(r["y"]) / 100, -float(r["yaw"])
         put(prefix + r["nome"], mesh_of["SM_Pav_Camminamento_4m"], (x, y, 0), yaw)
         put(prefix + "Banchina_" + r["nome"][5:], mesh_of["SM_Banchina_Mod4m"], (x, y, 0), yaw)
+    return coll
+
+
+
+# =============================================================================================================
+# LAYOUT v5 (2026-11-20) — passo 8 m, prima coppia a X 20,4. Fonte: ref/palme.md §6 (geo-scout), ref/foto_nuove_2026-11-20.md §13.
+# Palme X = 20,4 + 8k (k 0-67), filari Y 92,6 / 99,6 allineati: 68 per filare, 136 in tutto [V OSM + conteggio utente].
+# Blocco 1 k 0-29 (X 20,4 -> 252,4), Blocco 2 k 30-67 (X 260,4 -> 556,4). Le funzioni v3 qui sopra restano invariate.
+# Uso (dentro blender/arte_pavimentazione.blend per le mesh, ovunque per layout e CSV):
+#     build_v5_meshes()            # SM_Pav_FasciaPalme_8m e SM_Pav_FasciaPalme_Testa (+ UCX) in PAV_Kit
+#     rows = layout_v5()           # Blocco 1 + Blocco 2 (coordinate Blender), con blocco e gruppo per riga
+#     check_layout_v5(rows)        # impronte in pianta (tutti gli arredi + Sirena, cartelli, new jersey...) e corsia
+#     write_csv_v5(rows)           # CSV v5 del Blocco 1 + dettagli_posizioni_v3 + imbarco_posizioni_v3 (B2: morin_blocco2.write_csvs_v5)
+# =============================================================================================================
+V5_X_PALMA0, V5_PASSO, V5_N_PALME, V5_N_B1 = 20.4, 8.0, 68, 30
+V5_X_TESTA, V5_L_TESTA = 9.75, 6.65          # testa in soli cubetti X 9,75 -> 16,4: angolo della Sirena senza palme [V-utente, foto S1/S3]
+V5_X0_MOD = 16.4                             # moduli da 8 m [16,4 + 8k ; 24,4 + 8k] centrati sulle palme (palma a X locale 4,0)
+V5_N_MOD_B1, V5_N_MOD = 30, 67               # Blocco 1: 30 moduli (16,4 -> 256,4); Blocco 2: 37 (256,4 -> 552,4) + Fine_v2
+V5_X_FINE, V5_L_FINE = 552.4, 6.35           # SM_Pav_FasciaPalme_Fine_v2: X 552,4 -> 558,75 (ultima palma a 556,4)
+V5_X_B1_END = 256.4                          # confine fra i blocchi per la fascia (il cordolo 9 m resta sulla griglia vecchia)
+V5_GAZEBO = (40.4, 93.2)                     # [V OSM way 626400743, decisione utente "Come OSM, X 40"] fra le palme 36,4 e 44,4
+V5_PANCH = (32.4, 16.0, 33, 92.1)            # X 32,4 + 16k, k 0-32, Y 92,1 [V OSM: 12 panchine su 12 sulla griglia]
+V5_LAMP = (32.7, 32.0, 17, 92.85)            # X 32,7 + 32k, k 0-16 (panchina + 0,3), Y 92,85 [V-utente regola, fase S]
+V5_LAMP2G = (15.3, 101.9)                    # lampione a 2 globi sovrapposti [confermato dall'utente 2026-11-20]
+V5_RASTR = ((56.4, 92.6), (88.4, 92.6), (104.4, 92.6))   # varchi dispari vicini a OSM 59,0 / 90,5 / 107,0
+# cestini (SM_Morin_Cestino_v2 nel Blocco 1, SM_Morin_Cestino nel Blocco 2): 2 da OSM, gli altri nei varchi dispari liberi (24,4 + 16k)
+V5_CEST_B1 = ((17.9, 91.3), (41.9, 90.5), (72.4, 92.1), (120.4, 92.1), (136.4, 92.1), (152.4, 92.1), (184.4, 92.1),
+              (216.4, 92.1), (248.4, 92.1))
+V5_CEST_B2 = tuple((x, 92.1) for x in (264.4, 280.4, 296.4, 328.4, 360.4, 392.4, 424.4, 456.4, 488.4, 520.4, 552.4))
+V5_STRIP_H = STRIP / 2                       # ogni modulo porta mezza striscia trasversale a ciascun capo (X 24,4 + 8k = giunto)
+
+
+def v5_palme_x():
+    return [round(V5_X_PALMA0 + V5_PASSO * k, 2) for k in range(V5_N_PALME)]
+
+
+def _fascia_grid(bm, xs, band):
+    ys = [K1, Y_S1[0], Y_S1[1], Y_S2[0], Y_S2[1], Y_END]
+    grid = [[bm.verts.new((x, y, ZF)) for x in xs] for y in ys]
+    for j in range(len(ys) - 1):
+        for i in range(len(xs) - 1):
+            f = bm.faces.new([grid[j][i], grid[j][i + 1], grid[j + 1][i + 1], grid[j + 1][i]])
+            f.material_index = 1 if band(i, j) else 0
+
+
+def build_fascia_8m(coll, name="SM_Pav_FasciaPalme_8m", L=8.0):
+    """Modulo v5 da 8 m centrato sulla palma (X locale 4,0): strisce longitudinali sul bordo delle aiuole lato corridoio
+    (Y 93,8-94,1 e 98,1-98,4) e mezza striscia trasversale (0,15 m) a ciascun capo, solo nel corridoio: due moduli
+    affiancati formano la striscia da 0,30 m a X 24,4 + 8k (a meta fra due palme) [V-utente 2026-11-19]."""
+    h = V5_STRIP_H
+    bm = bmesh.new()
+    _fascia_grid(bm, [0.0, h, L - h, L], lambda i, j: j in (1, 3) or (j == 2 and i in (0, 2)))
+    _box(bm, 0, L, K1, Y_END, ZB, ZF, 0, faces=("xn", "xp", "yp"))
+    o = _finish(name, bm, ["M_Pav_Cubetti", "M_Pav_Fascia"], coll)
+    _ucx(name, [(0, L, K1, Y_END, ZB, ZF)], coll)
+    return o
+
+
+def build_fascia_testa(coll, name="SM_Pav_FasciaPalme_Testa", L=V5_L_TESTA):
+    """Testa della fascia X 9,75 -> 16,4 (L 6,65 m): soli cubetti, nessuna aiuola ne striscia (angolo della Sirena)."""
+    bm = bmesh.new()
+    _fascia_grid(bm, [0.0, L], lambda i, j: False)
+    _box(bm, 0, L, K1, Y_END, ZB, ZF, 0, faces=("xn", "xp", "yp"))
+    o = _finish(name, bm, ["M_Pav_Cubetti", "M_Pav_Fascia"], coll)
+    _ucx(name, [(0, L, K1, Y_END, ZB, ZF)], coll)
+    return o
+
+
+def build_v5_meshes():
+    coll = _coll(KIT)
+    out = [build_fascia_testa(coll), build_fascia_8m(coll)]
+    for o in out:
+        print(f"{o.name:<28} tri {tri_count(o):>5}  dim {tuple(round(d, 3) for d in o.dimensions)}")
+    return out
+
+
+def _v5_tombini(j0, j1, seed, gaz=None):
+    """Coppie di tombini nel corridoio (Y 95,0-97,2), nelle campate fra due strisce trasversali [24,55 + 8j ; 32,25 + 8j],
+    j da j0 a j1 escluso, passo irregolare di 3-5 campate (deterministico)."""
+    rnd = random.Random(seed)
+    out = []
+    j = j0 + rnd.randint(0, 2)
+    while j < j1:
+        x0 = 24.4 + V5_PASSO * j + V5_STRIP_H
+        x = x0 + rnd.uniform(1.3, V5_PASSO - STRIP - 1.3)
+        y = rnd.uniform(Y_S1[1] + 0.9, Y_S2[0] - 0.9)
+        hit = gaz is not None and abs(x - gaz[0]) < GAZ_RE + 1.0 and abs(y - gaz[1]) < GAZ_RE + 1.0
+        if not hit:
+            out.append((round(x, 2), round(y, 2), rnd.choice((0.0, 180.0))))
+        j += rnd.choice((3, 3, 4, 4, 5))
+    return out
+
+
+def layout_v5():
+    """Righe (asset, nome, x, y, z, rotZ_blender_deg, scala, blocco, gruppo) in coordinate Blender."""
+    R = []
+
+    def add(a, n, x, y, z=ZF, rz=0.0, s=1.0, b="B1", g="pav"):
+        R.append((a, n, round(float(x), 3), round(float(y), 3), float(z), float(rz), float(s), b, g))
+    rnd = random.Random(20261120)
+    px = v5_palme_x()
+    for f, y in ((1, Y_F1), (2, Y_F2)):
+        for k, x in enumerate(px):
+            if k < V5_N_B1:
+                add("SM_Morin_PalmaA", f"Palma_F{f}_{k + 1:02d}", x, y, g="palme")
+                add("SM_Pav_Aiuola", f"Aiuola_F{f}_{k + 1:02d}", x, y)
+            else:
+                i = k - V5_N_B1
+                add("SM_Morin_PalmaA", f"B2_Palma_F{f}_{i:02d}", x, y, rz=rnd.uniform(0, 360), s=rnd.uniform(0.9, 1.1),
+                    b="B2", g="palme")
+                add("SM_Pav_Aiuola", f"B2_Aiuola_F{f}_{i:02d}", x, y, b="B2")
+    # fascia: testa + moduli 8 m (+ Fine_v2 nel Blocco 2); il cordolo 9 m resta quello di v3/v1 (righe copiate nei CSV)
+    add("SM_Pav_FasciaPalme_Testa", "Fascia_Testa", V5_X_TESTA, 0.0, z=0.0)
+    for k in range(V5_N_MOD):
+        x = V5_X0_MOD + V5_PASSO * k
+        if k < V5_N_MOD_B1:
+            add("SM_Pav_FasciaPalme_8m", f"Fascia_{k:02d}", x, 0.0, z=0.0)
+        else:
+            add("SM_Pav_FasciaPalme_8m", f"B2_Fascia_{k - V5_N_MOD_B1:02d}", x, 0.0, z=0.0, b="B2")
+    add("SM_Pav_FasciaPalme_Fine_v2", f"B2_Fascia_{V5_N_MOD - V5_N_MOD_B1:02d}", V5_X_FINE, 0.0, z=0.0, b="B2")
+    # panchine (filare 1, lato mare) e lampioni a bracci
+    x0, dx, n, y = V5_PANCH
+    i1 = i2 = 0
+    for k in range(n):
+        x = x0 + dx * k
+        if x < V5_X_B1_END:
+            add("SM_Morin_Panchina", f"Panchina_{i1:02d}", x, y, g="arredi"); i1 += 1
+        else:
+            add("SM_Morin_Panchina", f"B2_Panchina_{i2:02d}", x, y, b="B2", g="arredi"); i2 += 1
+    x0, dx, n, y = V5_LAMP
+    i1 = i2 = 0
+    for k in range(n):
+        x = x0 + dx * k
+        if x < V5_X_B1_END:
+            add("SM_Morin_Lampione", f"Lampione_{i1:02d}", x, y, g="arredi"); i1 += 1
+        else:
+            add("SM_Morin_Lampione", f"B2_Lampione_{i2:02d}", x, y, b="B2", g="arredi"); i2 += 1
+    # tombini (Blocco 1: campate 0-28; Blocco 2: 29-65)
+    for i, (x, y, rz) in enumerate(_v5_tombini(0, 29, 20261119, V5_GAZEBO)):
+        add("SM_Morin_Tombino", f"Tombino_{i:02d}", x, y, rz=rz, g="arredi")
+    for i, (x, y, rz) in enumerate(_v5_tombini(29, 66, 20261120)):
+        add("SM_Morin_Tombino", f"B2_Tombino_{i:02d}", x, y, rz=rz, b="B2", g="arredi")
+    add("SM_Morin_Gazebo", "Gazebo_00", V5_GAZEBO[0], V5_GAZEBO[1], g="arredi")
+    # cestini, rastrelliere, lampione a 2 globi sovrapposti
+    for i, (x, y) in enumerate(V5_CEST_B1):
+        add("SM_Morin_Cestino_v2", f"Cestino_v2_{i:02d}", x, y, g="dettagli")
+    for i, (x, y) in enumerate(V5_CEST_B2):
+        add("SM_Morin_Cestino", f"B2_Cestino_{i:02d}", x, y, b="B2", g="arredi")
+    for i, (x, y) in enumerate(V5_RASTR):
+        add("SM_Morin_Rastrelliera", f"Rastrelliera_{i:02d}", x, y, g="imbarco")
+    add("SM_Molo_Lampione2Globi", "Lampione2Globi_00", V5_LAMP2G[0], V5_LAMP2G[1], g="dettagli")
+    return R
+
+
+# impronte in pianta v5 (semi-lati X, Y): misurate sulle mesh (bounding box) o sui parametri dei generatori
+FOOT_V5 = dict(FOOT)
+FOOT_V5.update({"SM_Morin_Cestino_v2": (0.25, 0.22), "SM_Morin_Cestino": (0.25, 0.22), "SM_Morin_Rastrelliera": (1.25, 0.27),
+                "SM_Molo_Lampione2Globi": (0.45, 0.45), "SM_Molo_Sirena": (0.70, 0.51), "SM_Morin_NJPlastica": (0.60, 0.22),
+                "SM_Morin_PanchinaLunga_Mod": (2.0, 0.225), "SM_Morin_Cartello": (0.15, 0.15),
+                "SM_Morin_ChioscoOttagonale_v3": (3.3, 3.3), "SM_Morin_TavoloSet": (0.9, 0.9), "SM_Morin_Sgabello": (0.25, 0.25),
+                "SM_Morin_Fioriera": (0.5, 0.25), "SM_Morin_FiorieraB": (0.25, 0.5), "SM_Morin_Ombrellone": (0.3, 0.3)})
+V5_FASCIA_ASSETS = ("SM_Pav_Aiuola", "SM_Morin_Panchina", "SM_Morin_Lampione", "SM_Morin_Tombino", "SM_Morin_Gazebo",
+                    "SM_Morin_Cestino_v2", "SM_Morin_Cestino", "SM_Morin_Rastrelliera")
+
+
+def _rot_half(hx, hy, yaw_deg):
+    a = math.radians(yaw_deg)
+    c, s = abs(math.cos(a)), abs(math.sin(a))
+    return hx * c + hy * s, hx * s + hy * c
+
+
+def v5_static_items():
+    """Oggetti fissi (non spostati dal v5) da controllare: dai CSV in exports/ (coordinate UE -> Blender)."""
+    import csv
+    out = []
+
+    def rows(path):
+        with open(f"{PROJ}/{path}", newline="", encoding="utf-8") as fh:
+            return list(csv.DictReader(fh))
+    for r in rows("exports/dettagli/dettagli_posizioni_v2.csv"):
+        a = r["asset"]
+        key = "SM_Morin_NJPlastica" if a.startswith("SM_Morin_NJPlastica") else a
+        if a == "SM_Morin_PaloCartelli":
+            # palo a X locale 0 e pannelli fino a +0,93: rettangolo [-0,3 ; 0,93] x [-0,05 ; 0,05] ruotato
+            yaw = -float(r["yaw"])
+            cx, cy = float(r["x"]) / 100, -float(r["y"]) / 100
+            a_ = math.radians(yaw)
+            ox, oy = 0.315 * math.cos(a_), 0.315 * math.sin(a_)
+            hx, hy = _rot_half(0.615, 0.05, yaw)
+            out.append((a, r["nome"], cx + ox, cy + oy, hx, hy))
+        elif key in ("SM_Molo_Sirena", "SM_Morin_NJPlastica"):
+            hx, hy = _rot_half(*FOOT_V5[key], -float(r["yaw"]))
+            out.append((a, r["nome"], float(r["x"]) / 100, -float(r["y"]) / 100, hx, hy))
+    for r in rows("exports/parcheggio/parcheggio_posizioni_v4.csv"):
+        if r["asset"].startswith("SM_Morin_Cartello"):
+            out.append((r["asset"], r["nome"], float(r["x"]) / 100, -float(r["y"]) / 100, 0.15, 0.15))
+    for f in ("exports/giardini/giardini_posizioni_v1.csv", "exports/giardini/giardini_posizioni_v1_blocco2.csv"):
+        for r in rows(f):
+            if r["asset"] == "SM_Morin_PanchinaLunga_Mod":
+                out.append((r["asset"], r["nome"], float(r["x"]) / 100, -float(r["y"]) / 100, 2.0, 0.225))
+    for f in ("exports/blocco2/blocco2_chiosco_v1.csv", "exports/blocco2/blocco2_chiosco_ott_v3.csv"):
+        for r in rows(f):
+            a = r["asset"]
+            if a in FOOT_V5:
+                hx, hy = FOOT_V5[a]
+                out.append((a, r["nome"], float(r["x"]) / 100, -float(r["y"]) / 100, hx, hy))
+    return out
+
+
+def check_layout_v5(rows, statics=None, margin=0.0, corsia=(80.54, 88.85), verbose=True):
+    """Controllo v5: (1) coppie di impronte sovrapposte (gap < margin) fra tutte le istanze del layout e gli oggetti fissi
+    (Sirena, palo dei cartelli, new jersey, cartelli del parcheggio, panchina lunga, chiosco e dehors); (2) arredi della
+    fascia fuori dalla fascia (X 9,75-558,75, Y 89,15-102); (3) corsia: larghezza libera minima del camminamento."""
+    statics = v5_static_items() if statics is None else statics
+    items = [(a, n, x, y) + FOOT_V5[a] for a, n, x, y, z, rz, s, b, g in rows if a in FOOT_V5]
+    n_v5 = len(items)
+    items += statics
+    bad, tight, pre = [], [], []
+    for a, n, x, y, hx, hy in items[:n_v5]:
+        if a in V5_FASCIA_ASSETS and (x - hx < V5_X_TESTA or x + hx > V5_X_FINE + V5_L_FINE or y - hy < K1 or y + hy > Y_END):
+            bad.append(("fuori fascia", n))
+    xs = sorted(range(len(items)), key=lambda i: items[i][2] - items[i][4])
+    for ii, i in enumerate(xs):
+        a1, n1, x1, y1, hx1, hy1 = items[i]
+        for j in xs[ii + 1:]:
+            a2, n2, x2, y2, hx2, hy2 = items[j]
+            if x2 - hx2 > x1 + hx1 + 1.0:
+                break
+            gap = max(abs(x1 - x2) - hx1 - hx2, abs(y1 - y2) - hy1 - hy2)
+            if i >= n_v5 and j >= n_v5:          # due oggetti fissi: preesistente, fuori dal v5 (solo segnalato)
+                if gap < margin:
+                    pre.append((n1, n2, round(gap, 2)))
+            elif gap < margin:
+                bad.append((n1, n2, round(gap, 2)))
+            elif gap < 0.15:
+                tight.append((n1, n2, round(gap, 2)))
+    # corsia: larghezza libera minima su stazioni ogni 0,1 m fra X 0 e 560
+    y0, y1 = corsia
+    worst = (99.0, None, None)
+    for t in range(0, 5601):
+        x = t / 10.0
+        occ = sorted((max(y0, yy - hy), min(y1, yy + hy), n) for a, n, xx, yy, hx, hy in items
+                     if abs(x - xx) <= hx and yy + hy > y0 and yy - hy < y1)
+        cur, best = y0, 0.0
+        for lo, hi, n in occ:
+            best = max(best, lo - cur)
+            cur = max(cur, hi)
+        best = max(best, y1 - cur)
+        if best < worst[0]:
+            worst = (round(best, 2), x, [o[2] for o in occ])
+    if verbose:
+        print(f"controllo v5: {len(items)} impronte ({len(statics)} fisse), {len(bad)} conflitti", bad[:30])
+        print(f"  coppie strette (0-0,15 m): {len(tight)}", tight[:20])
+        print(f"  sovrapposizioni preesistenti fra oggetti fissi (non v5): {len(pre)}", pre[:10])
+        print(f"  corsia Y {y0}-{y1}: larghezza libera minima {worst[0]} m a X {worst[1]} ({worst[2]})")
+    return bad, tight, worst, pre
+
+
+def _ue_v(v):
+    s = f"{v:.2f}".rstrip("0").rstrip(".")
+    return "0.0" if s in ("0", "-0", "") else (s if "." in s else s + ".0")
+
+
+def write_csv_v5(rows, pav="exports/pavimentazione/pav_posizioni_v5.csv", palme="exports/pavimentazione/palme_posizioni_v5.csv",
+                 dett="exports/dettagli/dettagli_posizioni_v3.csv", imb="exports/imbarco/imbarco_posizioni_v3.csv"):
+    """CSV v5 del Blocco 1 (coordinate UE: X*100, -Y*100, Z*100, yaw = -rotZ). Non tocca le versioni precedenti.
+    pav: camminamento (v1) + cordolo 9 m (v3, invariato) + testa e moduli 8 m + aiuole, panchine, lampioni, tombini, gazebo.
+    dettagli v3: copia della v2 con i Cestino_v2 spostati e Lampione2Globi_00 (dal kit molo) spostato.
+    imbarco v3: SOLO le 3 rastrelliere spostate (il resto resta come in imbarco v1/v2)."""
+    import csv
+    for p in (pav, palme, dett, imb):
+        if os.path.exists(f"{PROJ}/{p}"):
+            raise RuntimeError(f"esiste gia, non lo sovrascrivo: {p}")
+    b1 = [r for r in rows if r[7] == "B1"]
+    lines = ["asset,nome,x,y,z,yaw"]
+    for r in _camm_rows():
+        lines.append(",".join([r["asset"], r["nome"], r["x"], r["y"], r["z"], r["yaw"]]))
+    for k in range(N_MOD):
+        lines.append(f"SM_Pav_Cordolo_9m,Cordolo_{k:02d},{_ue_v((X0_MOD + PASSO * k) * 100)},0.0,0.0,0.0")
+    for a, n, x, y, z, rz, s, b, g in b1:
+        if g in ("pav", "arredi"):
+            lines.append(f"{a},{n},{_ue_v(x * 100)},{_ue_v(-y * 100)},{_ue_v(z * 100)},{_ue_v(-rz if rz else 0.0)}")
+    pl = ["nome,x,y,z,yaw"] + [f"{n},{_ue_v(x * 100)},{_ue_v(-y * 100)},{_ue_v(z * 100)},0.0"
+                                for a, n, x, y, z, rz, s, b, g in b1 if g == "palme"]
+    # dettagli v3
+    new = {n: (x, y) for a, n, x, y, z, rz, s, b, g in b1 if g == "dettagli"}
+    with open(f"{PROJ}/exports/dettagli/dettagli_posizioni_v2.csv", newline="", encoding="utf-8") as fh:
+        src = list(csv.reader(fh))
+    dl = [",".join(src[0])]
+    for r in src[1:]:
+        if r[1] in new:
+            x, y = new.pop(r[1])
+            r = r[:2] + [f"{x * 100:.1f}", f"{-y * 100:.1f}"] + r[4:8] + ["v5 spostato (palme passo 8 m)"]
+        dl.append(",".join(r))
+    for n, (x, y) in new.items():   # Lampione2Globi_00: era in exports/molo/molo_posizioni_v1.csv a (13,0; 106,0)
+        dl.append(f"SM_Molo_Lampione2Globi,{n},{x * 100:.1f},{-y * 100:.1f},15.0,0.00,0.00,0.00,"
+                  "v5 spostato da molo_posizioni_v1 (1300 -10600) confermato utente")
+    il = ["asset,nome,x,y,z,yaw,pitch,roll"] + [f"{a},{n},{x * 100:.1f},{-y * 100:.1f},{z * 100:.1f},0.0,0.0,0.0"
+                                                for a, n, x, y, z, rz, s, b, g in b1 if g == "imbarco"]
+    for p, L in ((pav, lines), (palme, pl), (dett, dl), (imb, il)):
+        with open(f"{PROJ}/{p}", "w", encoding="utf-8", newline="\n") as fh:
+            fh.write("\n".join(L) + "\n")
+        print(f"{p}: {len(L) - 1} righe")
+    return {p: len(L) - 1 for p, L in ((pav, lines), (palme, pl), (dett, dl), (imb, il))}
+
+
+def build_context_v5(rows, name="PAV_Contesto_v5", prefix="V5_", meshes=None, n_cordolo=N_MOD):
+    """Contesto per i render del v5: oggetti collegati alle mesh presenti nel file (stesso nome dell'asset, o `meshes`)."""
+    coll = _coll(name)
+    meshes = meshes or {}
+    missing = set()
+
+    def mesh(a):
+        if a in meshes:
+            return meshes[a]
+        o = bpy.data.objects.get(a)
+        return o.data if o is not None and o.type == "MESH" else None
+
+    def put(n, me, loc, rotz=0.0, s=1.0):
+        o = bpy.data.objects.get(n)
+        if o is None:
+            o = bpy.data.objects.new(n, me)
+            coll.objects.link(o)
+        o.data = me
+        o.location = loc
+        o.rotation_euler = (0, 0, math.radians(rotz))
+        o.scale = (s, s, s)
+        return o
+    rnd = random.Random(20261119)
+    for a, n, x, y, z, rz, s, b, g in rows:
+        me = mesh(a)
+        if me is None:
+            missing.add(a)
+            continue
+        put(prefix + n, me, (x, y, z), rnd.uniform(0, 360) if a == "SM_Morin_PalmaA" and b == "B1" else rz, s)
+    me = mesh("SM_Pav_Cordolo_9m")
+    if me is not None:
+        for k in range(n_cordolo):
+            put(f"{prefix}Cordolo_{k:02d}", me, (X0_MOD + PASSO * k, 0, 0))
+    print("contesto v5:", len(coll.objects), "oggetti; mesh mancanti:", sorted(missing))
     return coll
