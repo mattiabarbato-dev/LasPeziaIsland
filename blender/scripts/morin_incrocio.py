@@ -593,12 +593,18 @@ def build_spartitraffico(coll, lod=0, name="SM_Viale_Spartitraffico_Fiori"):
 # =============================================================================================================
 # modulo strada dell'incrocio (sostituisce Viale_Strada_SO_00, X 3-22)
 # =============================================================================================================
-def build_incrocio(coll, lod=0, name="SM_Viale_Italia_Incrocio"):
+def build_incrocio(coll, lod=0, name="SM_Viale_Italia_Incrocio", v2=None, varco=None):
     """Come SM_Viale_Italia_Strada (origine all'inizio del modulo, sul ciglio Y 120,85) con:
     cordolo lato giardini abbassato sull'imbocco della strada del molo (X 6,5-9,55), spartitraffico a raso
     nell'attraversamento (X 14-16,5), strisce pedonali sul viale, linee d'arresto, frecce di corsia, niente stalli
-    davanti all'imbocco e alle strisce."""
+    davanti all'imbocco e alle strisce.
+    varco (v3, 2026-11-20, via il marciapiede): cordolo lato giardini a raso da X 6,5 fino a fine modulo (X 22)."""
     import morin_viale as mv
+    if v2 is None:      # v2 (2026-11-20): niente stalli, 2 corsie per carreggiata come SM_Viale_Italia_Strada_v2
+        v2 = name.endswith("_v2") or name.endswith("_v3")
+    if varco is None:
+        varco = name.endswith("_v3")
+    s_cont, s_trat = (mv.STRISCE_CONT_V2, mv.STRISCE_TRAT_V2) if v2 else (mv.STRISCE_CONT, mv.STRISCE_TRAT)
     y0 = mv.Y0_STRADA
     L = MOD_L
     T = mv.TILE_ASF
@@ -612,7 +618,7 @@ def build_incrocio(coll, lod=0, name="SM_Viale_Italia_Incrocio"):
     def zband(k, xa, xb):
         ya, yb, z, mi_ = mv.BANDE[k]
         xc = (xa + xb) / 2
-        if k == 0 and mouth[0] <= xc <= mouth[1]:
+        if k == 0 and (mouth[0] <= xc <= mouth[1] or (varco and xc >= mouth[0])):
             return Z_ASF_VIALE, 0
         if abs(ya - Y_SPART[0]) < 1e-3 and zeb[0] <= xc <= zeb[1]:
             return Z_ASF_VIALE, 0
@@ -676,15 +682,17 @@ def build_incrocio(coll, lod=0, name="SM_Viale_Italia_Incrocio"):
             out = nxt
         return [s for s in out if s[1] - s[0] > 0.05]
 
-    for yc, w, z in mv.STRISCE_CONT:
+    for yc, w, z in s_cont:
         if lod == 2 and z > 0.1:
             continue
         holes = [zeb] if z < 0.1 else []
         if abs(yc - 123.30) < 1e-3:
             holes = [(zeb[0] - 1.0, zeb[1] + 0.5)]
+        if v2 and abs(yc - 121.20) < 1e-3:     # bordo lato giardini: aperto sull'imbocco della strada del molo
+            holes = [(mouth[0], mouth[1]), (zeb[0] - 1.0, zeb[1] + 0.5)]
         for xa, xb in cut(0.0, L, holes):
             rect(xa, xb, yc - w / 2, yc + w / 2, z)
-    for yc, w in mv.STRISCE_TRAT:
+    for yc, w in s_trat:
         for xa in (0.25, 0.25 + L / 2):
             for p, q in cut(xa, xa + 4.5, [(zeb[0] - 1.2, zeb[1] + 1.2)]):
                 rect(p, q, yc - w / 2, yc + w / 2, 0.02)
@@ -696,11 +704,16 @@ def build_incrocio(coll, lod=0, name="SM_Viale_Italia_Incrocio"):
             y += 1.0
     if lod < 2:
         # linee d'arresto (0,5 m) prima delle strisce: carreggiata A (verso +X) e B (verso -X)
-        rect(zeb[0] - 1.6, zeb[0] - 1.1, 123.40, 130.75, 0.02)
+        rect(zeb[0] - 1.6, zeb[0] - 1.1, 121.30 if v2 else 123.40, 130.75, 0.02)
         rect(zeb[1] + 1.1, zeb[1] + 1.6, 132.25, 138.30, 0.02)
         # frecce dritte nelle corsie (A verso +X, B verso -X)
-        for (xc, yc, s) in ((zeb[0] - 5.5, 125.15, 1), (zeb[0] - 5.5, 128.95, 1), (zeb[1] + 3.4, 134.4, -1),
-                            (zeb[1] + 3.4, 136.65, -1)):
+        arrows = ((zeb[0] - 5.5, 125.15, 1), (zeb[0] - 5.5, 128.95, 1), (zeb[1] + 3.4, 134.4, -1),
+                  (zeb[1] + 3.4, 136.65, -1))
+        if v2:
+            c = mv.ASSI_CORSIE_V2
+            arrows = ((zeb[0] - 5.5, c["A1"], 1), (zeb[0] - 5.5, c["A2"], 1), (zeb[1] + 3.4, c["B1"], -1),
+                      (zeb[1] + 3.4, c["B2"], -1))
+        for (xc, yc, s) in arrows:
             if not (0.3 < min(xc - s * 2.0, xc + s * 1.6) and max(xc - s * 2.0, xc + s * 1.6) < L - 0.05):
                 continue
             x0, x1 = xc - s * 2.0, xc + s * 0.6
@@ -709,7 +722,7 @@ def build_incrocio(coll, lod=0, name="SM_Viale_Italia_Incrocio"):
             f = face([(xc + s * 0.6, yc - 0.40 - y0 + y0 - y0, 0.02 + dz), (tip, yc - y0, 0.02 + dz), (xc + s * 0.6, yc + 0.40 - y0, 0.02 + dz)], 2, "top")
             if s < 0:
                 f.normal_flip()
-    if lod == 0:    # stalli lato giardini, ma non davanti all'imbocco e alle strisce
+    if lod == 0 and not v2:    # stalli lato giardini, ma non davanti all'imbocco e alle strisce
         for xa in np.arange(0.0, L - 0.01, 4.75):
             if mouth[0] - 1.0 <= xa <= mouth[1] + 1.0 or zeb[0] - 1.6 <= xa <= zeb[1] + 1.0:
                 continue
@@ -969,6 +982,17 @@ def build_asfalto_v2(coll, name="SM_Parcheggio_Asfalto_v2"):
     mp._aiuola(bm, mp.AIU_X[0], mp.AIU_X[1], Y_AIU_V3[0], Y_AIU_V3[1], c=0.15)
     o = pk._finish(name, bm, mats, coll, uv="world")
     N = mp.NOTCH
+    if name.endswith("_v4"):
+        # v4 (2026-11-20, fix UEFN): la triangolazione EAR_CLIP dell'OUTLINE (4 vertici allineati su X 20) riempie anche
+        # la tacca del ramo del molo (X 20-24, Y 109,25-114) e il triangolo (95; 102,25)-(95; 113,5)-(106; 120,85):
+        # l'asfalto visibile e' quindi X 20-95 x Y 102,25-120,85 piu' il triangolo (95; 102,25)-(106; 120,85)-(95; 120,85).
+        # Mesh visibile invariata (stesso aspetto della v3); UCX ridisegnati sull'impronta visibile.
+        _ucx_boxes(name, [(mp.X0, mp.X1, mp.Y_CORD1, Y_VIALE, -0.30, mp.Z_ASF),
+                          (mp.X0, mp.X1, mp.Y_CORD0, mp.Y_CORD1, -0.30, mp.Z_CORD),
+                          (mp.AIU_X[0], mp.AIU_X[1], Y_AIU_V3[0], Y_AIU_V3[1], -0.30, 0.14)], coll)
+        tri = [(mp.X1 - 0.05, mp.Y_CORD1), (mp.X1, mp.Y_CORD1), (106.0, Y_VIALE), (mp.X1 - 0.05, Y_VIALE)]
+        pk._ucx_hull(name, 3, [(x, y, z) for x, y in tri for z in (-0.30, mp.Z_ASF)], coll)
+        return o
     if name.endswith("_v3"):
         # v3 (2026-11-20, fix UEFN): UCX fino al ciglio del viale (Y 120,85) + convesso triangolare sullo smusso NE
         _ucx_boxes(name, [(N[1], mp.X1, mp.Y_CORD1, Y_VIALE, -0.30, mp.Z_ASF),
@@ -1410,3 +1434,224 @@ def render_confronto(cam, foto, out, width):
 def render_confronti():
     return [render_confronto("CAM_Incrocio_F1", FOTO, "docs/qa/arte_incrocio_v1_confronto.png", 1903),
             render_confronto("CAM_Park_F1_v3", FOTO_PARK, "docs/qa/arte_parcheggio_v3_confronto.png", 1375)]
+
+
+# =============================================================================================================
+# via il marciapiede all'incrocio (richiesta dell'utente 2026-11-20, ref/foto/ToFIX/Immagine 2026-11-20 104227.png):
+# asfalto a raso continuo dalla strada del molo / ingresso del parcheggio fino a Viale Italia, come nella foto
+# ref/foto/vista/vissta_entrata_parcheggio_e_passeggiata_da_viale_italia.png. Asset nuovi, le versioni in UEFN restano:
+#   SM_Viale_Incrocio_Asfalto        sostituisce SM_Viale_Incrocio_Marciapiede_v2 (stessa impronta, Z +0,02, strisce
+#                                    sull'imbocco del molo comprese, base tonda del Semaforo_02 come nella foto)
+#   SM_Molo_Pav_Strada_v2            = SM_Molo_Pav_Strada senza il cordolo del ramo (X 10,15-24, Y 113,75-113,95)
+#   SM_Viale_Italia_Incrocio_v3      = _v2 con il cordolo lato giardini (Y 120,85-121) a raso da X 6,5 a X 22
+#   SM_Viale_Italia_Strada_v2_Varco  = Strada_v2 (solo modulo SO_01, X 22-41) con lo stesso cordolo a raso fino a X 26
+#                                    (primo stallo del parcheggio): era lo "spezzone" segnato dall'utente.
+# Uso: mi.build_via_marciapiede(); mi.ucx_ray_test_via_marciapiede(); mi.export_via_marciapiede()
+# =============================================================================================================
+Z_ASF_INCR = 0.02            # = parcheggio e viale; la strada del molo e' a +0,01 (1 cm, invisibile)
+SEMAFORO_02 = (13.20, 120.45)
+R_PLINTO, H_PLINTO = 0.35, 0.15     # base tonda in cemento del semaforo (foto): il semaforo resta a Z +0,15
+X_VARCO_SO01 = 4.0           # locale nel modulo SO_01 (X 22): cordolo a raso fino a X 26
+
+
+def build_asfalto_incrocio(coll, name="SM_Viale_Incrocio_Asfalto"):
+    import morin_molo as mmo
+    bm = bmesh.new()
+    x0, x1, y0, y1 = MARC[0], MARC[1], MARC[2] - 0.2, MARC[3]
+    z = Z_ASF_INCR
+    xs = [x0, (x0 + x1) / 2, x1]
+    ys = [y0, (y0 + y1) / 2, y1]
+    for xa, xb in zip(xs[:-1], xs[1:]):
+        for ya, yb in zip(ys[:-1], ys[1:]):
+            pk._quad(bm, [(xa, ya, z), (xb, ya, z), (xb, yb, z), (xa, yb, z)], 0)
+    # bordo verso il ramo (Y 113,75: il ramo e' a +0,01) e verso la strada del molo (X 9,55)
+    mmo._skirt(bm, (x1, y0), (x0, y0), z, -0.15, 0)
+    mmo._skirt(bm, (x0, y0), (x0, y1), z, -0.15, 0)
+    # base tonda del semaforo
+    cx, cy = SEMAFORO_02
+    pk._lathe(bm, [(R_PLINTO, z - 0.01), (R_PLINTO, H_PLINTO - 0.02), (R_PLINTO - 0.02, H_PLINTO), (0.0, H_PLINTO)], 16,
+              mat=Matrix.Translation((cx, cy, 0.0)), mi=1)
+    # strisce pedonali sull'imbocco della strada del molo (prima nel marciapiede) e linea d'arresto
+    zs = Z_MOLO + 0.004
+    for xa in (6.70, 7.70, 8.70):
+        pk._quad(bm, [(xa, 117.9, zs), (xa + 0.5, 117.9, zs), (xa + 0.5, 120.4, zs), (xa, 120.4, zs)], 2)
+    pk._quad(bm, [(6.6, 117.2, zs), (9.45, 117.2, zs), (9.45, 117.5, zs), (6.6, 117.5, zs)], 2)
+    bm.normal_update()
+    for f in bm.faces:
+        if abs(f.normal.z) > 0.5 and f.normal.z < 0:
+            f.normal_flip()
+    o = pk._finish(name, bm, ["M_Molo_Asfalto", "M_Pav_Fascia", "M_Viale_Segnaletica"], coll)
+    _ucx_boxes(name, [(x0, x1, y0, y1, -0.30, z)], coll)
+    pk._ucx_hull(name, 1, [(cx + R_PLINTO * math.cos(a), cy + R_PLINTO * math.sin(a), zz)
+                           for a in np.linspace(0, 2 * math.pi, 16, endpoint=False) for zz in (-0.05, H_PLINTO)], coll)
+    return o
+
+
+def build_strada_molo_v2(coll, name="SM_Molo_Pav_Strada_v2"):
+    """Come morin_molo.build_strada ma senza il cordolo sul lato nord del ramo (ora asfalto a raso fino al viale)."""
+    import morin_molo as mmo
+    bm = bmesh.new()
+    z = mmo.Z_MOLO
+    R = mmo.R_ANG
+    yc = mmo.Y_ANG1 - R
+    ys = [mmo.Y_STR0, yc, mmo.Y_RAMO0, mmo.Y_RAMO1, mmo.Y_STR1]
+    for a, b in zip(ys[:-1], ys[1:]):
+        pk._quad(bm, [(mmo.X_STR0, a, z), (mmo.X_CURB0, a, z), (mmo.X_CURB0, b, z), (mmo.X_STR0, b, z)], 0)
+    cx = mmo.X_CURB0 + R
+    arc = [(cx - R * math.cos(math.pi / 2 * k / 8), yc + R * math.sin(math.pi / 2 * k / 8)) for k in range(9)]
+    corner = bm.verts.new((mmo.X_CURB0, mmo.Y_ANG1, z))
+    av = [bm.verts.new((x, y, z)) for x, y in arc]
+    for p, q in zip(av[:-1], av[1:]):
+        bm.faces.new([corner, p, q]).material_index = 0
+    pk._quad(bm, [(mmo.X_CURB0, mmo.Y_RAMO0, z), (mmo.X_RAMO1, mmo.Y_RAMO0, z), (mmo.X_RAMO1, mmo.Y_RAMO1, z),
+                  (mmo.X_CURB0, mmo.Y_RAMO1, z)], 0)
+    mmo._skirt(bm, (mmo.X_CURB0, mmo.Y_STR1), (mmo.X_STR0, mmo.Y_STR1), z, mmo.ZB, 0)
+    mmo._skirt(bm, (mmo.X_RAMO1, mmo.Y_RAMO0), (mmo.X_RAMO1, mmo.Y_RAMO1), z, mmo.ZB, 0)
+    o = pk._finish(name, bm, ["M_Molo_Asfalto", "M_Pav_Fascia"], coll)
+    _ucx_boxes(name, [(mmo.X_STR0, mmo.X_CURB0, mmo.Y_STR0, mmo.Y_STR1, -0.30, z),
+                      (mmo.X_CURB0, mmo.X_RAMO1, mmo.Y_RAMO0, mmo.Y_RAMO1, -0.30, z)], coll)
+    # spicchio d'angolo (X 9,55-11,15, Y 107,65-109,25): senza UCX nella v1
+    pk._ucx_hull(name, 2, [(x, y, zz) for x, y in arc + [(mmo.X_CURB0, mmo.Y_ANG1)] for zz in (-0.30, z)], coll)
+    return o
+
+
+def build_strada_varco(coll, lod=0, name="SM_Viale_Italia_Strada_v2_Varco"):
+    """SM_Viale_Italia_Strada_v2 per il solo modulo SO_01 (X 22-41): cordolo lato giardini (banda 0, Y 120,85-121)
+    a raso (+0,02, asfalto) per X locale 0-4 (X 22-26), poi di nuovo a +0,15 con la testata verso -X."""
+    import morin_viale as mv
+    s_cont, s_trat = mv.STRISCE_CONT_V2, mv.STRISCE_TRAT_V2
+    bm = bmesh.new()
+    layer = bm.loops.layers.uv.verify()
+    L, y0, T = mv.MOD_L, mv.Y0_STRADA, mv.TILE_ASF
+    xs = sorted(set([0.0, X_VARCO_SO01, L] + ([4.75, 9.5, 14.25] if lod < 2 else [])))
+    segs = list(zip(xs[:-1], xs[1:]))
+
+    def zb(k, xa, xb):
+        ya, yb, z, mi = mv.BANDE[k]
+        if k == 0 and (xa + xb) / 2 < X_VARCO_SO01:
+            return Z_ASF_VIALE, 0
+        return z, mi
+
+    prev = [0.0] * len(segs)
+    for k, (ya, yb, z, mi) in enumerate(mv.BANDE):
+        a, b = ya - y0, yb - y0
+        cur = []
+        for (xa, xb), pz in zip(segs, prev):
+            zz, m = zb(k, xa, xb)
+            cur.append(zz)
+            t = T if m == 0 else 1.0
+            pts = [(xa, a, zz), (xb, a, zz), (xb, b, zz), (xa, b, zz)]
+            mv._face(bm, layer, pts, [(p[0] / t, (p[1] + y0) / t) for p in pts], m)
+            if abs(zz - pz) > 1e-3 and (lod < 2 or k == 0):
+                z0, z1 = min(zz, pz), max(zz, pz)
+                pts = ([(xa, a, z0), (xb, a, z0), (xb, a, z1), (xa, a, z1)] if zz > pz else
+                       [(xb, a, z0), (xa, a, z0), (xa, a, z1), (xb, a, z1)])
+                mv._face(bm, layer, pts, [(p[0], p[2]) for p in pts], 1)
+        if k == 0 and lod < 2:      # testata del cordolo verso -X (X 26)
+            x = X_VARCO_SO01
+            pts = [(x, b, Z_ASF_VIALE), (x, a, Z_ASF_VIALE), (x, a, z), (x, b, z)]
+            mv._face(bm, layer, pts, [(p[1], p[2]) for p in pts], 1)
+        prev = cur
+    a = mv.BANDE[-1][1] - y0
+    pts = [(L, a, -0.05), (0, a, -0.05), (0, a, prev[0]), (L, a, prev[0])]
+    mv._face(bm, layer, pts, [(p[0], p[2]) for p in pts], 1)
+    dz = 0.005
+
+    def stripe(xa, xb, yc, w, z):
+        pts = [(xa, yc - w / 2 - y0, z + dz), (xb, yc - w / 2 - y0, z + dz), (xb, yc + w / 2 - y0, z + dz),
+               (xa, yc + w / 2 - y0, z + dz)]
+        mv._face(bm, layer, pts, [(p[0], p[1]) for p in pts], 2)
+    for yc, w, z in s_cont:
+        if lod == 2 and z > 0.1:
+            continue
+        stripe(0.0, L, yc, w, z)
+    for yc, w in s_trat:
+        for xa in (0.25, 0.25 + L / 2):
+            stripe(xa, xa + 4.5, yc, w, 0.02)
+    bm.normal_update()
+    for f in bm.faces:
+        if abs(f.normal.z) > 0.5 and f.normal.z < 0:
+            f.normal_flip()
+    return mv._finish(name + _sfx(lod), bm, ["M_Molo_Asfalto", "M_Pav_Fascia", "M_Viale_Segnaletica"], coll)
+
+
+def build_via_marciapiede():
+    coll = pk._coll(KIT)
+    out = {}
+    o = build_asfalto_incrocio(coll)
+    out[o.name] = [pk.tri_count(o)]
+    o = build_strada_molo_v2(coll)
+    out[o.name] = [pk.tri_count(o)]
+    out["SM_Viale_Italia_Incrocio_v3"] = [pk.tri_count(build_incrocio(coll, l, name="SM_Viale_Italia_Incrocio_v3"))
+                                          for l in (0, 1, 2)]
+    out["SM_Viale_Italia_Strada_v2_Varco"] = [pk.tri_count(build_strada_varco(coll, l)) for l in (0, 1, 2)]
+    return out
+
+
+def ucx_ray_test_via_marciapiede(step=0.05):
+    """Griglia di raggi verticali sull'impronta visibile di asfalto e strada del molo v2: ogni punto della superficie
+    visibile (segnaletica esclusa) deve avere sotto/attorno un UCX con la faccia superiore alla stessa quota (+-5 mm)."""
+    res = {}
+    for nm in ("SM_Viale_Incrocio_Asfalto", "SM_Molo_Pav_Strada_v2"):
+        o = bpy.data.objects[nm]
+        ucx = [u for u in bpy.data.objects if u.name.startswith(f"UCX_{nm}_")]
+        bb = [o.matrix_world @ Vector(c) for c in o.bound_box]
+        xa, xb = min(v.x for v in bb), max(v.x for v in bb)
+        ya, yb = min(v.y for v in bb), max(v.y for v in bb)
+        n_vis = n_miss = 0
+        miss = []
+        for x in np.arange(xa + step / 2, xb, step):
+            for y in np.arange(ya + step / 2, yb, step):
+                hit, loc, nrm, idx = o.ray_cast(Vector((x, y, 5.0)), Vector((0, 0, -1)))
+                if not hit or o.data.materials[o.data.polygons[idx].material_index].name == "M_Viale_Segnaletica":
+                    continue
+                n_vis += 1
+                ok = False
+                for u in ucx:
+                    h2, l2, _, _ = u.ray_cast(Vector((x, y, 5.0)), Vector((0, 0, -1)))
+                    if h2 and -0.005 <= l2.z - loc.z <= 0.03:     # UCX alla quota (fino a 3 cm sopra: smussi)
+                        ok = True
+                        break
+                if not ok:
+                    n_miss += 1
+                    if len(miss) < 5:
+                        miss.append((round(float(x), 2), round(float(y), 2), round(loc.z, 3)))
+        res[nm] = (n_vis, n_miss, miss, len(ucx))
+    return res
+
+
+def export_via_marciapiede(overwrite=False):
+    import importlib
+    import morin_export
+    importlib.reload(morin_export)
+    names = ["SM_Viale_Incrocio_Asfalto", "SM_Molo_Pav_Strada_v2"] + \
+            [n + _sfx(l) for n in ("SM_Viale_Italia_Incrocio_v3", "SM_Viale_Italia_Strada_v2_Varco") for l in (0, 1, 2)]
+    objs = [bpy.data.objects[n] for n in names] + [u for u in bpy.data.objects if u.name.startswith("UCX_") and
+                                                    u.name[4:].rsplit("_", 1)[0] in names]
+    state = {o.name: (o.hide_viewport, o.hide_get(), o.hide_render) for o in objs}
+    for o in objs:
+        o.hide_viewport = False
+        o.hide_set(False)
+    bpy.context.view_layer.update()
+    reps = []
+    try:
+        reps.append(morin_export.export_fbx([bpy.data.objects["SM_Viale_Incrocio_Asfalto"]],
+                                            f"{EXPDIR}/SM_Viale_Incrocio_Asfalto.fbx", mode="asset",
+                                            overwrite=overwrite, include_ucx=True, verbose=False))
+        reps.append(morin_export.export_fbx([bpy.data.objects["SM_Molo_Pav_Strada_v2"]],
+                                            "//../exports/molo/SM_Molo_Pav_Strada_v2.fbx", mode="asset",
+                                            overwrite=overwrite, include_ucx=True, verbose=False))
+        for n, d in (("SM_Viale_Italia_Incrocio_v3", EXPDIR), ("SM_Viale_Italia_Strada_v2_Varco", "//../exports/viale")):
+            for lod in (0, 1, 2):
+                on = n + _sfx(lod)
+                reps.append(morin_export.export_fbx([bpy.data.objects[on]], f"{d}/{on}.fbx", mode="asset",
+                                                    overwrite=overwrite, include_ucx=False, bake_rotation=(lod > 0),
+                                                    verbose=False))
+    finally:
+        for n, (hv, hg, hr) in state.items():
+            o = bpy.data.objects.get(n)
+            if o is not None:
+                o.hide_viewport = hv
+                o.hide_set(hg)
+                o.hide_render = hr
+    return reps

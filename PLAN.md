@@ -202,9 +202,9 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      (Translucent, two-sided, Volumetric Directional, PS 385 istr.) + `MI_Molo_Vetro`. `Pino_04` aggiornato (yaw −10, pitch −4).
      Trace: marciapiede 100 % OK, nessun buco; **asfalto v3: smusso NE senza collisione** (vedi voce sotto). Validazione 467/467.
      Render `docs/qa/uefn_incrocio_v2.png`.
-   - [ ] (blender-artist) `SM_Parcheggio_Asfalto_v3`: il convesso dello smusso NE (coordinate Blender, m) ha il vertice a (95; 113,50) ma la superficie
+   - [x] (blender-artist, 2026-11-20) `SM_Parcheggio_Asfalto_v3`: il convesso dello smusso NE (coordinate Blender, m) ha il vertice a (95; 113,50) ma la superficie
      visibile parte da (95; 102,25) → triangolo X 95-106 / Y 102,25-120,85 visibile a Z +0,02 senza collisione propria (sotto c'è il blockout a Z 0,
-     piedi 2 cm dentro). Allineare il convesso alla diagonale visibile (95; 102,25)-(106; 120,85).
+     piedi 2 cm dentro). Allineare il convesso alla diagonale visibile (95; 102,25)-(106; 120,85). Fatto: `SM_Parcheggio_Asfalto_v4` (voce sotto).
    - [ ] (qa-tester) In sessione: marciapiede dell'incrocio, dehors vetrato (entrata, tetto), corsia del parcheggio, auto a pettine solide.
    - [ ] (utente/geo-scout) Verificare [S] dell'incrocio: posizione del semaforo grande e dei cartelli (spartitraffico di fronte allo sbocco),
      varco dello spartitraffico, dissuasori, angolo dei posti a pettine (60° o 90°), edificio con vetrate (area OSM 205843492).
@@ -223,8 +223,54 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
    - [ ] (utente) **Audio del viale:** servono file esterni (WAV): 1 loop di traffico cittadino lontano (≥ 60 s, senza voci) e 4-6 clacson
      brevi lontani. Fonti CC0: Freesound (filtro licenza CC0), Sonniss GDC bundle (royalty-free). Con i file: import con SoundWaveToolset,
      poi `Device_Audio_TrafficoViale_SO` (già piazzato, audio vuoto) + 1-2 Audio Player per i clacson. Nessun download fatto.
-   - [ ] (blender-artist) Viale: la segnaletica degli **stalli di sosta** sulle due strisce laterali (Y 121,0-123,3 e 132,2-134,5 m) contrasta
+     - [x] (blender-artist, 2026-11-20) **Audio elaborato in Blender** (VSE + mixdown, `docs/CREDITS.md` §Audio): originali in
+       `exports/audio/originali/`; finali WAV PCM 16 bit 48 kHz, picco −6,0 dBFS: `A_Viale_TrafficoLontano_Loop.wav` 60,00 s stereo
+       (0-60 s + crossfade equal-power 2 s, giunzione verificata: correlazione 0,99999 con la sorgente), `A_Viale_Clacson_01..06.wav`
+       mono 0,85 / 1,55 / 0,50 / 2,00 / 0,70 / 0,60 s, fade-out ~50 ms. Nessun transitorio isolato nel loop; due passaggi di veicoli
+       vicini (~+20 dB sul fondo) a **14-19 s** (picco 17 s) e **39-44 s** (picco 42 s).
+     - [ ] (utente) Ascoltare il loop (14-19 s e 39-44 s) e i 6 clacson; poi (uefn-builder) import e device audio.
+   - [x] (blender-artist, 2026-11-20) **Via il marciapiede all'incrocio** (richiesta dell'utente, `ref/foto/ToFIX/Immagine 2026-11-20 104227.png`;
+     `docs/decisioni.md`). Sorgente `morin_incrocio.py` (`build_via_marciapiede`, `ucx_ray_test_via_marciapiede`, `export_via_marciapiede`,
+     `build_incrocio(..., varco)`); backup `blender/arte_incrocio_pre_via_marciapiede.blend`, `scripts/morin_incrocio_pre_via_marciapiede.py.bak`.
+     Asset nuovi, posa (0,0,0) i primi due, posa del modulo gli altri:
+     - `exports/incrocio/SM_Viale_Incrocio_Asfalto.fbx`: 100 tri, 13,4 × 7,1 × 0,30 m (X 6,6-20, Y 113,75-120,85; strisce dell'imbocco del
+       molo X 6,6-9,45 comprese), asfalto a Z +0,02 `M_Molo_Asfalto`, base tonda del `Semaforo_02` (Ø 0,7, h 0,15, `M_Pav_Fascia`),
+       segnaletica `M_Viale_Segnaletica`. 2 UCX: box X 9,55-20 × Y 113,75-120,85 (Z −0,30..0,02) + convesso della base.
+     - `exports/molo/SM_Molo_Pav_Strada_v2.fbx`: 22 tri, 17,5 × 35 m, = v1 senza il cordolo del ramo (X 10,15-24, Y 113,75-113,95); 3 UCX
+       (aggiunto il convesso dello spicchio d'angolo X 9,55-11,15 / Y 107,65-109,25, scoperto anche nella v1).
+     - `exports/incrocio/SM_Viale_Italia_Incrocio_v3{,_LOD1,_LOD2}.fbx`: 244 / 244 / 130 tri, 19 × 24,15 × 0,205 m, = v2 con il cordolo lato
+       giardini a raso da X 6,5 a 22 (fine modulo). Niente UCX (come v1/v2).
+     - `exports/viale/SM_Viale_Italia_Strada_v2_Varco{,_LOD1,_LOD2}.fbx`: 132 / 132 / 46 tri, 19 × 24,15 × 0,205 m, = Strada_v2 con il cordolo a
+       raso per X 22-26 (solo il modulo SO_01). Niente UCX. Lo "spezzone" segnato dall'utente era questo cordolo (banda 0 del viale).
+     Ray test a griglia 5 cm: asfalto 29.678 punti visibili, strada molo v2 68.935, **0 senza UCX**. Render `docs/qa/arte_incrocio_fix_marciapiede.png`.
+   - [ ] (uefn-builder) Import e sostituzione (nessuna cancellazione): **nascondere** `Arte_Incrocio_Marciapiede_v2` (e lasciare nascosto
+     `Arte_Incrocio_Marciapiede`), `Arte_Molo_Pav_Strada`; posare `SM_Viale_Incrocio_Asfalto` e `SM_Molo_Pav_Strada_v2` a (0,0,0);
+     `SM_Viale_Italia_Incrocio_v3` (+LOD) al posto della mesh del modulo `Arte_Viale_Incrocio` (SO_00, oggi v1 o v2), `SM_Viale_Italia_Strada_v2_Varco`
+     (+LOD) al posto della mesh dell'istanza `Viale_Strada_SO_01` (togliere quell'istanza dall'HISM e ricrearla come attore, stessa posa X 22).
+     Materiali esistenti (`M_Molo_Asfalto`, `M_Pav_Fascia`, `M_Viale_Segnaletica`): riassegnare. `Semaforo_02` resta dov'è (Z 15 uu, ora sulla
+     base tonda). Con `SM_Parcheggio_Asfalto_v3` ancora in scena resta scoperta la striscia X 20-24 / Y 113,75-114 (dove c'era il cordolo):
+     la copre il UCX della v4. Trace: asfalto a Z +2 uu su tutta l'impronta, nessun gradino fra molo, ramo, parcheggio e viale.
+   - [x] (blender-artist, 2026-11-20) Viale: la segnaletica degli **stalli di sosta** sulle due strisce laterali (Y 121,0-123,3 e 132,2-134,5 m) contrasta
      con la decisione dell'utente (niente sosta): ridisegnare come corsie di marcia (4 corsie) in `SM_Viale_Italia_Strada`/`_Incrocio`.
+     Fatto (voce sotto): `SM_Viale_Italia_Strada_v2` e `SM_Viale_Italia_Incrocio_v2`, 2 corsie per carreggiata.
+   - [x] (blender-artist, 2026-11-20) **Corsie del viale v2 + asfalto v4** (`docs/decisioni.md` 2026-11-20). Sorgenti `morin_viale.py`
+     (`STRISCE_*_V2`, `build_strada(..., v2)`), `morin_incrocio.py` (`build_incrocio(..., v2)`, ramo `_v4` di `build_asfalto_v2`); backup
+     `blender/arte_viale_pre_corsie_v2.blend`, `blender/arte_incrocio_pre_corsie_v2.blend`, `scripts/*_pre_corsie_v2.py.bak`.
+     - `exports/viale/SM_Viale_Italia_Strada_v2{,_LOD1,_LOD2}.fbx`: 80 / 80 / 32 tri, 19 × 24,15 × 0,205 m, niente UCX (come la v1: fondale oltre la barriera).
+     - `exports/incrocio/SM_Viale_Italia_Incrocio_v2{,_LOD1,_LOD2}.fbx`: 256 / 256 / 130 tri, 19 × 24,15 × 0,205 m, niente UCX (come la v1).
+     - Segnaletica (Y Blender): carreggiata A bordo 121,20 · tratteggio 126,40 · bordo 130,80; carreggiata B bordo 132,20 · tratteggio 135,30 ·
+       bordo 138,40; niente stalli. Incrocio: bordo 121,20 aperto sull'imbocco del molo, linea d'arresto A estesa a Y 121,30, frecce sui
+       nuovi centri corsia (123,80 / 128,60 / 133,75 / 136,85). Le 14 auto del traffico (assi 125,15 / 128,9 / 133,35 / 136,45) restano dentro le corsie.
+     - `exports/parcheggio/SM_Parcheggio_Asfalto_v4.fbx`: 173 tri (mesh identica alla v3), **4 UCX**: box X 20-95 × Y 102,25-120,85 (copre anche
+       la tacca X 20-24, che la mesh visibile riempie), box cordolo, box aiuola, convesso (94,95; 102,25)-(95; 102,25)-(106; 120,85)-(94,95; 120,85).
+       Ray test a griglia (passo 10 cm su tutto, 2 cm su smusso e tacca): 151.175 + 279.025 + 64.125 punti visibili, **0 senza UCX** (la v3 ne
+       lasciava 8.098 = ~81 m²: smusso e tacca). Causa: la triangolazione EAR_CLIP dell'OUTLINE riempie tacca e triangolo concavo.
+   - [ ] (uefn-builder) **Import e sostituzione** (nessuna cancellazione): `SM_Viale_Italia_Strada_v2` (+ LOD1/LOD2, metodo LOD di §10) in
+     `Arte/Viale` al posto di `SM_Viale_Italia_Strada` in tutti i moduli (stessa posa, istanza per istanza), `SM_Viale_Italia_Incrocio_v2`
+     (+ LOD) al posto di `SM_Viale_Italia_Incrocio` (modulo SO_00), `SM_Parcheggio_Asfalto_v4` a (0,0,0) al posto di `Arte_Parcheggio_Asfalto_v3`
+     (v3 nascosto). Materiali esistenti (`M_Molo_Asfalto`, `M_Pav_Fascia`, `M_Viale_Segnaletica`, `M_Parcheggio_Asfalto`, `M_Pav_Terra`):
+     riassegnare, non duplicare. Verifica: trace sullo smusso NE (X 95-106) e sulla tacca (X 20-24, Y 109,25-114): impatto su asfalto a Z +2 uu.
+     Opzionale: riallineare il traffico ai centri corsia v2 (Y UE −12380 / −12860 / −13375 / −13685).
    - [ ] (blender-artist → uefn-builder) Layout fascia palme **v4**: filari da X 20,4 (via le palme a X 12), tutto il resto −0,6 m,
      gazebo a X ≈ 33,9; in UEFN solo spostamenti di attori (niente reimport).
    - [x] (uefn-builder, 2026-11-19 18:15) Import e posa del kit molo v2 (`docs/uefn_arte.md` §13): 14 mesh in `LaSpezia/Arte/Molo` e

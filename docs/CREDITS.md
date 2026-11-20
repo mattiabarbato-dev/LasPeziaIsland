@@ -177,13 +177,30 @@ Pianta del parcheggio e della corsia da OSM (© OpenStreetMap contributors, ODbL
 ### Ambiente Viale Italia (2026-11-20) — `exports/audio/`
 Fonte: **BigSoundBank** (libreria di Joseph Sardin, https://bigsoundbank.com). Ogni pagina dichiara
 "License CC0 (public domain): Free and royalty-free". Attribuzione non richiesta, citata per cortesia. Data di accesso: 2026-11-20.
-File scaricati in WAV originale (link `UPLOAD/bwf-en/<n>.wav`), **non elaborati** (ffmpeg non installato): formato, livelli e durate sono quelli della sorgente.
+File scaricati in WAV originale (link `UPLOAD/bwf-en/<n>.wav`). Gli originali, non toccati, sono in `exports/audio/originali/`
+(stessi nomi del download: `A_Viale_Clacson_01..05.wav`, `A_Viale_TrafficoLontano_Loop.wav`).
 
-| File finale | Sorgente (n., titolo) | URL | Autore (come in pagina) | Licenza |
+| Originale (`originali/`) | Sorgente (n., titolo) | URL | Autore (come in pagina) | Licenza |
 |---|---|---|---|---|
 | `A_Viale_TrafficoLontano_Loop.wav` | #2457 "City garden atmosphere" (Dreux) | https://bigsoundbank.com/city-garden-atmosphere-s2457.html | Joseph SARDIN | CC0 |
 | `A_Viale_Clacson_01.wav` | #3506 "Horn #3" | https://bigsoundbank.com/horn-3-s3506.html | Le tiroir du fond | CC0 |
 | `A_Viale_Clacson_02.wav` | #0260 "Car horn #4" | https://bigsoundbank.com/car-horn-4-s0260.html | DenisChardonnet | CC0 |
 | `A_Viale_Clacson_03.wav` | #0258 "Recent Car Horn #2" | https://bigsoundbank.com/recent-car-horn-2-s0258.html | DenisChardonnet | CC0 |
-| `A_Viale_Clacson_04.wav` | #0850 "Recent car horn #5" (3 colpi, da tagliare) | https://bigsoundbank.com/recent-car-horn-5-s0850.html | Joseph SARDIN | CC0 |
-| `A_Viale_Clacson_05.wav` | #0969 "Recent Car Horn #7" (5 colpi, da tagliare) | https://bigsoundbank.com/recent-car-horn-7-s0969.html | Joseph SARDIN | CC0 |
+| `A_Viale_Clacson_04.wav` | #0850 "Recent car horn #5" (3 colpi) | https://bigsoundbank.com/recent-car-horn-5-s0850.html | Joseph SARDIN | CC0 |
+| `A_Viale_Clacson_05.wav` | #0969 "Recent Car Horn #7" (5 colpi) | https://bigsoundbank.com/recent-car-horn-7-s0969.html | Joseph SARDIN | CC0 |
+
+**Elaborazione (blender-artist, 2026-11-20)** in Blender 5.3 (Video Sequence Editor + `bpy.ops.sound.mixdown`, Audaspace;
+niente ffmpeg esterno): scena temporanea poi rimossa, tagli, fade con keyframe di volume, mixdown WAV PCM S16 48 kHz, troncamento
+al campione esatto con il modulo `wave` (il mixdown arrotonda al blocco). Picco normalizzato a −6 dBFS. File finali in `exports/audio/`:
+
+| File finale | Da (originale, secondi) | Durata | Canali |
+|---|---|---|---|
+| `A_Viale_TrafficoLontano_Loop.wav` | #2457, 0-60 s + crossfade equal-power di 2 s (la coda 60-62 s sfuma sopra l'inizio) | 60,00 s | stereo |
+| `A_Viale_Clacson_01.wav` | #3506, 0,00-0,85 | 0,85 s | mono |
+| `A_Viale_Clacson_02.wav` | #0258, 0,00-1,55 | 1,55 s | mono |
+| `A_Viale_Clacson_03.wav` | #0850, 0,10-0,60 (1° colpo) | 0,50 s | mono |
+| `A_Viale_Clacson_04.wav` | #0850, 4,30-6,30 (3° colpo, lungo, tagliato a 2 s) | 2,00 s | mono |
+| `A_Viale_Clacson_05.wav` | #0969, 1,35-2,05 (2° colpo) | 0,70 s | mono |
+| `A_Viale_Clacson_06.wav` | #0969, 4,95-5,55 (5° colpo) | 0,60 s | mono |
+
+#0260 ("Car horn #4") non è usato nei file finali (0,49 s, 2 campioni in clipping).
