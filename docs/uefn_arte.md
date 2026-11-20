@@ -1951,3 +1951,74 @@ Render 1024 px con ombre (`docs/qa/`): `uefn_blocco2_v2_laspezia.png` (camera di
   Y 352 m e X 725 m, cioè ~20-25 m oltre il faro: si vede il vuoto?); sfumature verdi sotto l'acqua del bacino interno lungo la costa X 640-720
   (probabile terreno di `Arte_Fondale_Citta_NE_01`, senza collisione); barriere B3 dall'acqua.
 - Memoria: +15 texture (≈ 30 MiB a runtime, stima informativa), mesh trascurabili; rileggere "Budget memoria mappa" dopo la prossima sessione (§30).
+
+## 34. Molo Italia v2 e acqua oltre il faro (2026-11-20, ~15:40-15:55 ora locale)
+
+Sorgenti: `exports/molo_italia/*_v2{,_LOD1,_LOD2}.fbx` (13 asset), `exports/fondale/SM_Fondale_Colline_NE_v2.fbx`. Metodo §32/§33: LOD0 col nome
+finale via `ImportFile` (materiali/texture off) in `Arte/MoloItalia` (colline in `Arte/Fondale`), LOD1/2 come `_Temp/TMPB3V2_<asset>_v2_LOD1/2`,
+`remove_lods` + `set_lod_from_static_mesh(..., True)`, MI con `StaticMesh.set_material` (insidia §33) copiate slot per slot dalla v1, sezioni dei LOD
+controllate per nome di slot (§22: nessuna da rimappare), Nanite off, Use Simple Collision As Complex, soglie 1,0/0,2/0,08, MinLOD Low/Medium = v1
+(rimorchiatori, motovedetta, lampione, scogliere 2; gli altri 0; temporanei 0). Nessun attore né asset cancellato: le v1 restano nel Content Browser.
+
+### Asset v2 (bbox e convessi = v1, salvo dove indicato)
+| Asset | Tri LOD0/1/2 | Convessi | Bbox LOD1/LOD2 vs LOD0 |
+|---|---|---|---|
+| `SM_MoloItalia_RistorantePiccioni_v2` | 1884 / 1604 / 272 | **17** (v1 11) | 0,05 % |
+| `SM_MoloItalia_Edificio4P_v2` | 266 / 266 / 82 | 1 | 0,01 % (Z 2315 in tutti i LOD) |
+| `SM_MoloItalia_Capitaneria_v2` | 998 / 766 / 114 | 3 | 0,00 % (Z 1515) |
+| `SM_MoloItalia_Faro_v2` | 2144 / 1316 / 440 | 4 | 0,00 % |
+| `SM_MoloItalia_Rimorchiatore_{Tiramolla,Spingitutto,Ostinato}_v2` | 2032/1488/160 · 2112/1568/160 · 1896/1352/160 | 2 | 0,14 % (Z 1250) |
+| `SM_MoloItalia_Motovedetta_v2` | 1388 / 1340 / 80 | 2 | **1,37 %** (larghezza 466/469/460; Z 600) |
+| `SM_MoloItalia_Dito_v2` | 142 / 142 / 46 | 1 | 0,00 % |
+| `SM_Morin_LampionePastorale_v2` | 768 / 508 / 174 | 2 | 0,00 % |
+| `SM_Molo_Scogliera_{A,B,C}_v2` | 1362/342/182 · 1282/322/182 · 1442/362/182 | 1 | 0,00 % |
+| `SM_Fondale_Colline_NE_v2` | 7005 (solo LOD0, come le altre colline) | 0 (convesso automatico rimosso) | — |
+Bbox letta con GeometryScript dalla mesh sorgente di ogni LOD dell'asset finale. Slot → MI identici alla v1; sul faro lo slot `M_MoloItalia_FaroLuce`
+resta `MI_MoloItalia_FaroLuce` (lampeggio). Colline: `MI_Fondale_Colline_NE`, MinLOD 0, nessuna collisione.
+
+### Cambio di mesh (stesse trasformazioni, nessun override di materiale)
+Singoli: `Arte_B3_RistorantePiccioni`, `_Edificio4P`, `_Capitaneria`, `_Faro`, `Arte_B3_Rimorchiatore_{Tiramolla,Spingitutto,Ostinato}`.
+HISM (istanze e trasformazioni identiche prima/dopo): `Arte_B3_barche_Motovedetta` (2), `Arte_B3_dita_Dito` (2), `Arte_B3_arredi_LampionePastorale` (19),
+`Arte_B3_scogliera_Scogliera_A/B/C` (18/19/18). Fondale: `Arte_Fondale_Colline_NE` (518000, 48000, 0) → `_v2`, sempre No Collision, senza ombre.
+Insidia: uno script unico con 14 `set_static_mesh` + confronto di tutte le trasformazioni ha fatto cadere la connessione MCP (ECONNRESET, nessuna
+modifica applicata); a gruppi piccoli funziona.
+
+### Acqua oltre il faro (3 device Acqua V2 nuovi, copie di `Acqua_Golfo_Device_B3_Nord`: stesse opzioni, Z −484, altezza 1, 100 %, Default, sempre attivo)
+| Label | Centro | L × P (unità 512) | Volume `FortWaterBodyCubeVolume` |
+|---|---|---|---|
+| `Acqua_Golfo_Device_B3_Mare` | (75444, 45438, −484) | 84,5 × 40 | X 53812..97076 · Y 35198..55678 |
+| `Acqua_Golfo_Device_B3_Est` | (84788, 20606, −484) | 48 × 57 | X 72500..97076 · Y 6014..35198 |
+| `Acqua_Golfo_Device_B2_Mare` | (43956, 43366, −484) | 38,5 × 48,09375 | X 34100..53812 · Y 31054..55678 |
+- Dal faro (67860, 32710): acqua fino a **230 m** verso il mare aperto (+Y), **292 m** verso est (+X), 338 m verso ovest. Bordi comuni con B2, B3 e
+  B3_Nord senza fessure né sovrapposizioni. La nave da crociera (X 85002..94997) ora galleggia sull'acqua.
+- `B3_Est` parte da **Y 6014** e non da −130: a X 725-820 m, fino a Y ~60 m, ci sono i blocchi di `Arte_Fondale_Citta_NE_01` con la base a
+  Z −1,3..−2,9 m e, a X 726-750 m, un fondale a −8 m: coprirli faceva comparire edifici "in acqua" e nuove macchie chiare. Il rettangolo X 725-971 m ·
+  Y −1,3..60 m resta senz'acqua come prima (terra del porto a Z −0,3..−0,5 m).
+- **Barriere invariate.** Flood fill a 64 uu dall'interno del Blocco 3 (60000, 10000) nel riquadro X 26000..90000 · Y −14000..58000 con i box reali
+  delle barriere (centro ± unità × 256): 470.045 celle raggiunte, **nessuna** dentro i tre volumi nuovi, nessuna sui bordi est/nord/città del riquadro
+  (tocca solo il bordo X 26000, cioè la continuazione verso i Blocchi 1-2).
+- Log: alla duplicazione 3 avvisi "TimelinePostUpdateFunc / Vertical Water Movement Timeline: Unable to find function" (riferiti al device sorgente):
+  il riempimento verticale non è usato (100 % fisso); da guardare in sessione.
+
+### Verifiche (line trace e sweep in editor)
+- **Ristorante:** percorso molo (locale X −1450, Y 385) → passerella (Z 0) → piede della scala (X −920) → rampa fino a Z 300 (X −255, pendenza ~26°,
+  19,4 cm ogni 40 cm) → terrazza Z 300 → centro terrazza: sweep di capsula r 34 / hh 88 a passi di 10 cm, **0 blocchi**, salto massimo fra due passi
+  4,8 cm, altezza libera minima 2,35 m (sotto la copertura a Z ~5,4 m). Vano aperto nella soletta Y 295..480 locali con ringhiera sui lati.
+  (Con la capsula appoggiata a 3 cm dalla rampa lo sweep "tocca" la rampa stessa: artefatto del test, sparisce sollevandola di 20 cm come fa lo step-up.)
+- **LOD:** bbox LOD1/LOD2 entro il 2 % del LOD0 su tutti i 13 asset (max 1,37 % motovedetta).
+- **Bacino X 640-720 m:** vista zenitale e obliqua: nessuna macchia verde sott'acqua; resta solo la riga di costa (terra sopra l'acqua).
+
+### Salvataggio, validazione, log, render
+`save_dirty_packages`: **0 pacchetti sporchi**. Validazione `LaSpezia/`: **711/711 validi, 0 errori, 57 avvisi** (i 56 noti + "un solo LOD" su
+`SM_Fondale_Colline_NE_v2`, come le altre colline). Log: nessun errore sul progetto (solo `LogHotfixManager`, `LogEOSSDK`, `LogAudioMixer` di sistema).
+Attori nel livello: 344 → **350** (+3 device Acqua V2 e i loro 3 `BP_FortWaterBodyCubeVolume_C`).
+Render 1024 px con ombre (`docs/qa/`): `uefn_moloitalia_v2_terrazza.png` (59065, 5430, 480; yaw 195; pitch −14; FOV 80),
+`uefn_moloitalia_v2_bacino.png` (68000, 6000, 14000; zenitale; FOV 70), `uefn_moloitalia_v2_testata.png` (67550, 32500, 185; yaw 75; pitch −3; FOV 90).
+
+### Temporanei e problemi aperti
+- 26 nuovi temporanei `LaSpezia/_Temp/TMPB3V2_*_v2_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente (insieme alle mesh v1 ora
+  non più usate: 13 `SM_MoloItalia_*`/`SM_Molo_Scogliera_*`/`SM_Morin_LampionePastorale` e `SM_Fondale_Colline_NE`).
+- **(qa-tester)** In sessione: salita alla terrazza; acqua oltre il faro e bordo a X 971 m / Y 557 m visto dalla testata; device Acqua V2 copiati
+  (avviso della timeline); il rettangolo senz'acqua a est del bacino (X 725-971 m, Y < 60 m) visto dal molo.
+- **(blender-artist, facoltativo)** `Arte_Fondale_Citta_NE_01`: basi dei blocchi a X 725-820 m sotto il livello dell'acqua (Z −1,3..−2,9 m) e fondale
+  a −8 m sotto l'edificio a X ~745 m, Y ~35 m: se si vuole l'acqua anche lì vanno alzate o ritagliate.

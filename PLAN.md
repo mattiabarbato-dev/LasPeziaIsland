@@ -893,7 +893,7 @@ Ordine per impatto visivo:
             della griglia 30 m a Y 0 con Z −0,21..−0,80 (sopra l'acqua −1,03) e fondo −10 solo a Y −30 → 0-3 m di terreno chiaro sotto la superficie.
             `SM_Fondale_Colline_NE_v2`: tagli a Y 1,3 (bordo dell'Acqua V2 B3), X 560 e X 726; vertici di costa X 560-726 con Y < 1,3 portati a Z −10.
             Restano < 2 m di profondità solo gli ultimi 0,8 m prima del bordo dell'acqua (Y 0,5-1,3).
-      - [ ] (uefn-builder) **Import Molo Italia v2** (`exports/molo_italia/`, `exports/fondale/`; LOD0 + `_LOD1` + `_LOD2` per ognuno, metodo §32/§33,
+      - [x] (uefn-builder) **Import Molo Italia v2** (`exports/molo_italia/`, `exports/fondale/`; LOD0 + `_LOD1` + `_LOD2` per ognuno, metodo §32/§33,
             materiali come le v1, stessi slot): **cambio di mesh sugli attori, stesse trasformazioni**, le v1 restano nel Content Browser.
             `SM_MoloItalia_RistorantePiccioni_v2` → `Arte_B3_RistorantePiccioni` (17 UCX); `SM_MoloItalia_Edificio4P_v2` → `Arte_B3_Edificio4P`;
             `SM_MoloItalia_Capitaneria_v2` → `Arte_B3_Capitaneria`; `SM_MoloItalia_Faro_v2` → `Arte_B3_Faro` (resta `MI_MoloItalia_FaroLuce` sullo slot luce);
@@ -902,6 +902,17 @@ Ordine per impatto visivo:
             `Arte_B3_arredi_LampionePastorale`; `SM_Molo_Scogliera_{A,B,C}_v2` → HISM `Arte_B3_scogliera_Scogliera_{A,B,C}`;
             `SM_Fondale_Colline_NE_v2` (no collisione, `MI_Fondale_Colline_NE`, solo LOD0 come le altre colline se i LOD danno problemi) → attore del fondale che oggi usa `SM_Fondale_Colline_NE`.
             Poi: salire in sessione sulla terrazza del ristorante dalla passerella sud; verificare da lontano le sagome (antenne, alberi) e il bacino X 640-720.
+      - [x] (uefn-builder, 2026-11-20 ~15:40-15:55, `docs/uefn_arte.md` §34) **Molo Italia v2 in UEFN + acqua oltre il faro.** 14 mesh `_v2` importate
+            (13 con LOD0/1/2 via `TMPB3V2_*`, colline solo LOD0 senza collisione), slot e MI come le v1 (faro: `MI_MoloItalia_FaroLuce` sullo slot luce),
+            Nanite off, MinLOD come v1; cambio di mesh su 7 attori, 6 HISM (78 istanze, trasformazioni identiche) e `Arte_Fondale_Colline_NE`.
+            Tri LOD0 invariati salvo ristorante 1884 (17 UCX); LOD2 nuovi: Edificio4P 82, Capitaneria 114, rimorchiatori 160, motovedetta 80, faro 440.
+            Bbox LOD1/2 entro il 2 % del LOD0 (max 1,37 % motovedetta). **Acqua:** 3 device Acqua V2 nuovi (`Acqua_Golfo_Device_B3_Mare`, `_B3_Est`,
+            `_B2_Mare`): acqua fino a X 971 m e Y 557 m (230 m oltre il faro verso il mare aperto, 292 m verso est), nave da crociera ora sull'acqua;
+            `_B3_Est` parte da Y 60 m per non allagare i blocchi del fondale del porto. Barriere invariate, flood fill: nessuna via verso l'acqua nuova.
+            Verifiche: sweep di capsula molo → passerella → scala → terrazza continuo (0 blocchi, salto max 4,8 cm, altezza libera ≥ 2,35 m); bacino
+            X 640-720 senza macchie verdi. 0 pacchetti sporchi; validazione 711/711, 0 errori, 57 avvisi noti. Catture
+            `docs/qa/uefn_moloitalia_v2_{terrazza,bacino,testata}.png`. Aperti: 26 temporanei `_Temp/TMPB3V2_*` e le 14 mesh v1 non più usate
+            (cancellazione con conferma dell'utente); in sessione terrazza, bordo dell'acqua nuova, avviso timeline dei device copiati (qa-tester).
       - [ ] (blender-artist) B3.6 Mancano: fontana del Palio, terminal crociere con scultura, circoli nautici, pilotine, casetta a lamelle e pontile di D1,
             bidoni della differenziata, cartelli; texture [SV] ritagliate dalle foto (mattoni, giallo della chiatta) se le tinte non bastano.
       - [ ] (utente) Memoria: con B2 + B3 la stima sale a 242-244 MiB su 245. Decidere se usare le alternative a 0 MiB (agave, ristorante)
@@ -925,3 +936,4 @@ Ordine per impatto visivo:
 | 2026-11-19 | v2/v3 in UEFN: asset aggiornati copiando LOD e collisione da temporanei importati da zero (mai reimport); master emissivo per i globi; tinta cubetti (0,62; 0,58; 0,52) | Evita la finestra modale e la rotazione di Interchange; dettagli in `docs/uefn_arte.md` §12 e `docs/decisioni.md` |
 | 2026-11-20 | Blocco 2 in UEFN: barriere B2 larghe 50 e 60 unità (non 51/56), secondo device Acqua V2, traffico finto a 90 s con 21 auto fino a X 573 m | Il device Barriera accetta solo larghezze fisse; Acqua V2 max 512 m; 723 m di corsa non stanno in 60 s; dettagli in `docs/uefn_arte.md` §32 |
 | 2026-11-20 | Molo Italia in UEFN: 6 barriere (FineBlocco spostata a X 64000 con profondità 20 + striscia RadiceEst che occupa 1,28 m dell'angolo est della radice), 2 device Acqua V2 nuovi, faro lampeggiante con materiale a tempo (niente Verse) e Point Light con light function | Il device Barriera non accetta 24 unità; Acqua V2 max 512 m e nessuna sovrapposizione; Fl R 4 s richiesto senza Verse; dettagli in `docs/uefn_arte.md` §33 |
+| 2026-11-20 | Acqua scenografica oltre il faro: 3 device Acqua V2 fuori dalle barriere (fino a X 971 m, Y 557 m); `_B3_Est` da Y 60 m, non da −1,3 m | Niente vuoto dalla testata, perimetro giocabile invariato; più a sud l'acqua allagava le basi dei blocchi del fondale del porto (Z −1,3..−2,9 m); dettagli in `docs/uefn_arte.md` §34 |
