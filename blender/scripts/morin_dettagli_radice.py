@@ -733,8 +733,8 @@ def ucx_fioriera(coll, name="SM_Molo_FiorieraAntracite"):
 # irregolare: 5 masse piccole e sfalsate lungo la fioriera (cime a quote diverse) + molte card piu' piccole (foglie ~meta'
 # della v1 a parita' di texture), inclinate a caso e sporgenti dalla massa, per un profilo frastagliato.
 # Stessa fioriera, stessa origine, stessi UCX e ingombro della v1 (X +-0,62, Y +-0,385, Z 0..~1,42): si sostituisce 1:1.
-FIO2_LUMPS = [(-0.40, 0.03, 0.22, 0.30, 0.30, 1.16), (-0.17, -0.06, 0.20, 0.32, 0.36, 1.40), (0.05, 0.05, 0.21, 0.30, 0.30, 1.24),
-              (0.26, -0.04, 0.20, 0.33, 0.34, 1.36), (0.41, 0.04, 0.21, 0.29, 0.26, 1.10)]   # cx, cy, rx, ry, rz, cima
+FIO2_LUMPS = [(-0.37, 0.03, 0.25, 0.30, 0.30, 1.16), (-0.16, -0.05, 0.24, 0.31, 0.36, 1.40), (0.05, 0.05, 0.25, 0.30, 0.30, 1.24),
+              (0.24, -0.04, 0.24, 0.31, 0.34, 1.36), (0.38, 0.04, 0.24, 0.29, 0.26, 1.10)]   # cx, cy, rx, ry, (rz), cima
 FIO2_BOX = (0.62, 0.385, 1.42)
 
 
@@ -748,22 +748,24 @@ def build_fioriera_v2(coll, lod=0, name="SM_Molo_FiorieraAntracite_v2"):
     segs, rings = ((10, 6), (8, 4), (6, 3))[lod]
     lumps = []
     for i, (cx, cy, rx, ry, rz, top) in enumerate(FIO2_LUMPS):
-        cz = top - rz
-        _blob(g, (cx, cy, cz), (rx, ry, rz), None, AR_, segs, rings, jitter=0.14 if lod < 2 else 0.0, seed=31 + i,
+        # cupola: centro appena sopra la terra, meta' inferiore schiacciata sul fondo -> base larga, niente punte
+        rz = top - (hz + 0.02)
+        cz = hz + 0.02
+        _blob(g, (cx, cy, cz), (rx * 0.9, ry * 0.9, rz * 0.93), None, AR_, segs, rings, jitter=0.18 if lod < 2 else 0.0, seed=31 + i,
               flat_bottom=hz - 0.04)
         lumps.append((Vector((cx, cy, cz)), Vector((rx, ry, rz))))
     clamp = lambda p: (max(-BX, min(BX, p[0])), max(-BY, min(BY, p[1])), max(hz + 0.01, min(BZ, p[2])))
     rng = np.random.default_rng(17)
-    n = (150, 64, 14)[lod]
+    n = (210, 84, 16)[lod]
     smin, smax = ((0.13, 0.22), (0.17, 0.28), (0.30, 0.42))[lod]
     w = np.array([l[1].x * l[1].y + l[1].x * l[1].z + l[1].y * l[1].z for l in lumps])
     w = w / w.sum()
     for _ in range(n):
         c0, r = lumps[int(rng.choice(len(lumps), p=w))]
         th = rng.uniform(0, 2 * math.pi)
-        ph = math.acos(rng.uniform(-0.15, 1.0))           # soprattutto calotta e fianchi, poco sotto
+        ph = math.acos(rng.uniform(0.0, 1.0))             # sulla cupola (la meta' inferiore e' schiacciata)
         d = Vector((math.sin(ph) * math.cos(th), math.sin(ph) * math.sin(th), math.cos(ph)))
-        k = rng.uniform(0.88, 1.06)                        # alcune card dentro la massa, altre sporgenti
+        k = rng.uniform(0.90, 1.10)                        # massa ridotta al 90 %: le card fanno la sagoma
         c = c0 + Vector((r.x * d.x, r.y * d.y, r.z * d.z)) * k
         if c.z < hz + 0.04:
             continue

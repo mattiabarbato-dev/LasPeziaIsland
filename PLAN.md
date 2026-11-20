@@ -771,8 +771,18 @@ Ordine per impatto visivo:
             circolo e 3 passerelle v1; `Bitta_04` → X 7700. Cancello → pontile → testa percorribile (asse X 7150, luce ~1,1 m); varco di poppa
             del traghetto ~1 m con fessura 50 cm e gradino 39 cm. Passerelle L_Gamba e NE ok. **Problema: il portale della marina non si
             attraversa** (varco libero ~0,5 m per gli UCX delle ante) → blender-artist. Catture `docs/qa/uefn_biglietteria_v2.png`, `uefn_marina_ingresso.png`.
-      - [ ] (blender-artist) UCX delle ante di `SM_Morin_Marina_Portale`: varco ≥ 0,9 m (anta sinistra in diagonale, metà destra con collisione
-            in posizione chiusa a Y locale ≈ −4), poi re-import (uefn-builder).
+      - [x] (blender-artist, 2026-11-20 ~23:00) **`SM_Morin_Marina_Portale_v2`** (`exports/marina/SM_Morin_Marina_Portale_v2{,_LOD1,_LOD2}.fbx`):
+            nella v1 l'anta +X era modellata **chiusa** (cerniera al centro, x 0..0,9) e la −X aperta di 70°: luce reale 0,61 m. v2: **entrambe le
+            ante aperte di 90° verso il mare** (cerniere 3,5 cm dentro i montanti, ante a x ±0,855..0,915), UCX delle ante = convessi con le
+            stesse matrici della mesh, niente UCX dell'anta chiusa. **Test capsula in Blender** (r 0,34, alta 1,76, spinta città → mare,
+            `morin_marina_ingresso.capsule_test`): v1 **bloccata a ogni X**; v2 **passa con i centri da −0,51 a +0,51 m = luce 1,70 m** per
+            tutta l'altezza (limitata dalle ante, UCX 07/08). Tri **1.542 / 671 / 230**, 9 UCX, 3,30 × 1,82 × 3,00 m, bbox LOD = LOD0 (0 %),
+            stessa origine e bbox UE della v1 (X −175..155, Y −20..162, Z 0..300); sagoma dei LOD controllata in vista solid.
+            Backup `blender/arte_marina_pre_portale_v2.blend`.
+      - [ ] (uefn-builder) **Sostituire il portale**: importare `SM_Morin_Marina_Portale_v2` in `Arte/Marina` (LOD0 con UCX, LOD1/2 come LOD,
+            sezioni rimappate per slot; slot e MI come la v1: `MI_Morin_Marina_Ingresso`, `MI_Morin_Marina_LamieraBlu`), poi assegnarlo
+            all'attore `Arte_Marina_Portale` (posa invariata (15100, −8120, 0), yaw 0). La v1 resta nel content browser. Verifica: capsula r 34 /
+            hh 88 lungo Y da −8300 a −7950 a X 15050-15150 (luce attesa X ≈ 15015-15185) e passerella Spina oltre il portale.
       - [x] ~~(uefn-builder) Import in `LaSpezia/Arte/Imbarco` e `LaSpezia/Arte/Marina` (LOD0 con UCX, LOD1/2 come LOD), posa da~~
             `exports/imbarco/imbarco_posizioni_v2.csv` (3 righe) e `exports/marina/marina_ingresso_v1.csv` (6 righe). Materiali:
             `M_Morin_Bigl_Rete` **masked a doppia faccia** (alfa nella D); `M_Morin_Bigl_Schermo`: D collegata anche all'**emissive** (~2);
@@ -823,7 +833,22 @@ Ordine per impatto visivo:
             facciata, nessuno sfarfallio in cattura. **Corsia**: lavagna (X 5,4-6,0) e cavalletto pescheria (X 4,8-5,3) posati dal CSV stanno
             dentro X 4,2-9,55 → da spostare nel CSV o confermare. Corridoio verso il ponte: nessun oggetto nuovo. Catture `docs/qa/uefn_dehors.png`,
             `uefn_sirena.png`, `uefn_cartelli.png`, `uefn_pescherecci.png`.
-      - [ ] (blender-artist / utente) Lavagna e cavalletto della pescheria fuori dalla corsia (X ≤ 4,2 m) o conferma che restano lì.
+      - [x] (blender-artist, 2026-11-20 ~23:00) **Lavagna e cavalletto fuori dalla corsia** in `exports/dettagli/dettagli_posizioni_v2.csv`
+            (119 righe; la v1 resta intatta): `Lavagna_00` (570, −9280, yaw −55) → **(375, −9070, 1, yaw 0)**, ingombro X 3,52-3,98 m fra le
+            fioriere A3 di Y 86,4 e 91,8; `Cavalletto_RistoLischeria` (510, −10040, yaw −45) → **(330, −9860, 1, yaw 0)**, ingombro X 3,07-3,53 m
+            in fila con le fioriere A2, 29 cm prima della prima. Fronte verso la corsia. `check_layout` v2: nessun nuovo conflitto (restano solo le
+            sedie infilate sotto i tavoli, come nella v1). Le 16 righe delle fioriere puntano a `SM_Molo_FiorieraAntracite_v2` (pose invariate).
+      - [x] (blender-artist, 2026-11-20 ~23:10) **`SM_Molo_FiorieraAntracite_v2`** (`exports/dettagli/SM_Molo_FiorieraAntracite_v2{,_LOD1,_LOD2}.fbx`):
+            la chioma v1 era un ellissoide unico (una palla). v2: siepe di **5 cupole sfalsate** (cime 1,10-1,40 m) appoggiate sulla terra, massa al
+            90 % e **210 card piccole** (0,13-0,22 m contro 0,32-0,46 della v1: foglie circa dimezzate con la stessa texture), inclinate a caso e
+            sporgenti → profilo irregolare. Tri **936 / 430 / 174**, 2 UCX (uguali alla v1), 1,24 × 0,77 × 1,42 m, bbox LOD 0 / 0,7 %; stessi
+            materiali e texture (`M_Molo_Dettagli`, `M_Molo_Arbusto`, `M_Molo_Arbusto_Card`). Render Cycles CPU v1/v2/LOD1/LOD2 controllato.
+            Backup `blender/arte_dettagli_radice_pre_fioriera_v2.blend`.
+      - [ ] (uefn-builder) **Fioriera v2 e spostamento delle due istanze**: importare `SM_Molo_FiorieraAntracite_v2` in `Arte/Dettagli` (LOD0
+            con UCX, LOD1/2 come LOD, sezioni rimappate per slot; MI `MI_Molo_Dettagli`, `MI_Molo_Arbusto`, `MI_Molo_Arbusto_Card`) e assegnarla
+            all'HISM `Arte_Dettagli_Fioriere` (16 istanze, pose invariate). Spostare `Arte_Dettagli_Lavagna_00` a (375, −9070, 1) yaw 0 e
+            `Arte_Dettagli_Cavalletto_RistoLischeria` a (330, −9860, 1) yaw 0 (righe del CSV v2). Verifica: trace sulla corsia X 420-955,
+            Y −10800..−6200: nessun oggetto nuovo; catture del dehors da confrontare con `docs/qa/uefn_dehors.png`.
       - [ ] (qa-tester) In sessione: salita sul traghetto v2, cancello biglietteria, pontiletti (gradino 35 cm), insegne, barche senza collisione.
       - [x] ~~(uefn-builder) Import in `LaSpezia/Arte/Dettagli` (LOD0 con UCX, LOD1/2 come LOD, metodo §12 di `docs/uefn_arte.md`); posa da~~
             `dettagli_posizioni_v1.csv` (asset ripetuti come HISM: 53 sedie, 18 tavoli, 16 fioriere, 8 ombrelloni, 9 cestini). Materiali:
