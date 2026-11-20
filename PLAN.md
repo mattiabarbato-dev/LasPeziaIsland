@@ -517,7 +517,13 @@ Ordine per impatto visivo:
       `SM_Morin_Battello` 3.351/1.675/501 tri, 32,0 × 7,5 × 8,3 m, origine sulla linea di galleggiamento (Z −100), 19 UCX;
       `SM_Morin_PontileImbarco` 1.240/620/185 tri, 7,1 × 28,6 m, 18 UCX; `SM_Morin_Biglietteria` 324/162/48 tri, 3,4 × 2,6 × 3,1 m.
       Confronto `docs/qa/arte_imbarco_v1_confronto.png`
-      - [ ] (uefn-builder) import e posa da CSV (yaw 90 battello, 0,1241 pontile/biglietteria/parabordi), poi verifica in sessione
+      - [x] (uefn-builder) import e posa da CSV 2026-11-20 (`docs/uefn_arte.md` §22): 6 mesh in `LaSpezia/Arte/Imbarco` (LOD 3, tri e UCX
+            come da Blender), 6 texture 2048 LODBias 0, `MI_Morin_Imbarco` + `MI_Morin_Imbarco_Legno`; Outliner `Arte/Imbarco`: battello, pontile,
+            biglietteria singoli + HISM cestini (9), rastrelliere (3), parabordi (7). **Battello spostato a X 6656 (CSV 6670, −14 cm)**: i parabordi
+            del battello entravano 9-12 cm nel bottazzo del pontile. Line trace ok (varco di poppa, ponti, pontile, scalette libere, acqua). Render
+            `docs/qa/uefn_imbarco_v1.png`
+      - [ ] (blender-artist) allineare `BATT_POS` a X 66,56 in `morin_imbarco.py` e nel CSV (o ridurre parabordi/bottazzo)
+      - [ ] (qa-tester) in sessione: salita a bordo dal varco (fessura 40-55 cm sull'acqua fra pontile e scafo), rampa del pontile, scala di poppa
       - [ ] (utente) conferma [S]: dimensioni del battello, quota impalcato −0,34, pali e non galleggianti, posizione della biglietteria
 - [~] (blender-artist) Pini, oleandri, aiuole della fascia verde (2026-11-19: oleandri ad alberello e panchina lunga fatti, vedi Giardini a Mare v1; pino domestico nel kit molo)
 - [x] (geo-scout) Scheda del fondale `ref/fondale.md` + dati `ref/dem/` (2026-11-19): Copernicus DEM GLO-30 (licenza verificata),

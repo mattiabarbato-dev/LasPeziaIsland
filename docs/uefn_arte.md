@@ -1024,3 +1024,77 @@ La stima "vicine" qui sopra era la prima proposta (non applicata). Applicata la 
 - Stima ricalcolata prima di applicare: totale texture del progetto **192,3-232,7 MiB** (prima 110,3-132,7), sotto la soglia di 245 MiB.
 - Transazione con `modify()`; `save_dirty_packages` 05:25:31 (30 texture), nessun pacchetto sporco; validazione `LaSpezia/` 393/393 validi,
   0 errori, 13 avvisi (gli stessi di sopra). Decisione in `docs/decisioni.md`.
+
+## 22. Imbarco v1: battello, pontile, biglietteria, cestini, rastrelliere, parabordi (2026-11-20, ~09:20-09:35 ora locale)
+
+Sorgenti: `exports/imbarco/` (18 FBX), texture `blender/textures/imbarco/`, `exports/imbarco/imbarco_posizioni_v1.csv` (22 righe).
+Controllo iniziale: nessun asset né attore con questi nomi. Metodo del §13: LOD0 col nome finale in `LaSpezia/Arte/Imbarco` (`ImportFile`,
+materiali/texture off), LOD1/2 come `_Temp/TMPI_<asset>_LOD1/2`, `remove_lods` (di nuovo 3 LOD automatici) + `set_lod_from_static_mesh(..., True)`.
+Tutti i LOD0 hanno UCX e `ImportFile` non ha aggiunto convessi automatici: **niente `remove_collisions`**. Nanite off, Use Simple Collision As Complex,
+soglie 1,0 / 0,2 / 0,08, MinLOD Low/Medium 2 (temporanei a 0).
+
+### Asset (`Arte/Imbarco`)
+| Asset | Tri LOD0/1/2 | Bbox locale (uu) | Convessi | Slot → MI |
+|---|---|---|---|---|
+| `SM_Morin_Battello` | 3.351 / 1.675 / 501 | X ±1600 · Y ±377 · Z −140..687 | 19 | `MI_Morin_Imbarco` |
+| `SM_Morin_PontileImbarco` | 1.240 / 620 / 185 | X −160..550 · Y −12..2851 · Z −400..104 | 18 | `MI_Morin_Imbarco`, `MI_Morin_Imbarco_Legno` |
+| `SM_Morin_Biglietteria` | 324 / 162 / 48 | X ±170 · Y −145..115 · Z 0..310 | 1 | `MI_Morin_Imbarco` |
+| `SM_Morin_Cestino` | 252 / 126 / 37 | X ±22,5 · Y ±22,5 · Z 0..95 | 1 | `MI_Morin_Imbarco` |
+| `SM_Morin_Rastrelliera` | 768 / 346 / 114 | X ±125 · Y ±27 · Z 0..82,5 | 2 | `MI_Morin_Imbarco` |
+| `SM_Banchina_Parabordo` | 58 / 28 / 8 | X ±15 · Y 0..22,5 · Z −90..0 | 1 | `MI_Morin_Imbarco` |
+
+- Battello 32,0 × 7,54 × 8,27 m (larghezza con i parabordi), pontile 7,1 × 28,6 m: come da brief.
+- **Nuova insidia:** dopo `set_lod_from_static_mesh` le sezioni dei LOD1/2 del pontile puntavano entrambe allo slot 0 (legno perso):
+  corretto con `StaticMeshEditorSubsystem.set_lod_material_slot(mesh, 1, lod, 1)`. Controllare sempre le sezioni dei LOD sulle mesh a più slot.
+- Texture importate una volta sola (`AssetImportTask`): `T_Morin_Imbarco_D/N/ORM`, `T_Morin_Imbarco_Legno_D/N/ORM`, 2048, N = Normalmap senza flip,
+  ORM = Masks sRGB off, **LODBias 0**. `MI_Morin_Imbarco` e `MI_Morin_Imbarco_Legno` su `M_Morin_Master_PBR` (BaseColor/Normal/ORM).
+
+### Posa (Outliner `Arte/Imbarco`; singoli duplicati da `Arte_Arredi_Gazebo`, HISM da `Arte_Arredi_Tombini` + `clear_instances`; `Rotator(roll, pitch, yaw)`)
+| Attore | Mesh | Posa |
+|---|---|---|
+| `Arte_Imbarco_Battello` | Battello | **(6656, −6200, −100)**, yaw 90 (CSV X 6670: vedi sotto) |
+| `Arte_Imbarco_Pontile` | PontileImbarco | (7200, −8020,56, 0), yaw 0,1241 |
+| `Arte_Imbarco_Biglietteria` | Biglietteria | (7580, −7760,56, 1), yaw 0,1241 (sulla piattaforma di radice) |
+| `Arte_Imbarco_Cestini` (HISM) | Cestino | 9, Y −9210, Z 15 |
+| `Arte_Imbarco_Rastrelliere` (HISM) | Rastrelliera | 3, Y −9260, Z 15 |
+| `Arte_Imbarco_Parabordi` (HISM) | Parabordo | 7, Z −52, yaw 0,1241 |
+Attori nel livello: 158. Nessun attore esistente spostato, nascosto o cancellato.
+
+**Battello −14 cm in X.** Dai vertici: i parabordi del battello (scafo locale Y ±377, Z −75..0 mondo, Y −7213..−5687) arrivavano a X 7047, il bottazzo
+del pontile (locale X −160, Z −79..−39) sta a X 7038..7035 per la rotazione 0,1241°: **compenetrazione 9-12 cm**. Con X 6656 la distanza visiva
+minima è ~2 cm, quella fra le collisioni 34 cm. Il CSV/Blender (`BATT_POS` 66,7) va allineato a 66,56 (segnalato).
+
+### Verifiche (line trace in editor)
+- **Ponti calpestabili:** griglia 40 × 80 uu sul battello: 653/720 colpi sul battello; coperta di poppa Z 0..5, passavanti laterali Z 0, ponte di prua
+  Z 35-42, ponte superiore Z 230 (Z 410 tetto timoniera). La tuga è un convesso pieno (non si entra in cabina). Scala di poppa: rampa continua
+  Z 0 → 230 (X 6440 prima dello spostamento, Y −7780..−7460).
+- **Varco di poppa:** trace orizzontali a Z 60 dal pontile: liberi da Y −7620 a −7440 (1,8 m), murata colpita fuori dal varco; a Z 150 nessun ostacolo.
+  Pavimento a Y −7530: pontile Z −10 fino a X 7050, poi acqua, poi coperta Z +1..+4 da X 6996: **fessura ~54 cm** (40 cm prima dello spostamento),
+  gradino +11..14 cm. Da provare in sessione.
+- **Pontile dalla banchina:** camminamento Z 0 → ciglio −0,5 (collisione) → piattaforma Z +1 da Y −8025 (X 7100/7300/7700), rampa dal Y −7650
+  (Z +1) a −7200 (Z −34), impalcato Z −34 fino a Y −5250: continuo.
+- **Compenetrazioni** (AABB di ogni istanza contro tutti gli attori `Arte*`/`Blockout*` visibili, poi trace): nessuna con scalette, bitte, panchine,
+  lampioni, aiuole. Cestini e rastrelliere: trace orizzontali a +20/50/80 cm sull'impronta (ignorando l'imbarco) senza impatti, poggiano su
+  `Arte_Pav_FasciaPalme` a Z 15, palma più vicina a 2,5 m (cestini) e 4,5 m (rastrelliere). Sovrapposizioni **volute** da Blender, da confermare:
+  parabordi incassati ~4-5 cm nel paramento (origine a ciglio + 4 cm), labbro della piattaforma del pontile 12 cm sopra il ciglio (Z −39..+1).
+- **Battello/banchina:** distanza minima 2,03 m (poppa Y −7800, parabordo banchina Y −8003). **Battello/pontile:** vedi sopra.
+- **Scalette X 44 e 92:** 1.050 trace verticali ciascuna su X ±2 m, Y −7990..−6000: nessun impatto. Battello da X 6279, pontile fino a ~7750.
+- **Acqua V2** (`Acqua_Golfo_Device`): box X −16850..33850, Y −11744..30844, superficie Z −103 → copre tutto il battello. Fascia blu dello scafo
+  Z −130..−45 (locale −0,3..0,55): la superficie la taglia ~27 cm sopra il bordo inferiore; nel render la fascia blu emerge come previsto.
+
+### Salvataggio, validazione, log, memoria
+`save_dirty_packages` 09:30:31: 6 OFPA (date 09:30:33 su disco) + 14 asset in `Arte/Imbarco` + 12 `TMPI_*`; nessun pacchetto sporco.
+Validazione `LaSpezia/`: **419/419 validi, 0 errori, 17 avvisi** (13 di prima + 4 "un solo LOD" su `TMPI_SM_Morin_Battello/PontileImbarco_LOD1/2`,
+temporanei non referenziati). Log: nessun errore nuovo.
+Memoria texture (metodo §21): 2 set 2048 D+N+ORM a LODBias 0 = **+21,3-26,7 MiB** (PNG sorgenti RGBA: caso alto se UE tiene l'alfa nelle D);
+totale progetto stimato **213,6-259,4 MiB** (prima 192,3-232,7). Il caso alto supera la soglia di 245 MiB del §21.
+
+### Render
+`docs/qa/uefn_imbarco_v1.png` (UE 5300, −8350, 170; yaw 42,2; pitch −3; FOV 75; 1024 px; ombre; mip forzati): camminamento, ciglio, poppa del
+battello con scala, fascia blu sull'acqua, biglietteria sulla piattaforma del pontile.
+
+### Temporanei e problemi aperti
+- 12 `LaSpezia/_Temp/TMPI_<asset>_LOD1/_LOD2`, nessun referencer; eliminabili con conferma dell'utente.
+- **(blender-artist)** `BATT_POS` X 66,7 → 66,56 (o parabordi del battello/bottazzo più sottili) e rigenerare il CSV.
+- **(qa-tester)** salita a bordo dal varco con la fessura di ~54 cm, scala di poppa, rampa del pontile, nessun incastro fra scafo e pontile.
+- **(utente)** memoria: se il caso alto è reale, valutare LODBias 1 su `T_Morin_Imbarco_Legno_*` o sul set atlante.
