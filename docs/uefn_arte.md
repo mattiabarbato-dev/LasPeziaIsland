@@ -2193,6 +2193,9 @@ Valori effettivi letti sui componenti della Day Sequence del livello (`DSA_UEFN_
 
 Per tornare indietro: rimettere i valori della colonna "Prima" (§36.A); gli override a NO bastano per sole, cielo e nuvole.
 
+**Ritocco luce cielo (2026-11-20 ~17:52, approvato dall'orchestratore, vedi §38.H):** colore luce cielo (1,0; 0,97; 0,93) → **(1,0; 0,92; 0,84)**,
+intensità 0,8 → **1,0**. Per tornare indietro: `SkylightColor` (R=1, G=0,97, B=0,93, A=1) e `SkylightIntensity` 0,8.
+
 **Taratura del sole (catture zenitali sulla passeggiata a X 150 m, scartate):** con l'azimut proposto 250° (Z 28,7) e 15-20° di elevazione le
 ombre dei due filari di palme, lunghe ~3 volte l'altezza e spostate di ~15 m verso il mare, coprono **tutto** il camminamento e finiscono in acqua:
 camminamento uniformemente in ombra, nessuna striscia leggibile. Anche la luce originale (azimut ~263°, 27°) lo copriva quasi tutto.
@@ -2408,3 +2411,19 @@ Confronto `docs/qa/realismo_tex_confronto.png`: a sinistra `realismo_luce_*` (te
   strisce pedonali e paramento della radice del molo non rifatti.
 - **(qa-tester)** Verifica in sessione (esposizione automatica) e, dopo un riavvio dell'editor, che le 54 texture restino valide.
 - Le texture v1 restano nel progetto (nessuna cancellazione); eliminabili solo con conferma dell'utente.
+
+### G. Ritocco Tinta (approvato dall'orchestratore, reversibile)
+- `MI_Pav_Lastre`: `Tinta` (1; 1; 1) → **(0,95; 0,92; 0,86)**. `MI_Pav_Cubetti`: `Tinta` (1; 1; 1) → **(0,97; 0,94; 0,90)**. Per tornare indietro: rimettere (1; 1; 1).
+- Catture `docs/qa/realismo_tex_01b.png` e `realismo_tex_03b.png` (stessi punti di 01/03). Lastre: leggermente più calde, ma nelle zone in ombra
+  resta una dominante grigio-azzurra; la foto `ref/foto/pavimentazione/pavimento verso il ponte.png` è un grigio neutro-caldo. La differenza residua
+  viene soprattutto dalla luce cielo fredda sulle ombre, non dall'albedo. Cubetti: al sole un po' più caldi; il lilla in ombra cambia poco, quindi
+  **viene dal cielo** (luce cielo e nebbia del §36), non dall'albedo. Correggerlo con altra tinta scurirebbe/arrosserebbe le parti al sole.
+- Salvati i 2 pacchetti, 0 sporchi; validazione `LaSpezia/` 784/784, 0 errori, 57 avvisi noti.
+
+### H. Luce cielo più calda (approvato dall'orchestratore; valori vecchi annotati nel §36.C)
+- Device `Luce_OraDelGiorno`, `SetClassicDeviceOption`: `SkylightColor` (1; 0,97; 0,93) → **(1,0; 0,92; 0,84)**; provate intensità 0,8 e 1,0
+  (catture 01, 03, 05 per entrambe). Scelta **1,0**: con 0,8 le ombre dell'incrocio restano più scure; con 1,0 sono un po' più aperte, i cubetti in
+  ombra diventano grigio-bruni neutro-caldi (niente più lilla) e le lastre in ombra perdono quasi tutta la dominante azzurra. Le zone al sole non bruciano.
+- Catture `docs/qa/realismo_tex_01c.png`, `_03c.png`, `_05c.png` (stessi punti del §35.D).
+- Salvato l'attore esterno del device (`__ExternalActors__/LasPezia_Island/4/I8/YS7RUD2FV4XAJUCMZN3Z7R`, data 17:52:40); 0 pacchetti sporchi;
+  validazione `LaSpezia/` 784/784, 0 errori, 57 avvisi noti. Da confermare in sessione (esposizione automatica).
