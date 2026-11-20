@@ -343,6 +343,30 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
        53 texture v1 e i 298 temporanei di `_Temp`. Tenuti: `SM_Morin_Sedia`/`_Tavolino`, `T_Morin_ChioscoOtt_v3_Vetro_D`,
        `A_Viale_Clacson_02/_05`. Attori 380 → 336, asset `LaSpezia/` 859 → 447. Validazione 447/447, 0 errori, 15 avvisi noti;
        mappa ricaricata: MapCheck 0 errori/0 avvisi, nessun "Failed to load". Catture `docs/qa/uefn_pulizia2_*_prima/_dopo.png`.
+0b. (sessione 2026-11-20) **Foto nuove dell'utente**: dehors, cestini, cartelli, Sirena, pescherecci, imbarco, ingresso marina.
+   - [x] (geo-scout, 2026-11-20) Scheda `ref/foto_nuove_2026-11-20.md`: punti di presa delle 8 foto, posizioni in coordinate di progetto e UE,
+     misure [V]/[S], nomi parodia (§9), porzioni di foto per texture [SV] (§10), domande D1-D6 (§12).
+   - [ ] (utente) Rispondere a D1 (traghetto a est come in foto o a ovest come ora), D2 (cartelli e numero di new jersey), D3 (righe delle
+     casette 17-20 cm o 25 cm), D6 (verso dove guarda la Sirena); D4-D5 foto facoltative. Approvare i nomi parodia (§9).
+   - [ ] (blender-artist) **Dehors della fila A** (§2): 8 ombrelloni quadrati bianchi (1 da 4 × 4, 7 da 3 × 3, base 0,8 m), ~18 tavoli neri
+     0,7 m con ~55 sedie nere, 16 fioriere antracite 1,0 × 0,45 × 0,45 m con arbusto, lavagna e cavalletto (riuso `SM_Molo_CavallettoMenu`
+     con texture "RISTO LISCHERIA"); fascia X facciata → 4,2, corsia X 4,2 → 9,55 libera. Insegne parodia "DAI PESCATORI PIGRI" e
+     "CONSORZIO RETI BUCATE" sugli edifici A1/A2.
+   - [ ] (blender-artist) `SM_Morin_Cestino_v2` a capsula grigio grafite 0,50 × 0,38 × 0,95 m (§3), ≤ 600 tri; stesse 9 posizioni
+     (eventualmente `Cestino_01` a X ≈ 41,9 col layout v4).
+   - [ ] (blender-artist) Palo con cartelli pubblici (§4.2, testo vettoriale) a (19,2; 81,1) e 4 new jersey in plastica blu/bianchi
+     1,2 × 0,45 × 0,75 m (`SM_Morin_NJPlastica`), dopo D2.
+   - [ ] (blender-artist) `SM_Molo_Sirena` stilizzata su basamento 1,40 × 1,00 × 0,75 m a (13,8; 91,9) [V OSM], h totale ~2,2 m (§5).
+   - [ ] (blender-artist) 3 pescherecci (14 m, 11 m, gozzo con tuga 8,5 m) lungo il ciglio est del molo davanti al ristorante C,
+     X 12-14, Y 11-47 (§6.3); nomi inventati.
+   - [ ] (blender-artist) **Kit imbarco v2** uguale alle foto (§7): 2 casette a capanna a righe bianco-blu, portale con insegna e schermo,
+     cancello bianco con l'onda, tettoia a righe, rete; pontile ristretto a ~3 m con copertoni e bitte; battello con zattere rosse,
+     salvagenti e oblò. Compagnia: "NAVIGAZIONE GOLFO DEI POETASTRI". Sostituisce `SM_Morin_Biglietteria` (non cancellare: nascondere).
+   - [ ] (blender-artist) **Ingresso marina v2** uguale alle foto (§8): ufficio galleggiante ~10 × 6 × 3 m a doghe di legno con terrazza
+     (al posto di `SM_Morin_Marina_Circolo`), portale blu con cancello a due ante, ringhiera blu della passerella, bitta a colonna
+     arrugginita; nomi "ASSONNAUTICA" e "Porto Turistico Vento Contrario".
+   - [ ] (blender-artist) Texture [SV] dalle porzioni del §10, annotate in `docs/CREDITS.md` (ricontrollo dell'utente prima della pubblicazione).
+   - [ ] (uefn-builder) Import e posa dei kit sopra (metodo §12 di `docs/uefn_arte.md`), poi verifica in sessione dell'utente.
 1. [~] Fondale: tinta MI fatta (facciate ok, colline poco cambiate: colpa della nebbia, `docs/uefn_fondale.md` §9); colle cittadino v2
    importato in UEFN (`docs/uefn_fondale.md` §10), **da verificare in sessione (utente)**; poi alberi del colle troppo chiari (MI dedicata).
    **TO DO (rimandato dall'utente): task nebbia** su `Luce_OraDelGiorno` — densità 0,002-0,003 o diminuzione 0,03, colore più blu/scuro,
@@ -724,6 +748,34 @@ Ordine per impatto visivo:
       - [ ] (blender-artist) allineare `BATT_POS` a X 66,56 in `morin_imbarco.py` e nel CSV (o ridurre parabordi/bottazzo)
       - [ ] (qa-tester) in sessione: salita a bordo dal varco (fessura 40-55 cm sull'acqua fra pontile e scafo), rampa del pontile, scala di poppa
       - [ ] (utente) conferma [S]: dimensioni del battello, quota impalcato −0,34, pali e non galleggianti, posizione della biglietteria
+- [~] (blender-artist) **Imbarco v2 e ingresso della marina dalle foto nuove** 2026-11-20 (in Blender, **da importare**). Scheda
+      `ref/foto_nuove_2026-11-20.md` §7-§8. Script `blender/scripts/morin_imbarco_v2.py`, `morin_marina_ingresso.py`, `morin_atlas_v2.py`;
+      .blend `blender/arte_imbarco.blend` (backup `arte_imbarco_pre_v2.blend`), `blender/arte_marina.blend` (backup `arte_marina_pre_ingresso.blend`).
+      Confronti `docs/qa/arte_biglietteria_v2_confronto.png`, `docs/qa/arte_marina_ingresso_confronto.png`. LOD con bbox entro lo 0,1 %, normali con
+      ray test (0 facce rovesciate, tranne 5 impatti radenti fra le scossaline doppie della biglietteria).
+      | Asset | Tri LOD0/1/2 | Dimensioni (m) | UCX |
+      |---|---|---|---|
+      | `SM_Morin_Biglietteria_v2` | 1.268 / 1.116 / 860 | 8,30 × 8,90 × 8,15 (pennone 8 m) | 16 |
+      | `SM_Morin_PontileImbarco_v2` | 3.436 / 1.916 / 1.048 | 8,59 × 28,21 × 5,14 (pali a −4) | 13 |
+      | `SM_Morin_Traghetto_v2` | 4.452 / 3.324 / 1.286 | 28,0 × 7,14 × 10,12 | 19 |
+      | `SM_Morin_Marina_Ufficio` | 3.407 / 2.001 / 591 | 11,48 × 7,85 × 6,33 (catene in acqua) | 7 |
+      | `SM_Morin_Marina_Portale` | 1.542 / 671 / 591 | 3,30 × 1,82 × 3,00 | 9 |
+      | `SM_Morin_Marina_Passerella_v2` | 260 / 180 / 84 | 4,30 × 2,80 × 1,72 | 3 |
+      | `SM_Banchina_Bitta_Ruggine` | 336 / 252 / 88 | 0,40 × 0,40 × 0,71 | 1 |
+      Texture nuove: `blender/textures/imbarco_v2/` (atlante 2048, righe 1024, legno 2048, rete 512 con alfa, schermo 1024×512) e
+      `blender/textures/marina_ingresso/` (atlante 2048, doghe 1024, lamiera blu 1024, ruggine 512×1024); fonti in `docs/CREDITS.md` ([SV]).
+      - [ ] (uefn-builder) Import in `LaSpezia/Arte/Imbarco` e `LaSpezia/Arte/Marina` (LOD0 con UCX, LOD1/2 come LOD), posa da
+            `exports/imbarco/imbarco_posizioni_v2.csv` (3 righe) e `exports/marina/marina_ingresso_v1.csv` (6 righe). Materiali:
+            `M_Morin_Bigl_Rete` **masked a doppia faccia** (alfa nella D); `M_Morin_Bigl_Schermo`: D collegata anche all'**emissive** (~2);
+            `M_Morin_Imbarco_Legno` delle passerelle v2 = MI esistente `MI_Morin_Imbarco_Legno`.
+            **Nascondere, non cancellare:** gli attori v1 di battello, pontile e biglietteria (`docs/uefn_arte.md` §22),
+            l'attore `SM_Morin_Marina_Circolo` (circolo Vento Contrario) e le 3 passerelle `SM_Morin_Marina_Passerella` (Spina, L_Gamba, NE).
+            Controllare: istanza `Bitta_04` delle bitte v2 della banchina (X 7400): cade 0,5 m davanti alla casetta est, sotto la tenda
+            (eventualmente spostarla a X 7700).
+            Line trace: piastra → cancello aperto (luce 1,1 m) → tettoia → rampa → testa; varco di poppa del traghetto (lato pontile) verso la
+            testa del pontile (Y 52-54); passerella Spina oltre l'anta aperta del portale; memoria dopo l'import.
+      - [ ] (utente) confermare: righe da 18 cm (13 per facciata); anta del cancello della biglietteria aperta (passaggio 1,1 m) e anta del
+            portale della marina aperta; retro dell'ufficio (finestre e porta inventate, D4).
 - [~] (blender-artist) Pini, oleandri, aiuole della fascia verde (2026-11-19: oleandri ad alberello e panchina lunga fatti, vedi Giardini a Mare v1; pino domestico nel kit molo)
 - [x] (geo-scout) Scheda del fondale `ref/fondale.md` + dati `ref/dem/` (2026-11-19): Copernicus DEM GLO-30 (licenza verificata),
       griglia locale 30 m ±10 km, profili d'orizzonte da 4 punti, cime OSM, copertura CORINE per azimut, edifici OSM entro 1,2 km,

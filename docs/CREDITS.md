@@ -302,3 +302,26 @@ e delle borchie e per la tinta: nessun pixel copiato, nessuna texture [SV].
 - Riusi: fogliame `M_Albero_Latifoglia_Chioma` (procedurale, già elencato) per le piante sul tetto; fronde `T_Morin_PalmaA_Fronde` (già elencate)
   per `SM_Molo_PalmaVaso`; fioriere `SM_Morin_Fioriera/B/C` e palma `SM_Morin_PalmaA` solo come istanze nel CSV.
 - Pianta dell'edificio: OSM way 205840540 (© OpenStreetMap contributors, ODbL).
+
+## Imbarco v2 e ingresso della marina dalle foto nuove (2026-11-20) — `blender/scripts/morin_imbarco_v2.py`, `morin_marina_ingresso.py`, `morin_atlas_v2.py`
+Foto sorgente: catture Street View messe dall'utente in `ref/foto/vista/` (deroga CLAUDE.md §5): **T1** `traghetto_bigliettaria_azzurra.png`,
+**T2** `biglietteria_traghetto_di_fronte.png`, **M1** `nautica_marina.png`, **M2** `marina_nautica.png`. Nessuna geometria Google; nelle texture
+niente UI, filigrane "© Google", persone, targhe, loghi o nomi reali di privati. Texture marcate **[SV]**: l'utente le ricontrolla prima della pubblicazione.
+- **[SV]** `blender/textures/imbarco_v2/T_Morin_Bigl_Righe_D/N/ORM` (1024, 1,08 m): righe blu-bianche da 18 cm ricostruite, con lo **sporco vero**
+  della fascia bassa della casetta ovest in T2 (x 955-1158, y 401-479), raddrizzata e normalizzata per classe di colore; tinte campionate da T2.
+- **[SV]** `T_Morin_Pontile_Legno_v2_D/N/ORM` (2048, 2 m): doghe trasversali procedurali con tinta e dispersione campionate dal tavolato di T2
+  (x 560-660, y 450-560).
+- **[SV]** `T_Morin_Imbarco_v2_D/N/ORM` (atlante 2048): pannelli ridisegnati in vettoriale (insegna ad arco, zoccoli, fianchi, bacheca, orari,
+  tenda, bandiera) con impaginazione e colori presi da T1/T2; testi rasterizzati da font di sistema (Arial). Logo e nomi della compagnia in
+  **parodia**: "NAVIGAZIONE GOLFO dei POETASTRI" (gabbiano con la penna d'oca sul timone), traghetto "PICCIONE VIAGGIATORE", schermo
+  "Enjoy the mugugno". Testi generici/pubblici tenuti: "Biglietteria / Ticket Office", "Trasporto di linea via mare / Ferry lines",
+  "Linea 01 Golfo della Spezia". Bandierina italiana sull'albero (simbolo pubblico).
+- `T_Morin_Bigl_Rete` (maglia romboidale con alfa) e `T_Morin_Bigl_Schermo` (mare e battello inventati, niente persone): procedurali.
+- **[SV]** `blender/textures/marina_ingresso/T_Morin_Marina_Doghe_D/N/ORM` (1024, 1,2 m): doghe orizzontali da 12 cm; tinte delle doghe dalla
+  fascia sotto la scritta dell'ufficio in M1 (x 162-698, y 300-364), raddrizzata e "de-light"; venatura procedurale.
+- **[SV]** `T_Morin_Marina_LamieraBlu_D/N/ORM` (1024, 1 m): tinta dal montante del portale in M2 (x 685-700, y 300-400), graffi procedurali.
+- **[SV]** `T_Banchina_Bitta_Ruggine_D/N/ORM` (512 × 1024): ruggine **ritagliata** dalla bitta di M2 (x 968-1012, y 383-503), de-light, resa ripetibile.
+- `T_Morin_Marina_Ingresso_D/N/ORM` (atlante 2048): ridisegnato. Parodie: **"ASSONNAUTICA"** (logo tondo con una vela che sbadiglia) e
+  **"Porto Turistico Vento Contrario"** al posto dei nomi reali dell'associazione e del porto; "PORTO TURISTICO" e il cartello generico di
+  videosorveglianza tenuti. La foto d'epoca del pannello (con persone) è sostituita da un'immagine d'epoca **inventata** (banchina, faro, veliero).
+- Posizioni: OSM (© OpenStreetMap contributors, ODbL) e `ref/foto_nuove_2026-11-20.md`.
