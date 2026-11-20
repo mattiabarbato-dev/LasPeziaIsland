@@ -528,6 +528,17 @@ Ordine per impatto visivo:
             Ponte_Acciaio, Auto_v2, Imbarco, Imbarco_Legno, Pav_Terra, Banchina_Paramento) → **235,5-236,2 MiB** (soglia 245). §27.
       - [ ] (qa-tester) Sessione: rampa, lati delle antenne, parapetti con montanti visibili, sfarfallio degli stralli a distanza.
       - [ ] (blender-artist) `SM_Ponte_Parapetti` 37k vertici (avviso validatore): valutare divisione in due mesh o moduli.
+- [~] (blender-artist) **Testata di Porto Mirabello** v1 2026-11-20 (in Blender, **da importare**): `blender/arte_mirabello.blend`
+      (contesto linkato), script `blender/scripts/morin_mirabello.py`, FBX in `exports/mirabello/`, posa `exports/mirabello/mirabello_posizioni_v1.csv`
+      (103 righe). Pianta da OSM: pianerottolo in legno a Z 1,30 attaccato alla fine del ponte (Y −179) + scala in cemento verso S (X −17,8…−14,2,
+      8 alzate da 16 cm, UCX a rampa) + passerella in legno verso NE (way 1120598342) da Z 1,30 a 0 in X −0,6 → 46,1 (3 %); ringhiere bianche
+      h 1,15 su tutti i bordi (risolto il bordo libero X− del blockout). Suolo: quai in masselli, siepe, strada a senso unico, 2 file di stalli,
+      strisce pedonali, marciapiede del multipiano (fronte nord reale a Y −208). Tri LOD0: Suolo 104 · Pianerottolo 644 · Passerella 1.292 ·
+      Multipiano 1.319 · Fondale 549 · Pontile 248/240/10 · YachtA 600/272/126 · YachtB 522/282/122 · Fanale 144/96/72. **Nessuna texture nuova.**
+      Render `docs/qa/arte_mirabello_v1.png`, `arte_mirabello_v1_b.png`. Scelte [S] in `docs/decisioni.md` 2026-11-20.
+      - [ ] (uefn-builder) Import; nascondere `Blockout_Mirabello` (`SM_Blockout_Mirabello`); decidere sulla barriera `Barriera_Mirabello_LatoPiuX`
+            (oggi a X 980 taglia la passerella a metà: spostarla a X ≈ 5000 o chiudere la passerella con un cancello).
+      - [ ] (utente) Foto di Mirabello: arrivo del ponte (scala e passerella), fronte del multipiano, pavimentazione del quai.
       - [ ] (utente) Foto laterale del ponte (inclinazione pennoni, n. stralli, profilo), dettaglio dell'imbocco e del concio apribile.
 - [x] (geo-scout) Schede per la grafica di palme e banchina (2026-11-19): `ref/palme.md`, `ref/banchina.md`, `ref/asset_fonti.md`
       Specie: filari a prevalenza Phoenix dactylifera (tag OSM) con possibile P. canariensis (Comune, 2014): certezza media.

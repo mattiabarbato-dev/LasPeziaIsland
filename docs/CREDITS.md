@@ -213,3 +213,10 @@ al campione esatto con il modulo `wave` (il mixdown arrotonda al blocco). Picco 
 | `A_Viale_Clacson_06.wav` | #0969, 4,95-5,55 (5° colpo) | 0,60 s | mono |
 
 #0260 ("Car horn #4") non è usato nei file finali (0,49 s, 2 campioni in clipping).
+
+### Testata di Porto Mirabello v1 (blender-artist, 2026-11-20)
+- Geometria da OpenStreetMap (© OpenStreetMap contributors, ODbL): ways 850283512 (scala), 1120598342 (passerella), 851093571 (siepe),
+  850283513 (recinzione), 379766626/379766628 (parcheggio e strada), 175935357/379778073 (multipiano), 912795085…089 (pontili),
+  175935420/421/422 (prati), node 1327347935 (fanale).
+- Nessuna texture nuova: riusate `T_Parcheggio_Asfalto`, `T_Viale_Segnaletica`, `T_Molo_Masselli`, `T_Morin_Bosso`, `T_Morin_Prato`,
+  `T_Ponte_Legno`, `T_Ponte_Acciaio`, `T_Banchina_Paramento`, `T_Pav_Fascia`, `T_Morin_Imbarco`, `T_Morin_Imbarco_Legno` (già elencate sopra).

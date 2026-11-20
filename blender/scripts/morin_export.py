@@ -84,6 +84,11 @@ BUDGETS = (
     ("Tavol", 4000),
     ("Sedia", 4000),
     ("Sgabello", 4000),
+    ("Yacht", 5000),       # yacht di fondale a Mirabello (2026-11-20)
+    ("Multipiano", 5000),  # edificio di fondale
+    ("Mirabello_Suolo", 2000),
+    ("Mirabello_Fondale", 5000),
+    ("Mirabello", 4000),   # pianerottolo, passerella, fanale (prop)
 )
 
 # Rotazione applicata solo in export (docs/scala.md, giro 3).
