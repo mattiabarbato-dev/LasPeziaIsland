@@ -477,6 +477,102 @@ def build_material():
 
 
 # -------------------------------------------------------------------------------------------------------------
+# emissiva (2026-11-20): T_Morin_Auto_v2_E per le auto in movimento (fari accesi). Stesse UV e stesse maschere
+# dei gruppi ottici dell'atlante D; nero ovunque. Uguale in tutte le 9 celle (le luci non dipendono dal colore).
+# In UEFN: MI dedicata (es. MI_Morin_Auto_v2_Luci) con E -> Emissive Color x intensita'; le auto parcheggiate
+# restano su M_Morin_Auto_v2 senza emissione.
+# -------------------------------------------------------------------------------------------------------------
+EM_F = (255, 226, 178)      # anabbaglianti: bianco caldo (alogeno/LED caldo)
+EM_DRL = (255, 246, 230)    # striscia diurna, piu' chiara
+EM_R = (230, 22, 12)        # fanali posteriori: rosso
+EM_R_IN = (255, 60, 40)     # nucleo del fanale
+
+
+def _emit_side(pr):
+    w, h = int(2 * XM * S), int(ZM * S)
+    cc, rr = np.meshgrid(np.arange(w) + 0.5, np.arange(h) + 0.5)
+    x = cc / S - XM
+    z = ZM - rr / S
+    p = pr.p
+    t = pr.t(x)
+    E = np.zeros((h, w, 3), np.float32)
+    E[(t < 0.03) & (z > p["lamp_r"][0]) & (z < p["lamp_r"][1])] = _c(EM_R)
+    E[(t > 0.978) & (z > p["lamp_f"][0] + 0.02) & (z < p["lamp_f"][1] - 0.01)] = _c(EM_F) * 0.8
+    return E
+
+
+def _emit_top(pr):
+    w, h = int(2 * XM * S), int(2 * YM * S)
+    cc, rr = np.meshgrid(np.arange(w) + 0.5, np.arange(h) + 0.5)
+    x = cc / S - XM
+    y = YM - rr / S
+    t = pr.t(x)
+    ay = np.abs(y)
+    E = np.zeros((h, w, 3), np.float32)
+    E[(t > 0.978) & (ay > 0.52 * pr.W / 2) & (ay < 0.93 * pr.W / 2)] = _c(EM_F) * 0.8
+    E[(t < 0.018) & (ay > 0.60 * pr.W / 2)] = _c(EM_R)
+    return E
+
+
+def _emit_end(pr, front):
+    w, h = int(2 * YM * S), int(ZM * S)
+    cc, rr = np.meshgrid(np.arange(w) + 0.5, np.arange(h) + 0.5)
+    y = cc / S - YM
+    z = ZM - rr / S
+    p = pr.p
+    ay = np.abs(y)
+    hw = pr.W / 2
+    E = np.zeros((h, w, 3), np.float32)
+    if front:
+        z0, z1 = p["lamp_f"]
+        lamp = (ay > 0.50 * hw) & (ay < 0.93 * hw) & (z > z0) & (z < z1) & (z - z0 > (ay - 0.50 * hw) * 0.12)
+        E[lamp] = _c(EM_F)
+        E[lamp & (np.abs(z - (z0 + 0.025)) < 0.008)] = _c(EM_DRL)
+    else:
+        z0, z1 = p["lamp_r"]
+        lamp = (ay > 0.58 * hw) & (ay < 0.95 * hw) & (z > z0) & (z < z1)
+        E[lamp] = _c(EM_R)
+        E[lamp & (np.abs(z - (z0 + z1) / 2) < 0.012)] = _c(EM_R_IN)
+    return E
+
+
+def make_emissive():
+    E = np.zeros((NPX, NPX, 3), np.float32)
+    for m in MODELS:
+        pr = Prof(m)
+        for ci in range(len(COLORI[m])):
+            c0, r0 = _cell_origin(m, ci)
+            for (pc, pr0), L in ((P_SIDE, _emit_side(pr)), (P_TOP, _emit_top(pr)),
+                                 (P_FRONT, _emit_end(pr, True)), (P_BACK, _emit_end(pr, False))):
+                h, w = L.shape[:2]
+                E[r0 + pr0:r0 + pr0 + h, c0 + pc:c0 + pc + w] = L
+    os.makedirs(TEXDIR, exist_ok=True)
+    tp.save(E, f"{TEXDIR}/{TEX}_E.png")
+    return f"{TEXDIR}/{TEX}_E.png"
+
+
+def build_material_luci(name=MAT + "_Luci", strength=6.0):
+    """Copia di M_Morin_Auto_v2 con T_..._E in Emission (solo per verifica in Blender; in UEFN e' una MI)."""
+    import morin_pav_kit as _pk
+    base = build_material()
+    mat = bpy.data.materials.get(name)
+    if mat is None:
+        mat = base.copy()
+        mat.name = name
+    nt = mat.node_tree
+    bsdf = next(n for n in nt.nodes if n.type == "BSDF_PRINCIPLED")
+    te = next((n for n in nt.nodes if n.type == "TEX_IMAGE" and n.image and n.image.name.startswith(TEX + "_E")), None)
+    if te is None:
+        te = nt.nodes.new("ShaderNodeTexImage")
+        te.image = _pk._img(TEX + "_E.png", f"{TEXDIR}/{TEX}_E.png", False)
+    te.image.reload()
+    ecol = bsdf.inputs.get("Emission Color") or bsdf.inputs.get("Emission")
+    nt.links.new(te.outputs["Color"], ecol)
+    bsdf.inputs["Emission Strength"].default_value = strength
+    return mat
+
+
+# -------------------------------------------------------------------------------------------------------------
 # UV (coordinate nella cella 0,0; le varianti spostano di una cella)
 # -------------------------------------------------------------------------------------------------------------
 def _uv(col, row):

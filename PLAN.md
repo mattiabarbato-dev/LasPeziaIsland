@@ -159,6 +159,11 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      (risolto 2026-11-20: le 13 auto del viale davanti al parcheggio spostate negli HISM `_Col_v2`, ora solide; §20)
    - [x] (uefn-builder, risolto: LODBias 1 → 0 sulle texture auto v2, §20) Auto v2 in scena: tetti e cofani molto chiari/lattiginosi con la luce delle 18 (riflesso del cielo?), mentre la
      miniatura dell'asset è corretta; valutare `Roughness_Mult` di `MI_Morin_Auto_v2`.
+   - [x] (blender-artist, 2026-11-20) **Luci auto v2**: `blender/textures/auto/T_Morin_Auto_v2_E.png` (2048, stesse UV dell'atlante;
+     nero ovunque, fari anteriori bianco caldo, fanali posteriori rosso, nessuna luce arancione). Generata da `morin_auto_v2.make_emissive()`
+     (verifica: `build_material_luci()`). Mesh e FBX invariati. Render `docs/qa/arte_auto_v2_luci.png`.
+   - [ ] (uefn-builder) Importare `T_Morin_Auto_v2_E` e creare una MI dedicata alle auto in movimento (es. `MI_Morin_Auto_v2_Luci`,
+     E → Emissive, intensità da tarare al tramonto); le auto parcheggiate restano su `MI_Morin_Auto_v2`.
    - [x] (uefn-builder, 2026-11-20 05:25) LODBias 0 sulla selezione dell'utente (~100 MiB): 30 texture `T_Pav_*`, `T_Banchina_Ghisa/Paramento_*`,
      palme, chiosco e dehors. Le altre 30 restano a 1 (Ciglio v1, oleandro chioma, prato, fregio, molo, asfalto parcheggio, chiome alberi).
      Totale stimato texture del progetto **192-233 MiB** (prima 110-133), sotto la soglia di 245. Salvato, validazione 393/393. §21.
@@ -205,6 +210,21 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      varco dello spartitraffico, dissuasori, angolo dei posti a pettine (60° o 90°), edificio con vetrate (area OSM 205843492).
    - [ ] (utente/geo-scout) Verificare [S]: sezione del viale (sosta lato giardini, spartitraffico, sosta lato città, strisce bianche o blu),
      senso di marcia, disegno delle aiuole di bosso, densità degli alberi dei Giardini pubblici.
+   - [x] (uefn-builder, 2026-11-20 ~10:15-10:30) **Viale Italia senza sosta + traffico finto** (decisione dell'utente 2026-11-20,
+     `docs/uefn_arte.md` §25): 9 HISM `Arte_Viale_Auto*_v2_*` (78) **nascosti** (§14); 12 istanze del viale tolte dagli HISM
+     `Arte_Parcheggio_Auto*_Col_v2_*` (trasformazioni annotate, la 13a `Auto_065` era già tolta al §23): parcheggio = CSV v4 (49/49).
+     Trace Y −12100..−14000: nessuna auto in sosta (solo i musi delle auto a pettine del parcheggio fino a Y −12175).
+     Traffico: 14 `Arte_Viale_Traffico_00-13` (FortStaticMeshActor Movable, No Collision, `MI_Morin_Auto_v2_Luci`) animati da
+     `Arte/Viale/LS_Viale_Traffico` (60 s, loop) col device `Device_Cinematica_TrafficoViale` (autoplay, loop, tutti, sempre).
+     Fari: `T_Morin_Auto_v2_E` + master `M_Morin_Master_PBR_Emissive` + `MI_Morin_Auto_v2_Luci` (intensità 4). Audio: **nessun suono
+     di traffico/clacson consentito** (vedi sotto). Validazione 471/471, 0 errori. Render `docs/qa/uefn_viale_traffico.png`, `_fari.png`.
+   - [ ] (qa-tester / utente) **In sessione**: la sequenza parte da sola e gira in loop per tutti; le auto si muovono fluide (nessuno scatto
+     a Viale visibile), compaiono a X −150 m e spariscono a X +330 m senza farsi notare; fari leggibili al tramonto; costo (14 attori mobili).
+   - [ ] (utente) **Audio del viale:** servono file esterni (WAV): 1 loop di traffico cittadino lontano (≥ 60 s, senza voci) e 4-6 clacson
+     brevi lontani. Fonti CC0: Freesound (filtro licenza CC0), Sonniss GDC bundle (royalty-free). Con i file: import con SoundWaveToolset,
+     poi `Device_Audio_TrafficoViale_SO` (già piazzato, audio vuoto) + 1-2 Audio Player per i clacson. Nessun download fatto.
+   - [ ] (blender-artist) Viale: la segnaletica degli **stalli di sosta** sulle due strisce laterali (Y 121,0-123,3 e 132,2-134,5 m) contrasta
+     con la decisione dell'utente (niente sosta): ridisegnare come corsie di marcia (4 corsie) in `SM_Viale_Italia_Strada`/`_Incrocio`.
    - [ ] (blender-artist → uefn-builder) Layout fascia palme **v4**: filari da X 20,4 (via le palme a X 12), tutto il resto −0,6 m,
      gazebo a X ≈ 33,9; in UEFN solo spostamenti di attori (niente reimport).
    - [x] (uefn-builder, 2026-11-19 18:15) Import e posa del kit molo v2 (`docs/uefn_arte.md` §13): 14 mesh in `LaSpezia/Arte/Molo` e

@@ -1241,3 +1241,96 @@ dell'import di `SM_Parcheggio_Asfalto_v3` (tangenti degeneri, normali quasi null
 ### Temporanei e problemi aperti
 - 2 nuovi `LaSpezia/_Temp/TMPX_SM_Molo_DehorsVetrato_v2_LOD1/_LOD2`; i 3 attori nascosti e le loro mesh restano finché l'utente non conferma.
 - **(blender-artist)** convesso dello smusso NE di `SM_Parcheggio_Asfalto_v3` (sopra).
+
+## 25. Viale Italia senza sosta e traffico finto (2026-11-20, ~10:15-10:30 ora locale)
+
+Decisione dell'utente (2026-11-20): in Viale Italia niente auto in sosta, solo auto che passano; le auto del parcheggio vicino alla passeggiata
+restano. Nessun attore né asset cancellato.
+
+### Auto in sosta tolte
+- **Nascosti** (metodo §14: Hidden In Game, componente Visible falso, No Collision, Actor Collision off): i 9 HISM `Arte_Viale_Auto{A,B,C}_v2_<Colore>`
+  (78 istanze, `Arte/Viale`). Le vecchie `Arte_Viale_AutoA/B/C` restano nascoste.
+- **Istanze rimosse** dagli HISM del parcheggio: le auto del viale che non compaiono in `exports/parcheggio/parcheggio_posizioni_v4.csv` (match per
+  asset e X/Y ±2 uu). Sono **12**: la 13a (`Auto_065`, 1742,22; −12222,96) era già stata tolta al §23. Dopo la rimozione gli HISM `_Col_v2`
+  del parcheggio coincidono col CSV v4: **49/49**, 0 in più. Trasformazioni rimosse (UE, uu, world space, scala 1, pitch e roll 0; indice prima della rimozione):
+
+| HISM | Indice | X | Y | Z | Yaw |
+|---|---|---|---|---|---|
+| `Arte_Parcheggio_AutoB_Col_v2_Argento` | 3 | 6518,11 | −12207,36 | 2,0 | 179,95 |
+| `Arte_Parcheggio_AutoB_Col_v2_Argento` | 6 | 2288,02 | −12212,58 | 2,0 | 179,07 |
+| `Arte_Parcheggio_AutoB_Col_v2_Argento` | 7 | 5422,19 | −12207,64 | 2,0 | −179,66 |
+| `Arte_Parcheggio_AutoA_Col_v2_Azzurro` | 1 | 8625,17 | −12208,61 | 2,0 | −179,33 |
+| `Arte_Parcheggio_AutoA_Col_v2_Azzurro` | 3 | 3862,15 | −12214,65 | 2,0 | −179,70 |
+| `Arte_Parcheggio_AutoC_Col_v2_BiancoPerla` | 3 | 5947,79 | −12209,48 | 2,0 | −179,64 |
+| `Arte_Parcheggio_AutoB_Col_v2_Arancio` | 2 | 7577,52 | −12216,41 | 2,0 | 179,52 |
+| `Arte_Parcheggio_AutoA_Col_v2_Bianco` | 5 | 4364,12 | −12221,57 | 2,0 | −179,27 |
+| `Arte_Parcheggio_AutoA_Col_v2_Bianco` | 6 | 4894,62 | −12214,52 | 2,0 | −179,71 |
+| `Arte_Parcheggio_AutoA_Col_v2_Rosso` | 3 | 8094,05 | −12211,69 | 2,0 | 178,97 |
+| `Arte_Parcheggio_AutoC_Col_v2_BluScuro` | 0 | 7041,51 | −12220,64 | 2,0 | 179,88 |
+| `Arte_Parcheggio_AutoC_Col_v2_BluScuro` | 3 | 3361,11 | −12213,24 | 2,0 | 178,72 |
+
+  Per ripristinarle: `add_instance` con queste trasformazioni (world space) nello stesso HISM.
+- **Verifica:** nessuna istanza visibile di mesh auto tra Y −12100 e −14000; line trace verticali (X −1600..33000, Y −12100..−14000, passo
+  50 × 25 uu): impatti su auto solo a Y −12100..−12175 = musi delle auto a pettine del parcheggio (CSV v4, fino a ~Y −12180). Il resto è
+  `Blockout_Fondale_v4`, masselli, strada del molo, un semaforo.
+
+### Corsie (dalla mesh `SM_Viale_Italia_Strada`, origine moduli Y −12085, carreggiata Z 2,5)
+| Fascia | Y UE | Uso |
+|---|---|---|
+| Striscia con stalli lato giardini | −12100..−12330 | vuota (stalli ancora disegnati, vedi problemi) |
+| Corsia mare 1 | −12330..−12700 (asse −12515) | traffico NE, 34 km/h |
+| Corsia mare 2 | −12700..−13080 (asse −12890) | traffico NE, 42 km/h |
+| Spartitraffico | −13100..−13200 | — |
+| Striscia con stalli lato città | −13220..−13450 (asse −13335) | traffico SO, 31 km/h |
+| Corsia città | −13450..−13840 (asse −13645) | traffico SO, 40 km/h |
+
+Il modello ha 3 corsie di marcia + 2 strisce di sosta; `ref/sezione.md` dice 4 corsie su due carreggiate (assi Y 128 e 135 m): uso anche la
+striscia lato città come quarta corsia. **Senso di marcia [S]:** carreggiata lato mare verso **NE** (+X), lato città verso **SO** (−X), come
+vuole la circolazione a destra (vedi `decisioni.md`).
+
+### Traffico (metodo senza Verse)
+- **Attori:** `Arte_Viale_Traffico_00..13` (Outliner `Arte/Viale/Traffico`), `FortStaticMeshActor`, componente **Movable**, profilo `NoCollision`,
+  Actor Collision off, mesh `SM_Morin_Auto_{A,B,C}_v2_<Colore>` (9 colori a rotazione), override slot 0 → `MI_Morin_Auto_v2_Luci`.
+  Fari a +X locale nella mesh (verificato incrociando UV e texture E: bianchi a X +196..+221, rossi a −196..−220): yaw 0 verso NE, 180 verso SO.
+- **Sequenza:** `LaSpezia/Arte/Viale/LS_Viale_Traffico`, 30 fps, frame 0-1800 (**60 s**), 14 binding possessable con traccia Transform.
+  Ogni auto percorre X −15000 → 33000 (o il contrario) a velocità costante (chiavi lineari), poi salta a Z −3000 sotto il suolo (chiavi
+  costanti) e aspetta lì il giro successivo. Corsa 480 m: 41,1 s a 42 km/h, 50,8 s a 34, 43,2 s a 40, 55,7 s a 31.
+  Partenze (s): mare 2 → 0/14/31/45, mare 1 → 6/26/47, città → 3/18/33/48, striscia città → 10/30/52. Le auto con la corsa a cavallo della fine
+  del giro hanno a frame 0 e 1800 la stessa posizione intermedia: loop continuo.
+- **Verifica (scrub ogni 10 frame):** in media **7,8 auto** sul tratto visibile del viale (X −16..326 m, max 9); distanza minima fra auto della
+  stessa corsia **155 m**; nessun salto di posizione con l'auto visibile; il salto avviene a X −150 m (oltre il modulo `Viale_Strada_SO_m1`,
+  ~115 m oltre la barriera del molo) e a X +330 m (fine del fondale, dove finisce il suolo).
+- **Device:** `Device_Cinematica_TrafficoViale` (Cinematic Sequence Device, `Device/Cinematiche`, (16000, −14300, 0)): Riproduzione automatica SÌ,
+  Loop SÌ, Visibilità TUTTI, Si abilita nella fase SEMPRE, attore sempre connesso SÌ, HUD visibile, input non disattivato.
+  **Insidia:** `SetClassicDeviceOption` rifiuta la sequenza ("Allowed values: ." vuoto anche dopo il salvataggio); assegnata con
+  `set_editor_property('Sequence', ...)` in transazione: `ListClassicDeviceOptions` la mostra, validazione OK. Da confermare in sessione.
+- **Costo:** 14 static mesh mobili (1.804-1.844 tri al LOD0, LOD1/2 attivi), nessuna luce dinamica, solo emissive.
+
+### Fari
+- `T_Morin_Auto_v2_E` importata in `Arte/Auto` (2048, sRGB, LODBias 0, compressione Default). Memoria stimata +2,7-5,3 MiB (BC1/BC3 con mip).
+- Il master `M_Morin_Master_PBR` non ha emissive: duplicato in **`Arte/Materiali/M_Morin_Master_PBR_Emissive`** (stesso grafo + `Emissive`
+  TextureSampleParameter2D sulla stessa UV × scalare `Emissive_Intensita`, default 0, → Emissive Color; usage ISM e Nanite come l'originale).
+- **`Arte/Auto/MI_Morin_Auto_v2_Luci`**: stesse D/N/ORM di `MI_Morin_Auto_v2`, `Emissive` = E, **`Emissive_Intensita` 4** (Blender 6): nel render al
+  tramonto fari bianchi e fanali rossi leggibili senza effetto neon (`docs/qa/uefn_viale_traffico_fari.png`). Usata solo dalle 14 auto in movimento.
+
+### Audio
+- **Nessun suono di traffico o clacson utilizzabile.** L'Audio Player accetta solo la sua lista interna (136 voci: stinger, Halloween, fiera,
+  fantasy): niente traffico. In `/AmbientAudioContent` ci sono loop di città (`Ambience_CrimeTown_City_Evening_Loop_Ext_Cue` ecc.), ma al salvataggio
+  `AssetValidator_AssetReferenceRestrictions` dà **errore** ("fa riferimento illegalmente a /AmbientAudioContent/..."); la validazione per oggetto
+  con usecase Script diceva VALID: non basta. Nessun clacson nemmeno lì (solo treno, nave; il clacson del bus è in `/Game`, non utilizzabile).
+- Attori lasciati **vuoti e inattivi** (non cancellati): `Device_Audio_TrafficoViale_SO` (Audio Player, `Device/Audio`, (8000, −13800, 300),
+  audio NESSUNO, volume 0,3, Riproduci all'impatto NO, invisibile) e `Audio_Viale_BrusioTraffico` (AmbientSound, Outliner `Audio`,
+  (16000, −13800, 300), suono None, auto-activate off, attenuazione box 180 × 9 × 6 m + falloff 40 m già impostata). Servono WAV importati
+  nel progetto (PLAN.md).
+
+### Salvataggio, validazione, log, render
+`save_dirty_packages` dopo ogni passo, nessun pacchetto sporco. Validazione `LaSpezia/`: **471/471 validi, 0 errori, 20 avvisi** (gli stessi del §24,
+"un solo LOD" sulle mesh statiche). Log: l'unico errore è quello dell'AmbientSound col cue di `/AmbientAudioContent`, risolto togliendo il cue
+(il salvataggio successivo non lo ripete); il resto sono avvisi EOS/HTTP e di deprecazione Python. Attori nel livello: 192 (+17: 14 auto,
+2 device, 1 AmbientSound). Render (sequenza a metà, frame 900, mip forzati, ombre, 1024 px, FOV 80): `docs/qa/uefn_viale_traffico.png`
+(UE 24500, −12150, 450; yaw −160; pitch −7) e `docs/qa/uefn_viale_traffico_fari.png` (20900, −12750, 140; yaw −170; pitch −3).
+
+### Problemi aperti
+1. **(qa-tester/utente)** In sessione: la sequenza parte da sola, in loop, per tutti i giocatori; movimento fluido; salti non visibili.
+2. **(utente)** File audio esterni (traffico lontano, clacson): vedi PLAN.md.
+3. **(blender-artist)** Stalli di sosta ancora disegnati sulle strisce laterali del viale: ridisegnare la segnaletica a 4 corsie.
