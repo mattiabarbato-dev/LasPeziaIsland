@@ -304,8 +304,34 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      (v3 nascosto). Materiali esistenti (`M_Molo_Asfalto`, `M_Pav_Fascia`, `M_Viale_Segnaletica`, `M_Parcheggio_Asfalto`, `M_Pav_Terra`):
      riassegnare, non duplicare. Verifica: trace sullo smusso NE (X 95-106) e sulla tacca (X 20-24, Y 109,25-114): impatto su asfalto a Z +2 uu.
      Opzionale: riallineare il traffico ai centri corsia v2 (Y UE −12380 / −12860 / −13375 / −13685).
-   - [ ] (blender-artist → uefn-builder) Layout fascia palme **v4**: filari da X 20,4 (via le palme a X 12), tutto il resto −0,6 m,
-     gazebo a X ≈ 33,9; in UEFN solo spostamenti di attori (niente reimport).
+   - [—] ~~(blender-artist → uefn-builder) Layout fascia palme **v4**: filari da X 20,4 (via le palme a X 12), tutto il resto −0,6 m,
+     gazebo a X ≈ 33,9~~ — **superato dal layout v5** qui sotto (passo 8 m, non 9), mai applicato.
+   - [x] (geo-scout, 2026-11-20) Verifica inizio passeggiata e passo delle palme con le foto `vista__statua*.png` e `vista_inizio_passeggiata.png`:
+     `ref/palme.md` §6, `ref/foto_nuove_2026-11-20.md` §13. **Passo 8,0 m [V]** (estremi dei filari OSM 20,4 → 556,9 / 555,8, conteggio
+     dell'utente 68 per filare, 12 panchine OSM tutte a metà fra due palme della griglia 20,4 + 8k). Oggi nel gioco: coppia a X 12 inesistente
+     (la sua aiuola copre il basamento della Sirena per ~0,7 × 1,0 m), passo 9 m, 61 palme per filare invece di 68, gazebo a 25,5 invece di ~40.
+     Domande all'utente D-P1 (gazebo dopo 2 o 3 coppie), D-P2 (lampione a 2 globi a (15,3; 101,9) invece di (13,0; 106,0)), D-P3 (palo "area pedonale").
+   - [ ] (utente) Rispondere a D-P1, D-P2, D-P3 (`ref/foto_nuove_2026-11-20.md` §13.3). Senza risposta: gazebo a 40,4 (OSM), lampione a 2 globi spostato.
+   - [ ] (blender-artist) **Layout fascia palme v5** (Blocco 1 + Blocco 2), dati in `ref/palme.md` §6.3-6.4:
+     - palme e aiuole a **X 20,4 + 8k** (k 0-67), Y 92,6 / 99,6 allineate: Blocco 1 **60** (k 0-29), Blocco 2 **76** (k 30-67); tolta la coppia a X 12;
+     - nuova `SM_Pav_FasciaPalme_8m` (strisce trasversali a 24,4 + 8k) + testa `SM_Pav_FasciaPalme_Testa` (X 9,75 → 16,4, solo cubetti)
+       + `SM_Pav_FasciaPalme_Fine` rifatta (552,4 → 558,75); `SM_Pav_Cordolo_9m` può restare;
+     - panchine a **32,4 + 16k** (14 + 19), lampioni a **32,7 + 32k** (7 + 10), tombini ricalcolati sulle campate da 8 m,
+       gazebo a **(40,4; 93,2)** (o 32,4 se D-P1 dice così), rastrelliere a 56,4 / 88,4 / 104,4, cestini (17,9; 91,3), (41,9; 90,5) e sui varchi dispari liberi;
+     - script `blender/scripts/morin_pav_kit.py` (`X0_MOD`, `PASSO`, `N_MOD`, `X_TRASV`, `X_PALMA0`, `N_PALME`, `GAZEBO`) e `morin_blocco2.py`
+       (`PALME_X`, `PANCH_X`, `LAMP_X`, `X_FASCIA`, `N_FASCIA`, `build_fascia_fine`, lettura di `palme_posizioni_v3.csv`); .blend `blender/arte_pavimentazione.blend`
+       e quello del Blocco 2: **salvare una copia prima**;
+     - CSV nuovi (non sovrascrivere i vecchi): `exports/pavimentazione/pav_posizioni_v5.csv`, `palme_posizioni_v5.csv`, `exports/blocco2/blocco2_palme_v2.csv`,
+       `blocco2_pav_v2.csv`, `blocco2_arredi_v2.csv`, `exports/dettagli/dettagli_posizioni_v3.csv` (cestini), `exports/imbarco/imbarco_posizioni_v3.csv` (rastrelliere);
+       se D-P2 confermato, lampione a 2 globi a (15,3; 101,9) nel CSV del molo;
+     - controllo impronte (`check_footprints`) esteso a cestini, rastrelliere, Sirena, lampione a 2 globi e cartelli: 0 conflitti
+       (oggi, contro le aiuole nuove, sono 48); render dall'angolo della Sirena verso il mare da confrontare con `vista__statua.png`.
+   - [ ] (uefn-builder) Applicare il v5: import della sola `SM_Pav_FasciaPalme_8m` / `_Testa` / `_Fine` (metodo `docs/uefn_arte.md` §12),
+     poi **solo spostamenti di istanze** HISM dai CSV v5 (palme, aiuole, fascia, panchine, lampioni, tombini, cestini, rastrelliere; Blocco 1 e 2),
+     gazebo e lampione a 2 globi come attori singoli. Le istanze in più (palme +6 / +8, aiuole idem, panchine +1 / +2, lampioni +2 nel B2) si aggiungono;
+     quelle in meno (moduli fascia 9 m) si **nascondono o si chiedono all'utente** prima di cancellarle. Verifiche: trace sui 136 tronchi,
+     gradino del cordolo, Sirena libera dall'aiuola, linea di vista sulle antenne, memoria.
+   - [ ] (qa-tester) Prova in sessione dell'inizio passeggiata: angolo in cubetti senza palme, Sirena, lampione, prima coppia a X 20,4, gazebo.
    - [x] (uefn-builder, 2026-11-19 18:15) Import e posa del kit molo v2 (`docs/uefn_arte.md` §13): 14 mesh in `LaSpezia/Arte/Molo` e
      `LaSpezia/Arte/Alberi`, 21 texture, 8 MI; 14 attori in Outliner `Arte/Molo` e `Arte/Alberi`; LOD, UCX e materiali verificati,
      validazione 43/43 senza avvisi, tutto salvato. Render `docs/qa/uefn_molo_v2_F1.png`, `_F3.png`, `_alto.png`.
@@ -779,7 +805,12 @@ Ordine per impatto visivo:
             tutta l'altezza (limitata dalle ante, UCX 07/08). Tri **1.542 / 671 / 230**, 9 UCX, 3,30 × 1,82 × 3,00 m, bbox LOD = LOD0 (0 %),
             stessa origine e bbox UE della v1 (X −175..155, Y −20..162, Z 0..300); sagoma dei LOD controllata in vista solid.
             Backup `blender/arte_marina_pre_portale_v2.blend`.
-      - [ ] (uefn-builder) **Sostituire il portale**: importare `SM_Morin_Marina_Portale_v2` in `Arte/Marina` (LOD0 con UCX, LOD1/2 come LOD,
+      - [x] (uefn-builder, 2026-11-20 ~22:40-22:52, `docs/uefn_arte.md` §44) **Fatto**: `SM_Morin_Marina_Portale_v2` in `Arte/Marina`, tri
+            1.542/671/230, 9 convessi, bbox = v1, sezioni dei LOD rimappate per slot, MI della v1; assegnato ad `Arte_Marina_Portale` (posa
+            invariata, nessun override). **Capsula r 34 / hh 88 a Z 93/95/120: centri liberi X 15049-15151 → luce 1,70 m**; percorso
+            camminamento → portale → passerella Spina → pontile (Z 0 → −45) senza blocchi, gradino max 2,5 cm, architrave fuori portata.
+            Cattura `docs/qa/uefn_marina_portale_v2.png`.
+      - [x] ~~(uefn-builder) **Sostituire il portale**: importare `SM_Morin_Marina_Portale_v2` in `Arte/Marina` (LOD0 con UCX, LOD1/2 come LOD,~~
             sezioni rimappate per slot; slot e MI come la v1: `MI_Morin_Marina_Ingresso`, `MI_Morin_Marina_LamieraBlu`), poi assegnarlo
             all'attore `Arte_Marina_Portale` (posa invariata (15100, −8120, 0), yaw 0). La v1 resta nel content browser. Verifica: capsula r 34 /
             hh 88 lungo Y da −8300 a −7950 a X 15050-15150 (luce attesa X ≈ 15015-15185) e passerella Spina oltre il portale.
@@ -844,7 +875,13 @@ Ordine per impatto visivo:
             sporgenti → profilo irregolare. Tri **936 / 430 / 174**, 2 UCX (uguali alla v1), 1,24 × 0,77 × 1,42 m, bbox LOD 0 / 0,7 %; stessi
             materiali e texture (`M_Molo_Dettagli`, `M_Molo_Arbusto`, `M_Molo_Arbusto_Card`). Render Cycles CPU v1/v2/LOD1/LOD2 controllato.
             Backup `blender/arte_dettagli_radice_pre_fioriera_v2.blend`.
-      - [ ] (uefn-builder) **Fioriera v2 e spostamento delle due istanze**: importare `SM_Molo_FiorieraAntracite_v2` in `Arte/Dettagli` (LOD0
+      - [x] (uefn-builder, 2026-11-20 ~22:40-22:52, `docs/uefn_arte.md` §44) **Fatto**: `SM_Molo_FiorieraAntracite_v2` in `Arte/Dettagli`
+            (936/430/174 tri, 2 convessi, MI v1, card su `MI_Molo_Arbusto_Card` masked two-sided) assegnata all'HISM `Arte_Dettagli_Fioriere`
+            (16 istanze = CSV v2, scarto 0). Lavagna (375, −9070, 1) e cavalletto (330, −9860, 1) yaw 0, nessuna sovrapposizione.
+            **Corsia X 4,2-9,55 / Y 62-108** (2.310 trace a Z 15/60/100/150/190 nei due versi + capsule a 7 X): libera, salvo la palma in vaso
+            del ristorante C (X 746-854, Y −6740..−6660) già nota; il cordolo `Arte_Pav_AngoloMolo` è toccato solo a X 955 (bordo corsia).
+            Cattura `docs/qa/uefn_dehors_v2.png`.
+      - [x] ~~(uefn-builder) **Fioriera v2 e spostamento delle due istanze**: importare~~ `SM_Molo_FiorieraAntracite_v2` in `Arte/Dettagli` (LOD0
             con UCX, LOD1/2 come LOD, sezioni rimappate per slot; MI `MI_Molo_Dettagli`, `MI_Molo_Arbusto`, `MI_Molo_Arbusto_Card`) e assegnarla
             all'HISM `Arte_Dettagli_Fioriere` (16 istanze, pose invariate). Spostare `Arte_Dettagli_Lavagna_00` a (375, −9070, 1) yaw 0 e
             `Arte_Dettagli_Cavalletto_RistoLischeria` a (330, −9860, 1) yaw 0 (righe del CSV v2). Verifica: trace sulla corsia X 420-955,

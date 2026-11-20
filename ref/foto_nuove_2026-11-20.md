@@ -415,3 +415,51 @@ Regole: niente persone, targhe, loghi o nomi privati, UI di Street View (elenco 
 - **D4. Ufficio della marina:** una foto del lato verso il mare o dall'alto (profondità, porte, finestre, terrazza).
 - **D5. Pescherecci:** se hai una foto delle barche lungo il molo davanti al ristorante C, possiamo copiarne colori e attrezzature.
 - **D6. Sirena:** verso dove guarda (la strada o il bacino)?
+
+---
+
+## 13. Inizio della passeggiata: Sirena, lampione e prime palme (foto aggiunte in serata, 2026-11-20)
+
+Segnalazione dell'utente [V-utente]: "la passeggiata inizia con un po' di marciapiede dove c'è poi la statua e solo dopo inizia la palma,
+in corrispondenza della statua un palo della luce e poi dietro iniziano le coppie di palme. […] 68×2 palme."
+Conclusioni e layout corretto: **`ref/palme.md` §6** (qui solo l'analisi delle foto).
+
+| Sigla | File | Px | Cosa |
+|---|---|---|---|
+| S1 | `ref/foto/vista/vista__statua.png` | 1161 × 571 | dall'angolo in cubetti verso il bacino: Sirena, cestino, palo "accesso autorizzati / area pedonale", prima palma, bici; palo del lampione in primo piano a sinistra |
+| S2 | `ref/foto/vista/vista__statua2.png` | 833 × 580 | dall'incrocio di Viale Italia (strisce pedonali in basso): pini e prime palme a sinistra, lampione a 2 globi con cartelli al centro, Sirena, dehors e strada di servizio a destra |
+| S3 | `ref/foto/vista/vista_inizio_passeggiata.png` | 1371 × 652 | dal lato città verso il mare: lampione a 2 globi sovrapposti con manifesto su riquadro di pietra, prime palme nelle aiuole quadrate, cestini, new jersey, ristoranti a destra |
+
+**Da NON copiare nelle texture:** scritte "© 2025 Google" (S1 x 740-810 / y 180-195; S2 x 480-570 / y 270-285), etichetta di Street View
+"Banchina Thaon di Revel" sull'asfalto (S1 x 800-1161 / y 380-571: **non è una scritta reale**), freccia di navigazione (S3 x 1090-1280 / y 540-585),
+riquadro della mappa (S3 x 0-150 / y 635-652), persone (S1 x 355-445 / y 310-360 e x 990-1040 / y 340-380; S3 x 45-80 / y 385-445),
+auto con targa (S2 x 0-235 / y 420-500; S3 x 750-800 / y 400-445), manifesto "Jurassic" (S3 x 795-860 / y 400-490).
+
+### 13.1 Punti di presa e metodo [S]
+Camera a ~2,5 m, orizzonte e scala dalla posizione OSM di oggetti noti. Precisione ±1,5 m in pianta.
+| Foto | Punto (X; Y) | Direzione | Riferimenti usati |
+|---|---|---|---|
+| S1 | **(14,9; 102,6)** | verso −Y, ruotata ~19° verso +X | Sirena (13,8; 91,9) e cestino (18,0; 91,3) da OSM: la distanza fra i due ricavata dalla foto (4,21 m) coincide con OSM (4,24 m) |
+| S2 | sulla corsia di Viale Italia, X ≈ 10-15, Y ≈ 125-135 | verso −Y | strisce pedonali OSM (way 1486816241, X 15,4) a sinistra, strada di servizio a destra. Solo lettura qualitativa: l'ordine degli oggetti |
+| S3 | **(16,2; 108)** | verso −Y | coppia di palme allineata (filari a 7,0 m, OSM), cestino OSM (18,0; 91,3) ritrovato a (16,2; 92,9) |
+
+### 13.2 Cosa si vede e dove sta
+| Oggetto | Foto | Posizione ricavata | Confronto | Stato |
+|---|---|---|---|---|
+| Nessuna palma fra la strada e la prima coppia | S1, S3 | — | il gioco ha una coppia a X 12 | [V-foto] |
+| Prima palma del filare 1 (tronco con luminarie, cartello e bici accanto) | S1 x 490 | **(20,6; 91,4)** | OSM inizio filare (20,4; 92,9) | [V-foto] / [S] posizione |
+| Prima coppia (filare 2 davanti, filare 1 dietro, quasi in linea) | S3 x 400 e x 600 | X ≈ 20 ± 1,5; distanza in profondità ≈ 6,6 m (filari a 7,0 m) | OSM X 20,4 per entrambi i filari | [V-foto] |
+| Sirena sul basamento grigio, a ~1 m dal bordo dell'asfalto | S1 x 790-900; S2 x 525 | usata come riferimento (OSM) | gioco (13,8; 91,9): giusto | [V] OSM + [V-foto] |
+| Cestino a capsula | S1 x 612; S3 x 685 | (16,2-18,0; 91,3-92,9) | OSM (18,0; 91,3) | [V] |
+| **Lampione a 2 globi sovrapposti** (globo alto e globo basso sullo stesso fusto, cima ~6 m, base su riquadro di pietra chiara ~0,9 m, manifesti incollati sul fusto) | S3 x 830 (base y 590); S1 palo in primo piano x 30-100 con l'ombra del globo a terra (x 190-260, y 520-555); S2 x 435 | **(15,3; 101,9) ± 1,5** (S3: (14,5; 101,4); S1: (16,2; 101,9)) | gioco `Arte_Molo_Lampione2Globi_00` (13,0; 106,0) da F1 2023 | posizione [S]; tipo [V-foto] |
+| Palo "accesso autorizzati / area pedonale" (cerchio rosso + pannello con pedone blu) | S1 x 530; S2 x 470 | ≈ (18,4-19,7; 91,4-92,5), a ridosso dell'aiuola della prima palma | non c'è nel gioco | [S] |
+| Lampione a 2 globi su bracci, accanto a una panchina, lato mare | S3 x 255 (panchina x 280-330) | X ≈ 31-32 | OSM panchina (31,7; 92,8); gioco Lampione_00 a 16,8 | [S] |
+| Dissuasore cilindrico grigio, new jersey bianchi e blu sul ciglio, auto parcheggiata | S3 x 650-900 / y 420-485 | ciglio Y ≈ 80-83, X ≈ 12-25 | new jersey già in §4.3 | [V-foto] |
+| Aiuole quadrate bordate di pietra chiara, terra scura | S3 x 270-530 / y 520-590 | lato ~3,5 m | gioco 3,6 × 3,0 | [S] |
+
+### 13.3 Domande per l'utente
+- **D-P1. Gazebo:** OSM lo mette dopo **tre** coppie di palme (X ≈ 40, fra la 3ª e la 4ª), la tua indicazione del 2026-11-19 dopo **due**
+  (X ≈ 32, dove OSM ha una panchina con schienale). Con il passo giusto (8 m) quale vale? Proposta: X 40,4 (OSM).
+- **D-P2. Lampione a 2 globi sovrapposti:** dalle foto nuove sta all'altezza della Sirena ma **sul filo del filare lato città** (Y ≈ 102,
+  ~3 m prima della prima palma); nel gioco è 4 m più verso Viale Italia (Y 106). Confermi lo spostamento?
+- **D-P3.** Il palo con "accesso autorizzati / area pedonale" accanto alla prima palma lo vogliamo nel gioco (cartello pubblico, testo generico)?
