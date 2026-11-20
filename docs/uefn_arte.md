@@ -2862,3 +2862,133 @@ cubetti e prato v2 e la segnaletica v1 → saldo ≈ **+45 MiB**; ristorante +1 
   (collisione fino a X −221): spostarli di 10 cm verso −X nel CSV se si vuole il margine pieno. Il cavalletto tocca il bordo (X −230).
 - **(utente)** Giudizio sulle catture texture v3 e ristorante; luce serale che mette il ristorante tutto in ombra.
 - **(qa-tester)** In sessione: collisione di tavoli e tettoia, corsia libera verso il ponte, prato da lontano.
+
+## 43. Imbarco v2, ingresso della marina, dettagli della radice (2026-11-20, ~22:00-22:20 ora locale)
+
+Sorgenti: `exports/imbarco/` (`*_v2`), `exports/marina/` (ufficio, portale, passerella v2, bitta ruggine), `exports/dettagli/` (19 asset × 3 LOD),
+CSV `imbarco_posizioni_v2.csv` (3), `marina_ingresso_v1.csv` (6), `dettagli_posizioni_v1.csv` (119), `dettagli_cestini_sostituzione_v1.csv` (9).
+Texture `blender/textures/{imbarco_v2,marina_ingresso,dettagli}/`. Nessuna sessione di gioco, nessuna cancellazione, nessun commit.
+
+### A. Import (metodo §13/§39/§42)
+- LOD0 col nome finale (`StaticMeshToolset.ImportFile`, materiali e texture off, combine on), LOD1/2 come `_Temp/TMPIV2_*`, `TMPMI_*`, `TMPD_*`
+  (52 temporanei), `remove_lods` + `set_lod_from_static_mesh(..., True)`, poi **rimappatura delle sezioni dei LOD per nome di slot** del temporaneo
+  (§22/§40) con `set_lod_material_slot`: tutte le sezioni sugli slot giusti. Nanite off, Use Simple Collision As Complex, soglie 1,0/0,2/0,08,
+  MinLOD Low/Medium 2 (0 sui pontiletti, pezzi di suolo, e sui temporanei). UCX arrivati con l'import (nessun convesso automatico sui LOD0).
+  Pescherecci: `remove_collisions` (0 convessi). I temporanei **non** hanno MI assegnate (così non creano referencer, cfr. §41).
+- Materiali assegnati con `StaticMesh.set_material(indice, MI)` (§42.E), verificati rileggendo `static_materials`.
+
+| Asset | Cartella | Tri LOD0/1/2 | Bbox locale (uu) | UCX | Slot → MI |
+|---|---|---|---|---|---|
+| `SM_Morin_Biglietteria_v2` | Arte/Imbarco | 1.268 / 1.116 / 860 | X −419..411 · Y −70..820 · Z −3..812 | 16 | Imbarco_v2, Bigl_Righe, Bigl_Schermo, Bigl_Rete |
+| `SM_Morin_PontileImbarco_v2` | Arte/Imbarco | 3.436 / 1.916 / 1.048 | X −434..425 · Y 0..2821 · Z −400..114 | 13 | Imbarco_v2, Pontile_Legno_v2 |
+| `SM_Morin_Traghetto_v2` | Arte/Imbarco | 4.452 / 3.324 / 1.286 | X ±1400 · Y ±357 · Z −130..882 | 19 | Imbarco_v2 |
+| `SM_Morin_Marina_Ufficio` | Arte/Marina | 3.407 / 2.001 / 591 | X ±574 · Y −355..430 · Z −161..472 | 7 | Marina_Ingresso, Marina_Doghe |
+| `SM_Morin_Marina_Portale` | Arte/Marina | 1.542 / 671 / 591 | X −175..155 · Y −20..162 · Z 0..300 | 9 | Marina_Ingresso, Marina_LamieraBlu |
+| `SM_Morin_Marina_Passerella_v2` | Arte/Marina | 260 / 180 / 84 | X −35..395 · Y ±140 · Z −58..114 | 3 | Marina_Ingresso, `MI_Morin_Imbarco_Legno` |
+| `SM_Banchina_Bitta_Ruggine` | Arte/Marina | 336 / 252 / 88 | X ±20 · Y ±20 · Z 0..71 | 1 | `MI_Banchina_Bitta_Ruggine` |
+| `SM_Molo_Ombrellone3x3` / `4x4` | Arte/Dettagli | 362 / 202 / 134 | ±150 / ±200 · Z 0..300 / 0..315 | 2 | `MI_Molo_Dettagli` |
+| `SM_Molo_TavoloNero` | Arte/Dettagli | 70 / 62 / 44 | ±35 · Z 0..75 | 3 | idem |
+| `SM_Molo_SediaNera` | Arte/Dettagli | 128 / 72 / 56 | X −32..23 · Y ±22 · Z 0..86 | 2 | idem |
+| `SM_Molo_FiorieraAntracite` | Arte/Dettagli | 280 / 156 / 72 | X ±62 · Y ±39 · Z 0..145 | 2 | Dettagli, `MI_Molo_Arbusto`, `MI_Molo_Arbusto_Card` |
+| `SM_Molo_Lavagna` / `_CavallettoPescheria` | Arte/Dettagli | 104 / 104 / 104 | ±23 × ±28/31 · Z 2..108/110 | 1 | Dettagli |
+| `SM_Molo_Insegna_PescatoriPigri` / `_RetiBucate` | Arte/Dettagli | 100/68/52 · 12/12/12 | X ±50 · Y −4..0 · Z ±60 / X ±65 · Y −3..0 · Z ±19 | 1 | Dettagli |
+| `SM_Morin_Cestino_v2` | Arte/Dettagli | 534 / 298 / 172 | X ±25 · Y −19..22 · Z 0..95 | 2 | Dettagli |
+| `SM_Morin_PaloCartelli` | Arte/Dettagli | 126 / 102 / 66 | X −30..93 · Y −3..5 · Z 0..323 | 2 | Dettagli |
+| `SM_Morin_NJPlastica_Blu` / `_Bianca` | Arte/Dettagli | 86 / 86 / 54 | X ±60 · Y ±23 · Z 0..75 | 2 | Dettagli |
+| `SM_Molo_Sirena` | Arte/Dettagli | 914 / 612 / 376 | X ±70 · Y −50..51 · Z 0..210 | 3 | Dettagli |
+| `SM_Molo_Peschereccio14` / `11` / `SM_Molo_GozzoTuga` | Arte/Dettagli | 1.665/1.115/519 · 1.561/1.035/483 · 1.319/865/425 | 14,0 × 4,85 × 6,92 · 11,0 × 4,25 × 5,57 · 8,5 × 3,03 × 3,60 m | 0 | Dettagli |
+| `SM_Molo_Pontiletto_Nord` / `_Sud` | Arte/Dettagli | 308/212/96 · 564/372/152 | mondo: X 864..1123 · Y −3510..10 / X 688..1044 · Y −10..7790 · Z −220..−11 | 1 | Dettagli, `MI_Morin_Imbarco_Legno` |
+
+Triangoli, dimensioni e UCX = scheda di blender-artist (PLAN). Bbox dei LOD1/2 uguali al LOD0 (controllati sui temporanei).
+
+### B. Texture (36, una alla volta: `AssetImportTask` + `finish_all_asset_compilation` dopo ogni proprietà, `GetSize` > 32, LODBias 0)
+- `Arte/Imbarco`: `T_Morin_Imbarco_v2_*` 2048, `T_Morin_Pontile_Legno_v2_*` 2048, `T_Morin_Bigl_Righe_*` 1024, `T_Morin_Bigl_Schermo_*` 1024 × 512,
+  `T_Morin_Bigl_Rete_*` 512 (D con alfa: Compress Without Alpha **off**).
+- `Arte/Marina`: `T_Morin_Marina_Ingresso_*` 2048, `_Doghe_*` 1024, `_LamieraBlu_*` 1024, `T_Banchina_Bitta_Ruggine_*` 512 × 1024.
+- `Arte/Dettagli`: `T_Molo_Dettagli_*` 2048, `T_Molo_Arbusto_*` 1024, `T_Molo_Arbusto_Card_*` 512 (D con alfa).
+- D sRGB/Default/World (senza alfa salvo rete e card), N Normalmap senza flip, ORM Masks sRGB off. Ogni atlante importato **una sola volta**.
+
+### C. MI (12 nuove; nessun master nuovo)
+| MI | Master | Note |
+|---|---|---|
+| `MI_Morin_Imbarco_v2`, `MI_Morin_Bigl_Righe`, `MI_Morin_Pontile_Legno_v2` | `M_Morin_Master_PBR` | `Macro_Int` 0 |
+| `MI_Morin_Bigl_Schermo` | `M_Morin_Master_PBR_Emissive` | `Emissive` = `T_Morin_Bigl_Schermo_D`, `Emissive_Intensita` 2 |
+| `MI_Morin_Bigl_Rete`, `MI_Molo_Arbusto_Card` | `M_Morin_Master_PBR_Masked` | **masked, two-sided** (alfa nella D) |
+| `MI_Morin_Marina_Ingresso`, `_Doghe`, `_LamieraBlu`, `MI_Banchina_Bitta_Ruggine` | `M_Morin_Master_PBR` | `Macro_Int` 0 |
+| `MI_Molo_Dettagli`, `MI_Molo_Arbusto` | `M_Morin_Master_PBR` | `Macro_Int` 0 |
+
+Slot `M_Morin_Imbarco_Legno` (passerella v2, pontiletti) → MI esistente `Arte/Imbarco/MI_Morin_Imbarco_Legno`.
+
+### D. Posa (singoli duplicati da `Arte_Arredi_Gazebo`, HISM da `Arte_Arredi_Tombini` + `clear_instances`, barche da `Arte_Mirabello_YachtA`; `Rotator(roll, pitch, yaw)`)
+| Attore (Outliner) | Mesh | Posa |
+|---|---|---|
+| `Arte_Imbarco_Pontile_Imbarco_v2`, `_Biglietteria_v2` (`Arte/Imbarco/v2`) | v2 | (7170, −8020,63, 0), yaw 0,1241 |
+| `Arte_Imbarco_Traghetto_v2` (`Arte/Imbarco/v2`) | Traghetto_v2 | (7665, −6450, −100), yaw −88,1785 |
+| `Arte_Marina_Portale`, `Arte_Marina_Ufficio`, `Arte_Marina_Bitta_Ruggine_00` (`Arte/Marina/Ingresso`) | | (15100, −8120, 0) · (15830, −7100, −50) · (14750, −8040, 0) |
+| `Arte_Marina_Pontili_Passerelle_v2` (HISM, `Arte/Marina/Pontili`) | Passerella_v2 | 3: Spina, L_Gamba, NE (yaw 90) |
+| `Arte_Dettagli_Ombrelloni3x3` / `_Fioriere` / `_Sedie` / `_Tavoli` (HISM, `Arte/Dettagli/Dehors`) | | 7 / 16 / 53 / 18 |
+| `Arte_Dettagli_Ombrellone_00`, `_Lavagna_00`, `_Cavalletto_RistoLischeria` (`Dehors`) | | dal CSV |
+| `Arte_Dettagli_Insegna_PescatoriPigri`, `_RetiBucate` (`Insegne`) | | dal CSV |
+| `Arte_Dettagli_Cestini_v2` (HISM, `Arredi`) | Cestino_v2 | 9 (stesse posizioni dei vecchi) |
+| `Arte_Dettagli_PaloCartelli_00`, `Arte_Dettagli_NJPlastica_Blu` / `_Bianca` (HISM 2 + 2) (`Cartelli`) | | dal CSV |
+| `Arte_Dettagli_Sirena_GolfoPoeti` (`Sirena`) | | (1380, −9190, 15), yaw −170 |
+| `Arte_Dettagli_Peschereccio_A_MugugnoII`, `_B_AcciugaFelice`, `Arte_Dettagli_Gozzo_C_NonCeNe` (HISM 1 istanza, Custom / No Collision, `Pescherecci`) | | dal CSV, Z −100 |
+| `Arte_Dettagli_Pontiletto_Nord`, `_Sud` (`Pontiletto`) | | (0,0,0) |
+
+- **Nascosti, non cancellati** (metodo §14: Hidden In Game, componenti Visible falso, No Collision, collisione attore off): `Arte_Imbarco_Battello`,
+  `Arte_Imbarco_Pontile`, `Arte_Imbarco_Biglietteria`, `Arte_Marina_Circolo`, `Arte_Marina_Pontili_Passerelle` (3 passerelle v1),
+  `Arte_Imbarco_Cestini` (9 cestini v1). Per riattivarli: inverso, profilo `FortStaticMesh` Query Only.
+- **Bitta `Bitta_04`** di `Arte_Banchina_Bitte_v2`: (7400, −8058,13) → **(7700, −8057,48, −1,2)** (Y sulla stessa retta delle altre).
+  Dalla mappa dei trace la casetta est arriva a X ≈ 7575: ora la bitta è ~1,2 m oltre.
+- Attori nel livello 349 → **375** (+26).
+
+### E. Verifiche (line trace e capsula r 34 / hh 88 in editor, canale Visibility)
+- **Imbarco.** Camminata a X 7150 (asse del cancello) da Y −8400 a −5260: banchina Z 0 → piastra +2 → pontile +1 → rampa −15/−31 → impalcato −34,
+  **0 blocchi e 0 gradini > 40 cm** fino alla ringhiera di testa. A X 7100 e 7200 la capsula tocca casette e montanti: luce utile ~1,1 m su X 7150.
+- **Traghetto.** Varco di poppa sul lato pontile a **Y −5395..−5295 (~1,0 m)**, libero a Z 60; ciglio del pontile X 7254, coperta del traghetto da
+  X 7304: **fessura 50 cm** sull'acqua e **gradino +39 cm** (−34 → +5). Si sale (come la v1: 54 cm), da provare in sessione. Coperta continua
+  nella mappa dei trace (Z ~+6, campanatura).
+- **Marina.** Passerelle v2 L_Gamba e NE: dal camminamento al pontile (Z 0 → −45) **0 problemi**; Spina percorribile dal ciglio dietro il portale.
+  **Portale: NON si passa con la capsula.** Trace a Z 93 e Z 10 lungo Y liberi solo da X 15050 a 15090 (~0,5 m); l'anta sinistra aperta ha
+  collisione in diagonale da (15010, −8120) a (15045, −8040) e la metà destra (X 15100-15250) ha collisione a Y −8124 a tutte le quote, anche
+  se nel render l'anta destra è aperta. Capsula bloccata su tutte le X da 14960 a 15250. Da correggere in Blender (vedi H).
+- **Corsia X 4,2-9,55 m, Y 62-108 m** (275 trace a Z 15/60/100/150/190): la attraversano **`Arte_Dettagli_Cavalletto_RistoLischeria`**
+  (X 480-530, Y ≈ −10040) e **`Arte_Dettagli_Lavagna_00`** (X 540-600, Y ≈ −9270), posati come da CSV (X 5,1 e 5,7 m): in quei punti restano liberi
+  X 6,1-9,55 m. A Y −6650 `Arte_Molo_PalmaVaso` (ristorante C, §42) a X 750-850. Nessun altro oggetto nuovo.
+- **Corridoio verso il ponte** (595 trace, X −2,3..9,6 m, Y −6200 → +300): solo oggetti già noti (cavalletto del ristorante C sul bordo X −230,
+  ponte, palma in vaso X 750-850 a Y −5818). Nessun oggetto nuovo.
+- **Pontiletti.** Sud a X 688-1044 lungo il molo d'accesso (Y 0 → 77,9 m), Nord a X 864-1123: calpestio Z −35, gradino 35 cm dal molo (Z 0 / +1),
+  fessura col ciglio ≤ 10 cm. Nessuna geometria del ponte sopra o dentro il pontiletto Sud (trace verticali su tutta l'impronta: solo pontiletto,
+  `Blockout_Passeggiata_v5` e acqua; parapetti del ponte a X ≤ 320, 3,7 m più in là): **Sud lasciato visibile**.
+- **Barche senza collisione:** 198 trace verticali (Visibility e Camera) sui 3 pescherecci: **0 colpi**. Distanza dal pontiletto Nord 14-17 cm.
+- **Insegne:** collisione della facciata di `SM_Molo_Edificio_A1A2` 4-7 cm dietro `PescatoriPigri` e 1,4 cm dietro `RetiBucate`; faccia vista 3-4 cm
+  davanti: nessuna superficie complanare; nella cattura dehors nessuno sfarfallio. Da riguardare in gioco (la collisione non è la mesh visibile).
+- Parabordo v1 #3 di `Arte_Imbarco_Parabordi` (X 6800, Z −52) cade dentro l'impronta X del pontile v2 (X 6736-7595) senza toccarne la collisione:
+  controllare a vista (non toccato).
+
+### F. Catture (`docs/qa/`, 1024 px, ombre, `r.Streaming.FullyLoadUsedTextures 1`, doppio render con 8 s di attesa)
+- `uefn_biglietteria_v2.png`: punto T2 (7170, −8400, 250), yaw 90, FOV 90. Casette a righe, portale con schermo emissivo, cancello con l'onda,
+  rete, traghetto e pennone: come il confronto Blender.
+- `uefn_marina_ingresso.png`: punto M2 (15100, −8400, 200), yaw 90, FOV 85. Portale ASSONNAUTICA con le ante aperte, passerella, ufficio a doghe.
+- `uefn_dehors.png` (950, −10500, 250; pitch −4,7; yaw 143,9; FOV 90), `uefn_sirena.png` (1460, −9640, 175; −7,5; 100,1; 58),
+  `uefn_cartelli.png` (1590, −8360, 170; 4,1; 37,1; 42), `uefn_pescherecci.png` (400, −5050, 260; −4,6; 69,8; 62): camere `CAMERE` di
+  `morin_dettagli_radice.py` convertite (UE = 100·(x, −y, z)).
+
+### G. Salvataggio, validazione, log, memoria
+- `save_dirty_packages` 22:07 (mesh e temporanei), 22:09:55 (texture e MI; date su disco 22:09:52-54), 22:11:21 (33 OFPA: 26 attori nuovi,
+  6 nascosti, bitte; date su disco 22:11:20-21), 22:17 (nulla di sporco). **0 pacchetti sporchi.**
+- Validazione `LaSpezia/`: **612/612 validi, 0 errori, 40 avvisi** = 20 di prima + 20 "un solo LOD" sui temporanei nuovi.
+- Log: nessun `no miplevels`, nessun errore `LogMaterial`/shader; un *ensure* del motore (`IsInGameThread`, `AppTime.cpp`) alle 22:09:57 subito
+  dopo un salvataggio, gestito, non legato al contenuto.
+- **Memoria (Spatial Profiler, sorgente "Pubblica", "Budget memoria mappa"):** **13.660.160 byte = 4,34 %** di 314.572.800 (log `peak=13660591`,
+  cook delle 20:55 ora locale con la sessione dell'utente: include il ristorante C v2, **non** questo import). Per tipo: mesh 9.064.448, texture 1.343.488,
+  Blueprint 1.133.568, livello 964.608, materiali 785.408, altro 317.440, audio 52.224. Nessun cook dopo l'import (nessuna sessione avviata):
+  rileggere dopo la prossima sessione.
+
+### H. Temporanei e problemi aperti
+- 52 temporanei `LaSpezia/_Temp/TMPIV2_*`, `TMPMI_*`, `TMPD_*` (nessun referencer): eliminabili con conferma dell'utente.
+- **(blender-artist) Portale della marina non attraversabile**: varco libero ~0,5 m (serve ≥ 0,9 m per la capsula): rivedere gli UCX delle ante
+  (anta sinistra in diagonale; collisione della metà destra in posizione chiusa) o aprire le ante a 90°. Le altre due passerelle portano comunque ai pontili.
+- **(blender-artist / utente)** Lavagna e cavalletto della pescheria dentro la corsia (X 5,1 e 5,7 m): spostarli a X ≤ 4,2 m nel CSV o confermarli.
+- **(qa-tester)** In sessione: salita sul traghetto (fessura 50 cm + gradino 39 cm), cancello della biglietteria, pontiletti (gradino 35 cm),
+  insegne a distanza (z-fighting), barche senza collisione.

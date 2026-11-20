@@ -368,7 +368,7 @@ mai reimport/sostituzioni: aprono finestre modali che bloccano l'editor e ruotan
      (al posto di `SM_Morin_Marina_Circolo`), portale blu con cancello a due ante, ringhiera blu della passerella, bitta a colonna
      arrugginita; nomi "ASSONNAUTICA" e "Porto Turistico Vento Contrario".
    - [ ] (blender-artist) Texture [SV] dalle porzioni del §10, annotate in `docs/CREDITS.md` (ricontrollo dell'utente prima della pubblicazione).
-   - [ ] (uefn-builder) Import e posa dei kit sopra (metodo §12 di `docs/uefn_arte.md`), poi verifica in sessione dell'utente.
+   - [x] (uefn-builder, 2026-11-20 ~22:20) Import e posa dei kit sopra (`docs/uefn_arte.md` §43); resta la verifica in sessione dell'utente.
 1. [~] Fondale: tinta MI fatta (facciate ok, colline poco cambiate: colpa della nebbia, `docs/uefn_fondale.md` §9); colle cittadino v2
    importato in UEFN (`docs/uefn_fondale.md` §10), **da verificare in sessione (utente)**; poi alberi del colle troppo chiari (MI dedicata).
    **TO DO (rimandato dall'utente): task nebbia** su `Luce_OraDelGiorno` — densità 0,002-0,003 o diminuzione 0,03, colore più blu/scuro,
@@ -766,7 +766,14 @@ Ordine per impatto visivo:
       | `SM_Banchina_Bitta_Ruggine` | 336 / 252 / 88 | 0,40 × 0,40 × 0,71 | 1 |
       Texture nuove: `blender/textures/imbarco_v2/` (atlante 2048, righe 1024, legno 2048, rete 512 con alfa, schermo 1024×512) e
       `blender/textures/marina_ingresso/` (atlante 2048, doghe 1024, lamiera blu 1024, ruggine 512×1024); fonti in `docs/CREDITS.md` ([SV]).
-      - [ ] (uefn-builder) Import in `LaSpezia/Arte/Imbarco` e `LaSpezia/Arte/Marina` (LOD0 con UCX, LOD1/2 come LOD), posa da
+      - [x] (uefn-builder, 2026-11-20 ~22:00-22:20, `docs/uefn_arte.md` §43) **Fatto**: 7 mesh (tri e UCX = tabella), 24 texture, 9 MI
+            (rete masked two-sided, schermo su `M_Morin_Master_PBR_Emissive` intensità 2), posa da CSV; nascosti battello/pontile/biglietteria v1,
+            circolo e 3 passerelle v1; `Bitta_04` → X 7700. Cancello → pontile → testa percorribile (asse X 7150, luce ~1,1 m); varco di poppa
+            del traghetto ~1 m con fessura 50 cm e gradino 39 cm. Passerelle L_Gamba e NE ok. **Problema: il portale della marina non si
+            attraversa** (varco libero ~0,5 m per gli UCX delle ante) → blender-artist. Catture `docs/qa/uefn_biglietteria_v2.png`, `uefn_marina_ingresso.png`.
+      - [ ] (blender-artist) UCX delle ante di `SM_Morin_Marina_Portale`: varco ≥ 0,9 m (anta sinistra in diagonale, metà destra con collisione
+            in posizione chiusa a Y locale ≈ −4), poi re-import (uefn-builder).
+      - [x] ~~(uefn-builder) Import in `LaSpezia/Arte/Imbarco` e `LaSpezia/Arte/Marina` (LOD0 con UCX, LOD1/2 come LOD), posa da~~
             `exports/imbarco/imbarco_posizioni_v2.csv` (3 righe) e `exports/marina/marina_ingresso_v1.csv` (6 righe). Materiali:
             `M_Morin_Bigl_Rete` **masked a doppia faccia** (alfa nella D); `M_Morin_Bigl_Schermo`: D collegata anche all'**emissive** (~2);
             `M_Morin_Imbarco_Legno` delle passerelle v2 = MI esistente `MI_Morin_Imbarco_Legno`.
@@ -809,7 +816,16 @@ Ordine per impatto visivo:
       | `SM_Molo_Pontiletto_Sud` | 564 / 372 / 152 | 3,56 × 78,0 × 2,09 (Y −77,8 → 0) | 1 |
       Texture `blender/textures/dettagli/`: atlante `T_Molo_Dettagli` 2048 (pannelli vettoriali + porzioni [SV]), `T_Molo_Arbusto` 1024 (opaca,
       [SV] da R2), `T_Molo_Arbusto_Card` 512 con alfa; legno del pontiletto = `M_Morin_Imbarco_Legno` esistente.
-      - [ ] (uefn-builder) Import in `LaSpezia/Arte/Dettagli` (LOD0 con UCX, LOD1/2 come LOD, metodo §12 di `docs/uefn_arte.md`); posa da
+      - [x] (uefn-builder, 2026-11-20 ~22:00-22:20, `docs/uefn_arte.md` §43) **Fatto**: 19 mesh in `Arte/Dettagli` (tri e UCX = tabella),
+            9 texture, 3 MI (`MI_Molo_Arbusto_Card` masked two-sided); 119 righe posate (HISM: 53 sedie, 18 tavoli, 16 fioriere, 7 ombrelloni 3x3,
+            9 cestini v2, 2+2 new jersey; pescherecci Custom/No Collision, 0 colpi su 198 trace); `Arte_Imbarco_Cestini` (9 v1) nascosto.
+            Pontiletto Sud lontano 3,7 m dal ponte, nessuna intersezione: **lasciato visibile**. Insegne 1,4-7 cm davanti alla collisione della
+            facciata, nessuno sfarfallio in cattura. **Corsia**: lavagna (X 5,4-6,0) e cavalletto pescheria (X 4,8-5,3) posati dal CSV stanno
+            dentro X 4,2-9,55 → da spostare nel CSV o confermare. Corridoio verso il ponte: nessun oggetto nuovo. Catture `docs/qa/uefn_dehors.png`,
+            `uefn_sirena.png`, `uefn_cartelli.png`, `uefn_pescherecci.png`.
+      - [ ] (blender-artist / utente) Lavagna e cavalletto della pescheria fuori dalla corsia (X ≤ 4,2 m) o conferma che restano lì.
+      - [ ] (qa-tester) In sessione: salita sul traghetto v2, cancello biglietteria, pontiletti (gradino 35 cm), insegne, barche senza collisione.
+      - [x] ~~(uefn-builder) Import in `LaSpezia/Arte/Dettagli` (LOD0 con UCX, LOD1/2 come LOD, metodo §12 di `docs/uefn_arte.md`); posa da~~
             `dettagli_posizioni_v1.csv` (asset ripetuti come HISM: 53 sedie, 18 tavoli, 16 fioriere, 8 ombrelloni, 9 cestini). Materiali:
             `M_Molo_Arbusto_Card` **masked a doppia faccia** (alfa nella D); `M_Morin_Imbarco_Legno` = MI esistente `MI_Morin_Imbarco_Legno`.
             Pescherecci **senza collisione** (come le barche della marina). Pontiletto: due pezzi in coordinate mondo, posa (0,0,0); se il pezzo
@@ -971,6 +987,9 @@ Ordine per impatto visivo:
         Nuovo limite di progetto: 300 MiB statici di pubblicazione, allarme 85 % ("Budget memoria mappa", sorgente "Pubblica").
   - [x] (uefn-builder, 2026-11-20) LODBias 0 su tutte le 138 texture (49 portate da 1), una alla volta con GetSize > 32; 0 "no miplevels",
         0 pacchetti sporchi, validazione 538/538 (37 avvisi mesh già noti). Render `docs/qa/uefn_lodbias0_parcheggio.png`. §31.
+  - [x] (uefn-builder, 2026-11-20 ~22:20) Riletto "Budget memoria mappa" (sorgente "Pubblica", cook delle 20:55 con la sessione dell'utente):
+        **13.660.160 byte = 4,34 %** di 314.572.800 (mesh 9,06 MB, texture 1,34 MB, Blueprint 1,13 MB). Comprende il ristorante C v2,
+        non imbarco v2 / marina ingresso / dettagli (§43): rileggere dopo la prossima sessione.
 - [ ] (qa-tester) Profilazione con unreal-insights; elenco dei 5 asset più pesanti
 - [ ] (blender-artist) Riduzione degli asset segnalati
 
