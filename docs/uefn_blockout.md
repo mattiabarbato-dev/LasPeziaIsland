@@ -50,6 +50,8 @@ colpisce il tronco a 23 uu dal centro, cioè la collisione UCX del tronco (Ø 50
 | Player 1 | (24000, −8250, 0) | 30 | (23998, −8255, 116) | **180** (verso il ponte, −X) |
 | Player 2 | (24000, −8650, 0) | 30 | (23998, −8655, 116) | **180** |
 
+- **Superato il 2026-11-21:** pedane spostate a (1700, −9400/−9700/−10000, 15) più una terza nuova, sguardo verso Sirena e ponte: vedi `docs/uefn_arte.md` §48.E.
+  La pedana nuova da `PlaceDevice` ha il PlayerStart a **+160°** (non +150): leggere sempre la rotazione relativa del `ChildActorComponent`.
 - In LUF: Player 1 Left 8250 · Up 0 · Forward 24000.
 - Il PlayerStart e la freccia ForwardDirection del pad sono ruotati di +150° rispetto al pad. Per avere i giocatori rivolti a −X
   il pad va quindi a **yaw 30**, non 180.

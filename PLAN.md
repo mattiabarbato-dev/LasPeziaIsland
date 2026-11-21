@@ -1104,6 +1104,21 @@ Ordine per impatto visivo:
       Rimossi solo attori creati dallo stesso task (galleria di 17 forzieri del playset). 0 sporchi, validazione ok, attori 389.
 - [ ] (utente) Provare in sessione la zona di combattimento (§47.G): guardie che vedono, inseguono e sparano? navmesh sul molo? rinascita con le armi?
       Poi decidere se tenere, regolare o spegnere/cancellare `Test_Combattimento` (§47.E) e riportare `DropAllItemsOverride` a ForceDrop.
+- [x] (uefn-builder, 2026-11-21 ~01:40) **Sandbox con combattimento facoltativo** (`docs/uefn_arte.md` §48, richiesta dell'utente). Attori 389 → 423.
+      - **NPC di popolamento** (`NPC/Popolamento`): 8 Personaggi senza collisione, idle animati con inizio casuale: 3 seduti al dehors (OPAL, BIRDIE,
+        MISS VOLÉE), 1 al bancone del Gabbiano Ingordo (MAESTRO DI SUSHI), 2 appoggiati al parapetto in cima al ponte, 2 a chiacchierare davanti alla
+        biglietteria. `NPC_Prova_00` era già visibile in gioco: spostato nella stessa cartella.
+      - **Casse** (`Combattimento/Casse`): 8 forzieri + 3 casse di munizioni (palme, dietro il chiosco, radice del molo, punta del pontile largo della
+        marina, Mirabello, piazzale di fine passeggiata, testata del Molo Italia, terrazza dei Piccioni).
+      - **Guardie** (`Combattimento/Nemici`): 4 generatori × 3 = 12 guardie (Blocco 1, Blocco 2, Mirabello, Molo Italia = `Test_Nemici_Guardie` spostato),
+        pattuglia 200 m e vista 250 m (massimi), percorso di pattuglia di 10 nodi dalla X 60 m al primo braccio del Molo Italia per i Blocchi 1-2.
+        Senza Verse non ti "cacciano" se non ti hanno visto: per questo serve un `npc_behavior` (verse-dev).
+      - **Navigazione:** `CanEverAffectNavigation` acceso su 19 HISM del suolo (elenco reversibile in §48.D); ostacoli lasciati spenti.
+      - **Spawn:** 3 pedane sul piazzale in cubetti fra la Sirena e la prima coppia di palme (X 17 m), sguardo verso Sirena e antenne
+        (`docs/qa/spawn_vista.png`); `Test_Teletrasporto_Spawn` spostato accanto. 0 sporchi, validazione ok.
+- [ ] (utente) Provare in sessione (§48.G): vista allo spawn, NPC animati e seduti bene, casse, guardie che camminano su camminamento e pontili,
+      inseguono, non si incastrano e non arrivano allo spawn troppo presto.
+- [ ] (verse-dev, se l'utente lo vuole) `npc_behavior` "cacciatore" per le guardie (inseguimento del giocatore su tutta la mappa).
 
 ## Fase 4 — Ottimizzazione
 - [ ] (blender-artist) Collisioni UCX_ su tutti gli asset; verifica budget triangoli
@@ -1351,3 +1366,4 @@ Ordine per impatto visivo:
 | 2026-11-20 | Acqua scenografica oltre il faro: 3 device Acqua V2 fuori dalle barriere (fino a X 971 m, Y 557 m); `_B3_Est` da Y 60 m, non da −1,3 m | Niente vuoto dalla testata, perimetro giocabile invariato; più a sud l'acqua allagava le basi dei blocchi del fondale del porto (Z −1,3..−2,9 m); dettagli in `docs/uefn_arte.md` §34 |
 | 2026-11-20 | Layout palme v5: passo 8 m, prima coppia a X 20,4, 136 palme; testa della fascia senza palme; gazebo a X 40,4 (OSM) | Tre fonti concordi (OSM, conteggio dell'utente, panchine OSM); decisione dell'utente sul gazebo; dettagli in `docs/decisioni.md` |
 | 2026-11-21 | Prova di combattimento (TEST) sul Molo Italia: forziere + generatori di armi, Generatore di guardie senza Verse, teletrasporti spawn ↔ molo, `DropAllItemsOverride` ForceKeep | Richiesta dell'utente per capire il combattimento; reversibile (cartella `Test_Combattimento`), la modalità resta rimandata; dettagli in `docs/uefn_arte.md` §47 |
+| 2026-11-21 | L'isola diventa una **sandbox di esplorazione con combattimento facoltativo**: NPC di popolamento, casse sparse, 12 guardie distribuite con percorso di pattuglia, spawn all'inizio della passeggiata (X 17 m) verso Sirena e ponte | Richiesta dell'utente dopo la prova del §47; la corsa a tempo (CLAUDE.md §1) resta rimandata; CLAUDE.md non modificato; dettagli in `docs/uefn_arte.md` §48 |

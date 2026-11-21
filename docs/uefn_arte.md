@@ -3282,3 +3282,134 @@ Per tornare indietro: `SetClassicDeviceOption(IslandSettings_0, "DropAllItemsOve
    Si muovono (navmesh sul suolo del molo)? Dopo un'eliminazione ne compare un'altra entro ~5 s?
 4. Morire apposta: si rinasce allo spawn in ~1 s **con le armi**; il teletrasporto riporta sul molo.
 5. Segnalare: guardie troppo forti/deboli (precisione, salute), se finiscono in acqua, cali di prestazioni.
+
+## 48. Sandbox: NPC di popolamento, casse sparse, banda di guardie, spawn all'inizio (2026-11-21, ~01:00-01:40 ora locale)
+
+Richiesta dell'utente (dopo la prova del §47): "gli npc vanno benissimo, mettine qualcuno giusto per popolare. Metti qualche cassa qua e là e rendi
+la banda di npc cattivi capaci di muoversi liberamente per la mappa per eliminarti. Importante: lo spawn voglio che sia all'inizio della passeggiata
+con la vista iniziale verso la statua e il ponte". L'isola diventa una **sandbox di esplorazione con combattimento facoltativo** (`docs/decisioni.md`).
+Niente sessioni di gioco, niente Blender, niente Verse, nessun commit. Nessun attore preesistente cancellato. Attori nel livello 389 → **423**.
+Coordinate UE (X avanti, Y destra); progetto = (X/100; −Y/100).
+
+**`PlaceDevice` e lo yaw:** Personaggio **+65°** sistematico (chiesti 0/2/173/−172/−90/180 → arrivati 65/67/−122/−107/−25/−115), generatore di
+guardie −90 (chiesto 0), pedana di generazione −63,1 (chiesto 1,9). Tutti corretti con `set_actor_rotation` in transazione e riletti.
+
+### A. NPC di popolamento (`NPC/Popolamento`, `PID_Device_Character`)
+Tutti: idle animato SÌ, `RandomIdleStart` SÌ, `EnableCharacterCollision` NO, `GenerateOverlapEvents` NO, `VisibleDuringGame` SÌ. Nessuno sulla corsia
+libera (i due della biglietteria stanno a ~0,6 m dal ciglio, sul bordo; senza collisione).
+
+| Etichetta | Posizione UE | Yaw | Idle animato | Costume |
+|---|---|---|---|---|
+| `NPC_Pop_Seduto_01` | (75, −10489, 1), sedia 0 del dehors, tavolo (130, −10490) | 2 | Seated_A | OPAL |
+| `NPC_Pop_Seduto_02` | (201, −10181, 1), sedia 11, tavolo (150, −10180) | 173 | SeatedCounterDrinking_A | BIRDIE |
+| `NPC_Pop_Seduto_03` | (215, −8668, 1), sedia 23, tavolo (160, −8670) | −172 | Seated_B | MISS VOLÉE |
+| `NPC_Pop_Chiosco` | (55206, −10520, 15), davanti al bancone lato mare del chiosco "Il Gabbiano Ingordo" | −90 | Idle_StandingCounter_A | MAESTRO DI SUSHI |
+| `NPC_Pop_Ponte_01` | (58, 6950, 427), sommità del ponte, schiena al parapetto est | 180 | StandingLeaning_A | SPECIALISTA DELL'ABBRONZATURA |
+| `NPC_Pop_Ponte_02` | (58, 7110, 427), idem | 180 | StandingLeaning_B | SOCCORSO IN CORSA |
+| `NPC_Pop_Bigl_A` | (6800, −8110, 0), davanti alla casetta sinistra della biglietteria (il varco del portale X 7050-7200 resta libero) | 0 | Standing_A | REYETTA |
+| `NPC_Pop_Bigl_B` | (6940, −8110, 0), di fronte al precedente | 180 | Standing_B | CAMPIONE CADDIE |
+
+- La sedia guarda il tavolo lungo il suo +X: lo yaw del personaggio è quello della sedia (istanze HISM di `Arte_Dettagli_Sedie`).
+- `NPC_Prova_00` (MATCH POINT, Standing_A, (300, −9700, 1)): `VisibleDuringGame` era già **SÌ** (il §46 lo riportava NO); spostato in `NPC/Popolamento`.
+  `NPC_Prova_Generatore_00` resta in `NPC`, spento.
+- Catture: `docs/qa/npc_popolamento_dehors.png`, `_seduta03`, `_chiosco`, `_ponte`, `_biglietteria`. In editor si vede la posa iniziale dell'idle
+  (seduti, appoggiati a braccia conserte, mani sul bancone); il movimento si vede solo in gioco.
+
+### B. Casse (`Combattimento/Casse`)
+Metodo del §47: playset `PID_019_PG_Props_S_Loot` piazzato una volta a (56300, −6000); tenuti il forziere `Tiered_Chest_Athena_C` e la cassa di munizioni
+`Tiered_Ammo_Athena_C` (staccati dalla radice), **rimossi gli altri 15 contenitori, la radice del playset e il `FortJumpDownLink` dell'alveare**
+(creati da questo task, mai salvati). Le altre casse sono duplicati (`duplicate_actor`). Quota da line trace.
+
+| Etichetta | Posizione UE (Z) | Suolo | Note |
+|---|---|---|---|
+| `Forziere_01_Palme` | (4840, −9650, 15) | `Arte_Pav_FasciaPalme_8m` | fra i filari, varco X 48,4, ~31 m dallo spawn |
+| `Munizioni_01_Palme` | (5040, −9650, 15) | idem | |
+| `Forziere_02_DietroChiosco` | (55206, −11420, 15) | `Arte_B2_Pav_Piazzetta_Chiosco_B2` | lato viale del Gabbiano Ingordo |
+| `Forziere_03_RadiceMolo` | (−900, −5200, 1) | `Arte_Molo_Pav_Masselli_02` | sul prato lungo il muro, oltre il ristorante C |
+| `Forziere_04_PontileMarina` | (12690, −4700, 0) | `Arte_Marina_PontileLargo` | in punta al pontile largo |
+| `Forziere_05_Mirabello` | (−1800, 19000, 0) | `Arte_Mirabello_Suolo` | angolo del parcheggio, vicino alle auto |
+| `Munizioni_02_Mirabello` | (−1800, 19250, 0) | idem | |
+| `Forziere_06_PiazzaleFine` | (56300, −9600, 0) | `Arte_B2_Pav_Piazzale_Fine_B2` | |
+| `Munizioni_03_PiazzaleFine` | (56300, −9400, 0) | idem | |
+| `Forziere_07_TestataMoloItalia` | (67300, 31600, 0) | `Arte_B3_Suolo` | vicino al faro |
+| `Forziere_08_TerrazzoPiccioni` | (59100, 5450, 300) | `Arte_B3_RistorantePiccioni` | angolo della terrazza coperta (tetto a Z 560) |
+
+Ogni punto controllato con 9 line trace a ±70 uu: piano, nessun ostacolo. Catture `docs/qa/casse_*.png` (8).
+Bottino casuale dalle tabelle di Fortnite (il forziere non permette di scegliere). Il `Test_Forziere` del §47 resta in `Test_Combattimento`.
+
+### C. Banda di guardie (`Combattimento/Nemici`)
+4 generatori `PID_Device_GuardSpawner_V2`, **3 guardie ciascuno = 12 attive al massimo**, rigenerazione infinita ogni 10 s, tutti nella squadra
+"Animali selvatici e creature" (ostile ai giocatori; `TeamAwarenessPropagation` SÌ: l'allerta si propaga), tipo OMBRE, salute 100, scudo 0,
+precisione MODERATA, barra della salute e indicatore di allerta, lasciano l'inventario, generazione non attraverso i muri, raggio 6 m
+(`UseDeviceSpawnLocation` NO). **Pattuglia 200 m** (massimo), **raggio visivo 250 m** (massimo) "solo se ignara" (in allerta non c'è limite).
+
+| Etichetta | Posizione UE | Pattuglia |
+|---|---|---|
+| `Nemici_Guardie_Blocco1` | (19000, −8450, 0) | **su percorso**: `SpawnOnPatrolPathGroup` 1, cambio percorso "alla generazione", scelta casuale |
+| `Nemici_Guardie_Blocco2` | (42000, −8450, 0) | idem |
+| `Nemici_Guardie_Mirabello` | (300, 19200, 0), parcheggio di Mirabello | entro 200 m dal generatore (arriva al ponte e al molo d'accesso) |
+| `Test_Nemici_Guardie` (§47, spostato qui, etichetta invariata) | (56450, 8000, 0), primo braccio del Molo Italia | entro 200 m; contatore 4 → 3, timer 5 → 10 s, pattuglia 8 → 200 m, vista 40 → 250 m |
+
+**Percorso di pattuglia IA** (`PID_CP_Devices_AIPatrolPath`, `Combattimento/Nemici/Percorso`): 10 nodi `Nemici_Percorso_Nodo_00..09`,
+`patrolPathIndex` 1, `patrolPathPointIndex` 0-9, gruppo 1, modalità **avanti e indietro**: camminamento a Y −8500 per X 60, 130, 200, 270, 340, 410,
+480, 545 m, poi radice del Molo Italia (56450, −4000) e primo braccio (56450, 3000). Lungo ~530 m: le guardie dei Blocchi 1-2 nascono sui nodi e
+percorrono la passeggiata fino al molo. I nodi si collegano con `patrolPathIndex`/`patrolPathPointIndex` (proprietà, non opzioni classiche:
+impostate con `SetProperties`). Opzioni classiche del nodo: gruppo, gruppo successivo, ordine, abilitato all'avvio, modalità (avanti e indietro /
+circuito / fermata finale), mostra percorso. In editor ogni operazione sul nodo registra l'avviso innocuo `BP_AIPatrolPathComponent.ShouldRenderPath`.
+Opzioni lette e non usate: assoldamento, ordini, `Invulnerable`. Il generatore **non ha** un'opzione "insegui ovunque" né un'area di gioco:
+l'inseguimento dopo l'allerta è il comportamento interno della guardia.
+
+**Cosa fanno senza Verse:** pattugliano (Blocchi 1-2 lungo tutta la passeggiata, gli altri entro 200 m dal generatore), ti vedono fino a 250 m,
+avvisano le compagne, ti inseguono e sparano finché ti percepiscono; quando ti perdono tornano a pattugliare. **Non ti cercano sulla mappa se non ti
+hanno visto**: un vero "cacciatore" che conosce sempre la tua posizione richiede un `npc_behavior` in Verse (verse-dev) con
+`npc_actions_component.NavigateTo` / `guard_actions_component` verso il giocatore. La base c'è (generatori, percorso, squadra).
+
+**Mappa:** `docs/qa/nemici_distribuzione_alto.png` (vista dall'alto, X verso l'alto, Y verso destra; marcatori temporanei rimossi prima del
+salvataggio: rosso generatori, arancio nodi del percorso, giallo casse, blu NPC, verde spawn e teletrasporto).
+
+### D. Navigazione: `CanEverAffectNavigation` = true su 19 HISM del suolo calpestabile
+Un componente `HierarchicalInstancedStaticMesh` per attore, con `modify()` su attore e componente, in transazione:
+`Arte_Pav_Camminamento`, `Arte_Pav_FasciaPalme_8m`, `Arte_Pav_Cordolo`, `Arte_Pav_Aiuole`, `Arte_Banchina_Moduli_v2`, `Arte_Banchina_Nicchie`,
+`Arte_B2_Pav_Camminamento_4m_B2`, `Arte_B2_Pav_FasciaPalme_8m`, `Arte_B2_Pav_Cordolo_9m`, `Arte_B2_Pav_Aiuola`, `Arte_B2_Banchina_Mod4m_v2`,
+`Arte_B2_Banchina_Mod4m_Nicchia`, `Arte_Marina_Pontili_Pontile12`, `Arte_Marina_Pontili_PontileCol`, `Arte_Marina_Pontili_Raccordo`,
+`Arte_Marina_Pontili_Passerelle_v2`, `Arte_Mirabello_Banchina_Moduli`, `Arte_B3_banchina_Mod4m_v2`, `Arte_B3_dita_Dito`.
+- Esclusi: scalette (scendono in acqua), palme, arredi, auto, barche, scogliera, `*Sostituiti` (nascosti), strade del viale e pontili di Mirabello
+  (senza collisione). Gli attori singoli (`FortStaticMeshComponent`: masselli, piazzali, suoli di Mirabello e Molo Italia, ponte) avevano già il flag.
+- **Rischio residuo:** gli ostacoli (palme, panchine, bitte, tavoli, auto) restano con il flag spento e non ritagliano la navmesh: una guardia potrebbe
+  puntare contro un tronco o una panchina. Se in sessione si incastrano, accendere il flag anche su palme, `Arte_Pav_Panchine`, bitte, auto.
+- **Per tornare indietro:** stesso elenco, `can_ever_affect_navigation = False`.
+- Nessun errore né avviso di navigazione nel log; file `__ExternalActors__` dei 19 attori riscritti al salvataggio (01:32:10).
+
+### E. Spawn all'inizio della passeggiata (`Device/Spawn`)
+
+| Pad | Posizione UE | Yaw pad | PlayerStart (world) | Sguardo |
+|---|---|---|---|---|
+| `Player 1 Spawn Pad` | (1700, −9400, 15) | −28,5 | (1695, −9401, 131) | **121,5** |
+| `Player 2 Spawn Pad` | (1700, −9700, 15) | −40,9 | (1695, −9700, 131) | **109,1** |
+| `Player 3 Spawn Pad` (nuovo) | (1700, −10000, 15) | −56,2 | (1695, −9998, 131) | **103,8** |
+
+- Sul piazzale in cubetti della testa (X 17 m, Y 94-100 m di progetto), **fra la Sirena e la prima coppia di palme**, nella fascia libera fra i
+  filari; ogni pad controllato con line trace a ±130 uu: piano a Z 15, nessun ostacolo. Le vecchie posizioni (24000, −8250/−8650) sono libere.
+- Sguardo = bisettrice fra la direzione della Sirena (13,8; 91,9) e quella della prima antenna (−2,2; −80,4). Da X 25-30 m (posizione suggerita)
+  il tronco della palma (20,4; 92,6) cadeva in mezzo alla vista (catture di prova); più avanti Sirena e ponte sono a ~90° fra loro e non entrano
+  insieme nell'inquadratura. Da X 17 sono a 36-50°.
+- **PlayerStart relativo al pad:** +150° sulle due pedane del template, **+160°** su quella nuova da `PlaceDevice` (la freccia `ForwardDirection` è
+  a +160 su tutte). Lo yaw di ogni pad è calcolato dal valore letto su quel pad.
+- Catture: `docs/qa/spawn_vista.png` (dal PlayerStart 1, occhi a Z 186, yaw 121,5, FOV 80) e `spawn_vista_terzapersona.png` (3 m dietro):
+  Sirena a destra del centro, le due antenne bianche a sinistra (sottili, a ~176 m), camminamento e ristoranti della radice sullo sfondo.
+- `Test_Teletrasporto_Spawn` (§47) spostato da (24040, −9610) a **(2440, −9650, 15)**, yaw 125: nel varco fra la 1ª e la 2ª coppia di palme,
+  ~7 m dietro le pedane. Il ritorno dal molo arriva qui guardando verso Sirena e ponte.
+
+### F. Salvataggio e validazione
+- Due `save_dirty_packages` (dopo gli NPC e alla fine, 49 pacchetti): **0 pacchetti sporchi**. I file su disco dei 64 attori nuovi o toccati
+  sono stati riscritti in questa sessione (l'unico più vecchio è `NPC_Prova_Generatore_00`, non toccato).
+- `ValidateAssets` sulla mappa: 1/1 valido, 0 errori, 0 avvisi. `EditorValidatorSubsystem` (MANUAL) su 45 attori nuovi o modificati: tutti VALID.
+- Log: avvisi innocui `TimelinePostUpdateFunc` alla duplicazione di forziere e munizioni e `ShouldRenderPath` dei nodi; nessun errore dal task.
+
+### G. Da provare in sessione (utente)
+1. Spawn: si nasce dietro la Sirena guardando la statua e il ponte (3 pedane)?
+2. NPC: si animano? I seduti stanno sulla sedia (non sprofondati né sospesi)? Gli appoggiati toccano il parapetto del ponte?
+3. Casse: si aprono tutte (8 forzieri + 3 munizioni)? La terrazza dei Piccioni si raggiunge?
+4. Guardie: camminano su camminamento e pontili (navmesh)? Quelle dei Blocchi 1-2 percorrono il percorso dalla X 60 m al molo? Ti vedono da
+   lontano e ti inseguono? Si incastrano su palme o panchine? Arrivano allo spawn troppo presto (allora: vista 250 → 60 m o percorso da X 100)?
+5. Per spegnere il combattimento senza cancellare: i 4 generatori `EnabledAtGameStart` DISATTIVATO.
