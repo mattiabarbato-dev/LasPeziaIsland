@@ -3384,19 +3384,21 @@ Un componente `HierarchicalInstancedStaticMesh` per attore, con `modify()` su at
 
 | Pad | Posizione UE | Yaw pad | PlayerStart (world) | Sguardo |
 |---|---|---|---|---|
-| `Player 1 Spawn Pad` | (1700, −9400, 15) | −28,5 | (1695, −9401, 131) | **121,5** |
-| `Player 2 Spawn Pad` | (1700, −9700, 15) | −40,9 | (1695, −9700, 131) | **109,1** |
-| `Player 3 Spawn Pad` (nuovo) | (1700, −10000, 15) | −56,2 | (1695, −9998, 131) | **103,8** |
+| `Player 1 Spawn Pad` | (1700, −9400, 15) | −43,7 | (1695, −9399, 131) | **106,3** |
+| `Player 2 Spawn Pad` | (1700, −9700, 15) | −43,8 | (1695, −9699, 131) | **106,2** |
+| `Player 3 Spawn Pad` (nuovo) | (1700, −10000, 15) | −64,0 | (1695, −9998, 131) | **96,0** |
 
 - Sul piazzale in cubetti della testa (X 17 m, Y 94-100 m di progetto), **fra la Sirena e la prima coppia di palme**, nella fascia libera fra i
   filari; ogni pad controllato con line trace a ±130 uu: piano a Z 15, nessun ostacolo. Le vecchie posizioni (24000, −8250/−8650) sono libere.
-- Sguardo = bisettrice fra la direzione della Sirena (13,8; 91,9) e quella della prima antenna (−2,2; −80,4). Da X 25-30 m (posizione suggerita)
+- **Sguardo v2** (correzione dell'orchestratore: la v1 a 104-122 puntava sui ristoranti con le antenne fuori quadro): con FOV 90 le antenne stanno
+  a −10° dal centro (pad 1-2) e a 0° (pad 3), cioè nel terzo centrale; la Sirena a +40° (pad 1) e a +16° (pad 2-3), cioè nel terzo destro.
+  Sul pad 3 un tronco di palma entra a −31°, ma non copre né le antenne né la Sirena. Da X 25-30 m (posizione suggerita)
   il tronco della palma (20,4; 92,6) cadeva in mezzo alla vista (catture di prova); più avanti Sirena e ponte sono a ~90° fra loro e non entrano
   insieme nell'inquadratura. Da X 17 sono a 36-50°.
 - **PlayerStart relativo al pad:** +150° sulle due pedane del template, **+160°** su quella nuova da `PlaceDevice` (la freccia `ForwardDirection` è
   a +160 su tutte). Lo yaw di ogni pad è calcolato dal valore letto su quel pad.
-- Catture: `docs/qa/spawn_vista.png` (dal PlayerStart 1, occhi a Z 186, yaw 121,5, FOV 80) e `spawn_vista_terzapersona.png` (3 m dietro):
-  Sirena a destra del centro, le due antenne bianche a sinistra (sottili, a ~176 m), camminamento e ristoranti della radice sullo sfondo.
+- Catture: `docs/qa/spawn_vista.png` (dal PlayerStart 1, occhi a Z 186, yaw 106,3, FOV 90) e `spawn_vista_terzapersona.png` (3 m dietro):
+  Sirena nel terzo destro, le due antenne bianche poco a sinistra del centro (sottili, a ~176 m, sopra la testata del ponte), camminamento e ristoranti della radice sullo sfondo.
 - `Test_Teletrasporto_Spawn` (§47) spostato da (24040, −9610) a **(2440, −9650, 15)**, yaw 125: nel varco fra la 1ª e la 2ª coppia di palme,
   ~7 m dietro le pedane. Il ritorno dal molo arriva qui guardando verso Sirena e ponte.
 
